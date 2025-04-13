@@ -26,4 +26,12 @@ public class Flight implements CommandExecutor {
         }
         return true;
     }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        if (!p.hasPermission("drizzypracticecore.fly")) {
+            p.setAllowFlight(true);
+        }
+    }
 }
