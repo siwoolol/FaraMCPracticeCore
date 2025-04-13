@@ -1,0 +1,4 @@
+name: drizzyPracticeCore
+version: '0.0.1-R0.1'
+main: lol.siwoo.drizzyPracticeCore.DrizzyPracticeCore
+api-version: '1.21'
