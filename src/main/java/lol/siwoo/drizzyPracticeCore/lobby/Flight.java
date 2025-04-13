@@ -1,5 +1,7 @@
 package lol.siwoo.drizzyPracticeCore.lobby;
 
+import ga.strikepractice.StrikePractice;
+import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import org.bukkit.ChatColor;
@@ -11,11 +13,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class Flight implements CommandExecutor {
+
+    StrikePracticeAPI api = StrikePractice.getAPI();
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         Player p = (Player) sender;
         if (!p.hasPermission("drizzypracticecore.fly")) {
-            p.sendMessage("You don't have permissions to execute this command.");
+            p.sendMessage(ChatColor.RED + "You don't have permissions to execute this command.");
+            return true;
+        }
+
+        if (api.isInFight(p)) {
+            p.sendMessage(ChatColor.RED + "You can't fly during a fight.");
             return true;
         }
 
