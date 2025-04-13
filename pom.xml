@@ -75,7 +75,9 @@
         </dependency>
         <dependency>
             <groupId>ga.strikepractice</groupId>
-            <artifactId>strikepractice-api</artifactId>
+            <artifactId>StrikePractice</artifactId>
+            <version>3.9.2</version>
+            <scope>system</scope>
             <systemPath>${project.basedir}/libs/strikepractice-api.jar</systemPath>
         </dependency>
         <dependency>
