@@ -1,4 +1,28 @@
-name: drizzyPracticeCore
-version: '0.0.1-R0.1'
+name: ${project.name}
+version: ${project.version}
+author: ${author}
+description: Drizzy Practice Core Plugin
 main: lol.siwoo.drizzyPracticeCore.DrizzyPracticeCore
-api-version: '1.21'
+load: POSTWORLD
+website: siwoo.lol
+
+api-version: 1.8.8
+
+libraries:
+  - org.openjdk.nashorn:nashorn-core:15.4
+
+softdepend: [ Luckperms, Multiverse-Core ]
+
+permissions:
+  drizzypracticecore.admin:
+    description: "Literally Admin"
+    default: op
+    children:
+      drizzypracticecore.fly: true
+  drizzypracticecore.fly:
+    description: "Allows You To Fly in the Lobby"
+
+commands:
+  fly:
+    description: "Allows You To Fly"
+    usage: /fly
