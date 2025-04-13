@@ -1,17 +1,17 @@
 package lol.siwoo.drizzyPracticeCore;
 
+import lol.siwoo.drizzyPracticeCore.status.WebhookMessage;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class DrizzyPracticeCore extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
-
+        WebhookMessage.webhookMessage("Back On");
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        WebhookMessage.webhookMessage("Down");
     }
 }
