@@ -52,12 +52,16 @@
 
     <repositories>
         <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+            <id>jitpack</id>
+            <url>https://jitpack.io</url>
         </repository>
         <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
     </repositories>
 
@@ -67,6 +71,18 @@
             <artifactId>spigot-api</artifactId>
             <version>1.8.8-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ga.strikepractice</groupId>
+            <artifactId>strikepractice-api</artifactId>
+            <systemPath>${project.basedir}/libs/strikepractice-api.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.eduardomcb</groupId>
+            <artifactId>discord-webhook</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 </project>
