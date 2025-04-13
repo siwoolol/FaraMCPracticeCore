@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<!DOCTYPE xml>
+<project name="DrizzyPracticeCore" default="Build">
+    <!-- Ninja: We read pom.xml file to find the Foundation version to use -->
+    <xmlproperty file="pom.xml" prefix="pom" keeproot="false"/>
+    <property name="project.version" value="${pom.version}"/>
+    <property name="discord-webhook.version" value="1.0.0"/>
+
+    <target name="Build">
+        <jar jarfile="C:\Users\strai\Documents\drizzypractice\plugins\${ant.project.name}-${project.version}.jar"
+             basedir="./target/classes/" includes="**/*">
+
+            <zipgroupfileset
+                    dir="${user.home}/.m2/repository/com/github/eduardomcb/discord-webhook/${discord-webhook.version}/"
+                    includes="**/*discord-webhook-${discord-webhook.version}.jar"/>
+        </jar>
+    </target>
+
+</project>
