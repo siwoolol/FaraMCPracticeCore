@@ -29,3 +29,6 @@ commands:
   forcewin:
     usage: /forcewin [round/match]
     description: "Force Win the Fight/Round (Fight if Unspecified)"
+  hurryuppartyowner:
+    usage: /hurryuppartyowner
+    description: "Hurry up black man ahahahhahah"
