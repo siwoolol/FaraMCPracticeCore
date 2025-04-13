@@ -31,4 +31,7 @@ commands:
     description: "Force Win the Fight/Round (Fight if Unspecified)"
   hurryuppartyowner:
     usage: /hurryuppartyowner
-    description: "Hurry up black man ahahahhahah"
+    description: "Hurry up party owner black man ahahahhahah"
+  suggestgamemodetopartyowner:
+    usage: /suggestgamemodetopartyowner
+    description: "Suggest a Gamemode to Play to the owner of your Party"
