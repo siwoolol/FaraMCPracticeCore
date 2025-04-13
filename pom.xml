@@ -52,12 +52,12 @@
 
     <repositories>
         <repository>
-            <id>jitpack</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io</url>
         </repository>
         <repository>
             <id>spigot-repo</id>
@@ -72,13 +72,17 @@
             <version>1.8.8-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>ga.strikepractice</groupId>
             <artifactId>strikepractice-api</artifactId>
             <systemPath>${project.basedir}/libs/strikepractice-api.jar</systemPath>
         </dependency>
-
+        <dependency>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>5.4</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.github.eduardomcb</groupId>
             <artifactId>discord-webhook</artifactId>
