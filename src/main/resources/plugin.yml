@@ -24,5 +24,8 @@ permissions:
 
 commands:
   fly:
-    description: "Allows You To Fly"
     usage: /fly
+    description: "Allows You To Fly"
+  forcewin:
+    usage: /forcewin [round/match]
+    description: "Force Win the Fight/Round (Fight if Unspecified)"

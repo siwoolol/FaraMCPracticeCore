@@ -1,5 +1,6 @@
 package lol.siwoo.drizzyPracticeCore;
 
+import lol.siwoo.drizzyPracticeCore.admin.ForceWin;
 import lol.siwoo.drizzyPracticeCore.lobby.Flight;
 import lol.siwoo.drizzyPracticeCore.status.WebhookMessage;
 import org.bukkit.event.Listener;
@@ -26,5 +27,6 @@ public final class DrizzyPracticeCore extends JavaPlugin implements Listener {
 
     private void registerCommands() {
         getCommand("fly").setExecutor(new Flight());
+        getCommand("forcewin").setExecutor(new ForceWin());
     }
 }
