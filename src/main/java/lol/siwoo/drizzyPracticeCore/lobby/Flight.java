@@ -1,5 +1,7 @@
 package lol.siwoo.drizzyPracticeCore.lobby;
 
+import ga.strikepractice.events.FightEndEvent;
+import ga.strikepractice.events.FightStartEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -30,6 +32,20 @@ public class Flight implements CommandExecutor {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+        if (!p.hasPermission("drizzypracticecore.fly")) {
+            p.setAllowFlight(true);
+        }
+    }
+
+    @EventHandler
+    public void onFightStart(FightStartEvent e) {
+        Player p = (Player) e.getFight().getPlayersInFight();
+        p.setAllowFlight(false);
+    }
+
+    @EventHandler
+    public void onFightEnd(FightEndEvent e) {
+        Player p = (Player) e.getFight().getPlayersInFight();
         if (!p.hasPermission("drizzypracticecore.fly")) {
             p.setAllowFlight(true);
         }
