@@ -4,10 +4,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.java.JavaPlugin;
 import ga.strikepractice.events.KitSelectEvent;
 
-public class WarningMessage extends JavaPlugin implements Listener {
+public class WarningMessage implements Listener {
 
     @EventHandler
     public void onKitSelect(KitSelectEvent event) {
