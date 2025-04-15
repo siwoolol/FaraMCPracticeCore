@@ -1,5 +1,6 @@
 package lol.siwoo.drizzyPracticeCore.admin;
 
+import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,7 +9,7 @@ import org.bukkit.entity.Player;
 
 public class ForceWin implements CommandExecutor {
 
-    private StrikePracticeAPI api;
+    StrikePracticeAPI api = StrikePractice.getAPI();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -17,7 +18,7 @@ public class ForceWin implements CommandExecutor {
         p.sendMessage("test");
 
         if(p.hasPermission("strikecommands.admin")) {
-            if(args.length == 0) {
+            if (args.length == 0) {
                 api.forceWinFight(p);
                 p.sendMessage("Force Won The Fight!");
             } else if(args.length == 1) {

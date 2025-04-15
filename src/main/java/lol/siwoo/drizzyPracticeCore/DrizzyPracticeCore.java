@@ -2,7 +2,10 @@ package lol.siwoo.drizzyPracticeCore;
 
 import ga.strikepractice.api.StrikePracticeAPI;
 import lol.siwoo.drizzyPracticeCore.admin.ForceWin;
+import lol.siwoo.drizzyPracticeCore.design.FightEnd;
+import lol.siwoo.drizzyPracticeCore.design.WarningMessage;
 import lol.siwoo.drizzyPracticeCore.lobby.Flight;
+import lol.siwoo.drizzyPracticeCore.lobby.FlightListener;
 import lol.siwoo.drizzyPracticeCore.party.HurryUpPartyOwner;
 import lol.siwoo.drizzyPracticeCore.party.SuggestPartyOwner;
 import lol.siwoo.drizzyPracticeCore.party.SuggestPartyOwnerListener;
@@ -32,6 +35,9 @@ public final class DrizzyPracticeCore extends JavaPlugin implements Listener {
         PluginManager pm = getServer().getPluginManager();
 
         pm.registerEvents(this, this);
+        pm.registerEvents(new WarningMessage(), this);
+        pm.registerEvents(new FightEnd(), this);
+        pm.registerEvents(new FlightListener(), this);
         pm.registerEvents(new SuggestPartyOwnerListener(), this);
     }
 
