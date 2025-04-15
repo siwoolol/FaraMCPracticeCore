@@ -1,14 +1,18 @@
 package lol.siwoo.drizzyPracticeCore;
 
+import ga.strikepractice.api.StrikePracticeAPI;
 import lol.siwoo.drizzyPracticeCore.admin.ForceWin;
 import lol.siwoo.drizzyPracticeCore.lobby.Flight;
 import lol.siwoo.drizzyPracticeCore.party.HurryUpPartyOwner;
 import lol.siwoo.drizzyPracticeCore.party.SuggestPartyOwner;
 import lol.siwoo.drizzyPracticeCore.status.WebhookMessage;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class DrizzyPracticeCore extends JavaPlugin implements Listener {
+
+    private StrikePracticeAPI strikePracticeAPI;
 
     @Override
     public void onEnable() {
@@ -24,7 +28,10 @@ public final class DrizzyPracticeCore extends JavaPlugin implements Listener {
     }
 
     private void registerEvents() {
-        getServer().getPluginManager().registerEvents(this, this);
+        PluginManager pm = getServer().getPluginManager();
+
+        pm.registerEvents(this, this);
+        pm.registerEvents((Listener) new SuggestPartyOwner(), this);
     }
 
     private void registerCommands() {
