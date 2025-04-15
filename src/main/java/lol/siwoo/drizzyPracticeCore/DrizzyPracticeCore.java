@@ -5,6 +5,7 @@ import lol.siwoo.drizzyPracticeCore.admin.ForceWin;
 import lol.siwoo.drizzyPracticeCore.lobby.Flight;
 import lol.siwoo.drizzyPracticeCore.party.HurryUpPartyOwner;
 import lol.siwoo.drizzyPracticeCore.party.SuggestPartyOwner;
+import lol.siwoo.drizzyPracticeCore.party.SuggestPartyOwnerListener;
 import lol.siwoo.drizzyPracticeCore.status.WebhookMessage;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
@@ -31,7 +32,7 @@ public final class DrizzyPracticeCore extends JavaPlugin implements Listener {
         PluginManager pm = getServer().getPluginManager();
 
         pm.registerEvents(this, this);
-        pm.registerEvents((Listener) new SuggestPartyOwner(), this);
+        pm.registerEvents(new SuggestPartyOwnerListener(), this);
     }
 
     private void registerCommands() {
