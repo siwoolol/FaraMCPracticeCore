@@ -36,7 +36,7 @@ public class FightEnd implements Listener {
 
         // Winner Prompt
         w.playSound((w.getLocation()), Sound.EXPLODE, 1, 1);
-        l.sendTitle(ChatColor.GREEN + "VICTORY", ChatColor.GREEN + w.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + l.getName());
+        w.sendTitle(ChatColor.GREEN + "VICTORY", ChatColor.GREEN + w.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + l.getName());
         w.sendMessage(ChatColor.GREEN + "You Won the Match");
 
         // Loser Prompt
