@@ -31,6 +31,11 @@ public class SuggestPartyOwner implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         Player p = (Player) sender;
 
+        if (api.getParty(p).getOwner().equals(p)) {
+            p.sendMessage(ChatColor.RED + "Shut the fuck up and start your own event.");
+            return true;
+        }
+
         Inventory kitSelectionGui = createKitSelectionGUI();
         if (kitSelectionGui == null) {
             p.sendMessage(ChatColor.RED + "Could not load kits. Please contact an admin.");
