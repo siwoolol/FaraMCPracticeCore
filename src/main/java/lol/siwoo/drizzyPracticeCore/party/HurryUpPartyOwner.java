@@ -26,8 +26,13 @@ public class HurryUpPartyOwner implements CommandExecutor {
         String ownerString = api.getParty(p).getOwner();
         Player owner = getPlayer(ownerString);
 
-        owner.sendMessage(ChatColor.AQUA + p.getName() + " has Asked You to Hurry up!");
+        if (owner == p) {
+            p.sendMessage(ChatColor.RED + "You better hurry up yourself. Stop blaming people lol");
+            return true;
+        }
+
         p.sendMessage(ChatColor.GREEN + "You have Asked The Owner of the Party to Hurry up!");
+        owner.sendMessage(ChatColor.AQUA + p.getName() + " has Asked You to Hurry up!");
 
         return true;
     }
