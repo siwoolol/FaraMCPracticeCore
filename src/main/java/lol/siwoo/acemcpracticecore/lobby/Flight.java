@@ -1,4 +1,4 @@
-package lol.siwoo.drizzyPracticeCore.lobby;
+package lol.siwoo.acemcpracticecore.lobby;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;

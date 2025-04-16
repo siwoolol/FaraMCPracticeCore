@@ -1,4 +1,4 @@
-package lol.siwoo.drizzyPracticeCore.party;
+package lol.siwoo.acemcpracticecore.party;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
@@ -15,7 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
-import static lol.siwoo.drizzyPracticeCore.party.SuggestPartyOwner.GUI_TITLE;
+import static lol.siwoo.acemcpracticecore.party.SuggestPartyOwner.GUI_TITLE;
 
 public class SuggestPartyOwnerListener implements Listener {
 

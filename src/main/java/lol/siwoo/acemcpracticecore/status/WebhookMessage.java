@@ -1,4 +1,4 @@
-package lol.siwoo.drizzyPracticeCore.status;
+package lol.siwoo.acemcpracticecore.status;
 
 import com.eduardomcb.discord.webhook.WebhookClient;
 import com.eduardomcb.discord.webhook.WebhookManager;

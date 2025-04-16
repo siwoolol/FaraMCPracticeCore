@@ -1,4 +1,4 @@
-package lol.siwoo.drizzyPracticeCore.party;
+package lol.siwoo.acemcpracticecore.party;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;

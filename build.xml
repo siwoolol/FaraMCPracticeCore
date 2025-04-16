@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE xml>
-<project name="DrizzyPracticeCore" default="Build">
+<project name="AceMCPracticeCore" default="Build">
     <!-- Ninja: We read pom.xml file to find the Foundation version to use -->
     <xmlproperty file="pom.xml" prefix="pom" keeproot="false"/>
     <property name="project.version" value="${pom.version}"/>

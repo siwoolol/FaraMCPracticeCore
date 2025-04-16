@@ -1,4 +1,4 @@
-package lol.siwoo.drizzyPracticeCore.design;
+package lol.siwoo.acemcpracticecore.design;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

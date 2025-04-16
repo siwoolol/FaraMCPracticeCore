@@ -1,4 +1,4 @@
-package lol.siwoo.drizzyPracticeCore.design;
+package lol.siwoo.acemcpracticecore.design;
 
 import ga.strikepractice.events.DuelEndEvent;
 import ga.strikepractice.events.DuelStartEvent;

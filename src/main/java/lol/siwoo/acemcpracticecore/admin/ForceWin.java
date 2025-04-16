@@ -1,8 +1,7 @@
-package lol.siwoo.drizzyPracticeCore.admin;
+package lol.siwoo.acemcpracticecore.admin;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

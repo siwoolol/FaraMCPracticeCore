@@ -1,20 +1,20 @@
-package lol.siwoo.drizzyPracticeCore;
+package lol.siwoo.acemcpracticecore;
 
 import ga.strikepractice.api.StrikePracticeAPI;
-import lol.siwoo.drizzyPracticeCore.admin.ForceWin;
-import lol.siwoo.drizzyPracticeCore.design.FightEnd;
-import lol.siwoo.drizzyPracticeCore.design.WarningMessage;
-import lol.siwoo.drizzyPracticeCore.lobby.Flight;
-import lol.siwoo.drizzyPracticeCore.lobby.FlightListener;
-import lol.siwoo.drizzyPracticeCore.party.HurryUpPartyOwner;
-import lol.siwoo.drizzyPracticeCore.party.SuggestPartyOwner;
-import lol.siwoo.drizzyPracticeCore.party.SuggestPartyOwnerListener;
-import lol.siwoo.drizzyPracticeCore.status.WebhookMessage;
+import lol.siwoo.acemcpracticecore.admin.ForceWin;
+import lol.siwoo.acemcpracticecore.design.FightEnd;
+import lol.siwoo.acemcpracticecore.design.WarningMessage;
+import lol.siwoo.acemcpracticecore.lobby.Flight;
+import lol.siwoo.acemcpracticecore.lobby.FlightListener;
+import lol.siwoo.acemcpracticecore.party.HurryUpPartyOwner;
+import lol.siwoo.acemcpracticecore.party.SuggestPartyOwner;
+import lol.siwoo.acemcpracticecore.party.SuggestPartyOwnerListener;
+import lol.siwoo.acemcpracticecore.status.WebhookMessage;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class DrizzyPracticeCore extends JavaPlugin implements Listener {
+public final class AceMCPracticeCore extends JavaPlugin implements Listener {
 
     private StrikePracticeAPI strikePracticeAPI;
 
