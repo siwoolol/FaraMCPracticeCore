@@ -15,7 +15,7 @@ public class Flight implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         Player p = (Player) sender;
-        if (!p.hasPermission("drizzypracticecore.fly")) {
+        if (!p.hasPermission("faramcpracticecore.fly")) {
             p.sendMessage(ChatColor.RED + "You don't have permissions to execute this command.");
             return true;
         }

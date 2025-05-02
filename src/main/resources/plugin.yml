@@ -1,8 +1,8 @@
 name: ${project.name}
 version: ${project.version}
 author: ${author}
-description: Drizzy Practice Core Plugin
-main: lol.siwoo.acemcpracticecore.AceMCPracticeCore
+description: FaraMC Practice Core Plugin made by siwoolol the best man alive
+main: lol.siwoo.acemcpracticecore.FaraMCPracticeCore
 load: POSTWORLD
 website: siwoo.lol
 
@@ -14,12 +14,12 @@ libraries:
 softdepend: [ Luckperms, Multiverse-Core ]
 
 permissions:
-  drizzypracticecore.admin:
+  faramcpracticecore.admin:
     description: "Literally Admin"
     default: op
     children:
-      drizzypracticecore.fly: true
-  drizzypracticecore.fly:
+      faramcpracticecore.fly: true
+  faramcpracticecore.fly:
     description: "Allows You To Fly in the Lobby"
 
 commands:

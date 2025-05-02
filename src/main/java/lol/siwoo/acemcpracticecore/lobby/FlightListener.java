@@ -16,21 +16,22 @@ public class FlightListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        if (p.hasPermission("drizzypracticecore.fly")) {
+        if (p.hasPermission("faramcpracticecore.fly")) {
             p.setAllowFlight(true);
         }
     }
 
     @EventHandler
     public void onFightStart(FightStartEvent e) {
-        Player p = (Player) e.getFight().getPlayersInFight();
-        p.setAllowFlight(false);
+        e.getFight().getPlayersInFight().forEach( player -> {
+            player.setAllowFlight(false);
+        });
     }
 
     @EventHandler
     public void onFightEnd(FightEndEvent e) {
         e.getFight().getPlayersInFight().forEach( player -> {
-            if (player.hasPermission("drizzypracticecore.fly")) {
+            if (player.hasPermission("faramcpracticecore.fly")) {
                 player.setAllowFlight(true);
             }
         });

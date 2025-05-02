@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>lol.siwoo</groupId>
-    <artifactId>acemcpracticecore</artifactId>
+    <artifactId>faramcpracticecore</artifactId>
     <version>1.0.0-R0.2</version>
     <packaging>jar</packaging>
 
-    <name>AceMCPracticeCore</name>
+    <name>FaraMCPracticeCore</name>
 
     <properties>
         <java.version>1.8</java.version>

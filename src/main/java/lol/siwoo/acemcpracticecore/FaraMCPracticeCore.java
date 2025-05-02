@@ -14,7 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class AceMCPracticeCore extends JavaPlugin implements Listener {
+public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     private StrikePracticeAPI strikePracticeAPI;
 
