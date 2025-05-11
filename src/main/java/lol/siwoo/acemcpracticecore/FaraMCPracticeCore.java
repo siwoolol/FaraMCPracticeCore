@@ -4,6 +4,7 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import lol.siwoo.acemcpracticecore.admin.ForceWin;
 import lol.siwoo.acemcpracticecore.design.FightEnd;
 import lol.siwoo.acemcpracticecore.design.WarningMessage;
+import lol.siwoo.acemcpracticecore.gamemode.Boxing;
 import lol.siwoo.acemcpracticecore.lobby.Flight;
 import lol.siwoo.acemcpracticecore.lobby.FlightListener;
 import lol.siwoo.acemcpracticecore.party.HurryUpPartyOwner;
@@ -39,6 +40,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new FightEnd(), this);
         pm.registerEvents(new FlightListener(), this);
         pm.registerEvents(new SuggestPartyOwnerListener(), this);
+        pm.registerEvents(new Boxing(), this);
     }
 
     private void registerCommands() {
