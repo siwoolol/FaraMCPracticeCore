@@ -40,7 +40,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new FightEnd(), this);
         pm.registerEvents(new FlightListener(), this);
         pm.registerEvents(new SuggestPartyOwnerListener(), this);
-        pm.registerEvents(new Boxing(), this);
+        pm.registerEvents(new Boxing(this), this);
     }
 
     private void registerCommands() {
