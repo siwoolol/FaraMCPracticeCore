@@ -1,13 +1,11 @@
-package lol.siwoo.acemcpracticecore.gamemode;
+package lol.siwoo.faramcpracticecore.gamemode;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
-import lol.siwoo.acemcpracticecore.FaraMCPracticeCore;
-import lol.siwoo.acemcpracticecore.design.FightEnd;
+import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffect;

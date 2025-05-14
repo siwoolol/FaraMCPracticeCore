@@ -1,4 +1,4 @@
-package lol.siwoo.acemcpracticecore.party;
+package lol.siwoo.faramcpracticecore.party;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;

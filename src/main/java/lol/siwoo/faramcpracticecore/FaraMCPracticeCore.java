@@ -1,16 +1,16 @@
-package lol.siwoo.acemcpracticecore;
+package lol.siwoo.faramcpracticecore;
 
 import ga.strikepractice.api.StrikePracticeAPI;
-import lol.siwoo.acemcpracticecore.admin.ForceWin;
-import lol.siwoo.acemcpracticecore.design.FightEnd;
-import lol.siwoo.acemcpracticecore.design.WarningMessage;
-import lol.siwoo.acemcpracticecore.gamemode.Boxing;
-import lol.siwoo.acemcpracticecore.lobby.Flight;
-import lol.siwoo.acemcpracticecore.lobby.FlightListener;
-import lol.siwoo.acemcpracticecore.party.HurryUpPartyOwner;
-import lol.siwoo.acemcpracticecore.party.SuggestPartyOwner;
-import lol.siwoo.acemcpracticecore.party.SuggestPartyOwnerListener;
-import lol.siwoo.acemcpracticecore.status.WebhookMessage;
+import lol.siwoo.faramcpracticecore.admin.ForceWin;
+import lol.siwoo.faramcpracticecore.design.FightEnd;
+import lol.siwoo.faramcpracticecore.design.WarningMessage;
+import lol.siwoo.faramcpracticecore.gamemode.Boxing;
+import lol.siwoo.faramcpracticecore.lobby.Flight;
+import lol.siwoo.faramcpracticecore.lobby.FlightListener;
+import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
+import lol.siwoo.faramcpracticecore.party.SuggestPartyOwner;
+import lol.siwoo.faramcpracticecore.party.SuggestPartyOwnerListener;
+import lol.siwoo.faramcpracticecore.status.WebhookMessage;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;

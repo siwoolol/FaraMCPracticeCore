@@ -2,7 +2,7 @@ name: ${project.name}
 version: ${project.version}
 author: ${author}
 description: FaraMC Practice Core Plugin made by siwoolol the best man alive
-main: lol.siwoo.acemcpracticecore.FaraMCPracticeCore
+main: lol.siwoo.faramcpracticecore.FaraMCPracticeCore
 load: POSTWORLD
 website: siwoo.lol
 
