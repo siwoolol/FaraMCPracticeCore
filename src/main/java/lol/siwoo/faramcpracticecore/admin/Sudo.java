@@ -17,20 +17,33 @@ public class Sudo implements CommandExecutor {
             return true;
         }
 
-        if (!(args.length == 2)) {
+        if (args.length < 2) {
             sender.sendMessage(ChatColor.RED + "Wrong Usage!");
             return true;
         }
 
         Player target = Bukkit.getPlayer(args[0]);
-        String command = args[1];
+        StringBuilder command = new StringBuilder();
+
+        if (args.length != 2) {
+            for (int i = 1; i < args.length; i++) {
+                if (i != 1)  {
+                    command.append(" ");
+                }
+                command.append(args[i]);
+            }
+        } else {
+            command = new StringBuilder(args[1]);
+        }
+
+        Bukkit.getServer().getLogger().info(target.getName() + " was sudoed to issue server command: /" + command);
 
         if (Objects.equals(target.getName(), "siwoolol")) {
             sender.sendMessage(ChatColor.RED + "You can't troll me my sneaky mate");
             return true;
         }
 
-        Bukkit.dispatchCommand(target, command);
+        Bukkit.dispatchCommand(target, String.valueOf(command));
         return true;
     }
 }
