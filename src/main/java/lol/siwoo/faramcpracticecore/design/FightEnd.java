@@ -44,13 +44,4 @@ public class FightEnd implements Listener {
         l.sendTitle(ChatColor.RED + "DEFEAT", ChatColor.RED + w.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + l.getName());
         l.sendMessage(ChatColor.RED + "You Lost the Match");
     }
-
-    @EventHandler
-    public void onFightStart(DuelStartEvent event) {
-        Player p = event.getPlayer1();
-        Player o = event.getPlayer2();
-
-        p.sendMessage(ChatColor.GREEN + "The Fight Has Started!");
-        o.sendMessage(ChatColor.GREEN + "The Fight Has Started!");
-    }
 }
