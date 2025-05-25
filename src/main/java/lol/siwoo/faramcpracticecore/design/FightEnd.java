@@ -50,7 +50,7 @@ public class FightEnd implements Listener {
         Player p = event.getPlayer1();
         Player o = event.getPlayer2();
 
-        p.sendMessage(ChatColor.GREEN + "The Fight Has Started");
-        o.sendMessage(ChatColor.GREEN + "The Fight Has Started");
+        p.sendMessage(ChatColor.GREEN + "The Fight Has Started!");
+        o.sendMessage(ChatColor.GREEN + "The Fight Has Started!");
     }
 }
