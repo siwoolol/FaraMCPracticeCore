@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class Boxing implements Listener {
 
@@ -26,11 +27,16 @@ public class Boxing implements Listener {
             return;
         }
 
-        plugin.getLogger().info("boxing match detected. players:" + e.getFight().getPlayerNames());
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                plugin.getLogger().info("boxing match detected. players:" + e.getFight().getPlayersInFight());
 
-        e.getFight().getPlayersInFight().forEach(p -> {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2, true, false));
-        });
+                e.getFight().getPlayersInFight().forEach(p -> {
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, true, false));
+                });
+            }
+        }.runTaskLater(plugin, 20L);
     }
 
     @EventHandler
