@@ -1,4 +1,4 @@
-package lol.siwoo.faramcpracticecore.status;
+package lol.siwoo.faramcpracticecore.util;
 
 import com.eduardomcb.discord.webhook.WebhookClient;
 import com.eduardomcb.discord.webhook.WebhookManager;

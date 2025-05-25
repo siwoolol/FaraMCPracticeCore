@@ -10,7 +10,7 @@ import lol.siwoo.faramcpracticecore.lobby.FlightListener;
 import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwnerListener;
-import lol.siwoo.faramcpracticecore.status.WebhookMessage;
+import lol.siwoo.faramcpracticecore.util.WebhookMessage;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
