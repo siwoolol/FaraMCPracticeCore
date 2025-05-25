@@ -48,5 +48,5 @@ commands:
     usage: "/gma"
     description: "Gamemode Adventure (Shortcut)"
   sudo:
-    usage: "/sudo <target> <command>"
+    usage: "/sudo <target> [command/c:chat]"
     description: "Types in a command as a Player"
