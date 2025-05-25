@@ -6,7 +6,7 @@
 
     <groupId>lol.siwoo</groupId>
     <artifactId>faramcpracticecore</artifactId>
-    <version>1.0.2-R0.1</version>
+    <version>1.0.3-R0.1</version>
     <packaging>jar</packaging>
 
     <name>FaraMCPracticeCore</name>
