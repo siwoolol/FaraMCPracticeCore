@@ -5,7 +5,7 @@ import com.eduardomcb.discord.webhook.WebhookManager;
 import com.eduardomcb.discord.webhook.models.Message;
 
 public class WebhookMessage {
-    public static void webhookMessage(String status) {
+    public static void statusMessage(String status) {
         String webhookUrl = "https://discord.com/api/webhooks/1360812857964630036/GSK9_79hvlJKwrPIzo5rwxb011ezCTRrCPRianhlc505ABan4SvVabMypL7lWUu0sbBE";
         String pfpUrl = "https://siwoo.lol/";
 

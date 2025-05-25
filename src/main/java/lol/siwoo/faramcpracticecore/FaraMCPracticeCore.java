@@ -24,12 +24,12 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         registerEvents();
         registerCommands();
 
-        WebhookMessage.webhookMessage("Back On");
+        WebhookMessage.statusMessage("Back On");
     }
 
     @Override
     public void onDisable() {
-        WebhookMessage.webhookMessage("Down");
+        WebhookMessage.statusMessage("Down");
     }
 
     private void registerEvents() {
