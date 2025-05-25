@@ -24,26 +24,29 @@ permissions:
 
 commands:
   fly:
-    usage: /fly
+    usage: "/fly"
     description: "Allows You To Fly"
   forcewin:
-    usage: /forcewin [round/match]
+    usage: "/forcewin [round/match]"
     description: "Force Win the Fight/Round (Fight if Unspecified)"
   hurryuppartyowner:
-    usage: /hurryuppartyowner
+    usage: "/hurryuppartyowner"
     description: "Hurry up party owner black man ahahahhahah"
   suggestgamemodetopartyowner:
-    usage: /suggestgamemodetopartyowner
+    usage: "/suggestgamemodetopartyowner"
     description: "Suggest a Gamemode to Play to the owner of your Party"
   gmc:
-    usage: /gmc
+    usage: "/gmc"
     description: "Gamemode Creative (Shortcut)"
   gms:
-    usage: /gms
+    usage: "/gms"
     description: "Gamemode Survival (Shortcut)"
   gmsp:
-    usage: /gmsp
+    usage: "/gmsp"
     description: "Gamemode Spectator (Shortcut)"
   gma:
-    usage: /gma
+    usage: "/gma"
     description: "Gamemode Adventure (Shortcut)"
+  sudo:
+    usage: "/sudo <target> <command>"
+    description: "Types in a command as a Player"

@@ -52,5 +52,6 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("gms").setExecutor(new GMS());
         getCommand("gmsp").setExecutor(new GMSP());
         getCommand("gma").setExecutor(new GMA());
+        getCommand("sudo").setExecutor(new Sudo());
     }
 }
