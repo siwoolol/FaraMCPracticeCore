@@ -1,7 +1,7 @@
 package lol.siwoo.faramcpracticecore;
 
 import ga.strikepractice.api.StrikePracticeAPI;
-import lol.siwoo.faramcpracticecore.admin.ForceWin;
+import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.design.FightEnd;
 import lol.siwoo.faramcpracticecore.design.WarningMessage;
 import lol.siwoo.faramcpracticecore.gamemode.Boxing;
@@ -48,5 +48,9 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("forcewin").setExecutor(new ForceWin());
         getCommand("hurryuppartyowner").setExecutor(new HurryUpPartyOwner());
         getCommand("suggestgamemodetopartyowner").setExecutor(new SuggestPartyOwner());
+        getCommand("gmc").setExecutor(new GMC());
+        getCommand("gms").setExecutor(new GMS());
+        getCommand("gmsp").setExecutor(new GMSP());
+        getCommand("gma").setExecutor(new GMA());
     }
 }

@@ -35,3 +35,15 @@ commands:
   suggestgamemodetopartyowner:
     usage: /suggestgamemodetopartyowner
     description: "Suggest a Gamemode to Play to the owner of your Party"
+  gmc:
+    usage: /gmc
+    description: "Gamemode Creative (Shortcut)"
+  gms:
+    usage: /gms
+    description: "Gamemode Survival (Shortcut)"
+  gmsp:
+    usage: /gmsp
+    description: "Gamemode Spectator (Shortcut)"
+  gma:
+    usage: /gma
+    description: "Gamemode Adventure (Shortcut)"
