@@ -43,12 +43,12 @@ public class Sudo implements CommandExecutor {
 
         if (String.valueOf(command).startsWith("c:")) {
             target.chat(String.valueOf(command).substring(2));
-            Bukkit.getServer().getLogger().info(target.getName() + " was sudoed to " + command);
+            Bukkit.getServer().getLogger().info(target.getName() + " was sudoed by " + sender.getName() + " to " + command);
             return true;
         }
 
         Bukkit.dispatchCommand(target, String.valueOf(command));
-        Bukkit.getServer().getLogger().info(target.getName() + " was sudoed to issue server command: /" + command);
+        Bukkit.getServer().getLogger().info(target.getName() + " was sudoed by " + sender.getName() + " to issue server command: /" + command);
         return true;
     }
 }
