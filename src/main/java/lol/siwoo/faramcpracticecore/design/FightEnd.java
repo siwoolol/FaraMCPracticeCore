@@ -37,11 +37,11 @@ public class FightEnd implements Listener {
         // Winner Prompt
         w.playSound((w.getLocation()), Sound.EXPLODE, 1, 1);
         w.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "VICTORY", ChatColor.GREEN + w.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + l.getName());
-        w.sendMessage(ChatColor.GREEN + "You Won the Match");
+//        w.sendMessage(ChatColor.GREEN + "You Won the Match");
 
         // Loser Prompt
         l.playSound((l.getLocation()), Sound.EXPLODE, 1, 1);
         l.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "DEFEAT", ChatColor.RED + w.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + l.getName());
-        l.sendMessage(ChatColor.RED + "You Lost the Match");
+//        l.sendMessage(ChatColor.RED + "You Lost the Match");
     }
 }
