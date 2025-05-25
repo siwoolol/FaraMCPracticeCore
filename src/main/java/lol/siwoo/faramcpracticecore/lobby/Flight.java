@@ -16,20 +16,17 @@ public class Flight implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         Player p = (Player) sender;
         if (!p.hasPermission("faramcpracticecore.fly")) {
-            p.sendMessage(ChatColor.RED + "You don't have permissions to execute this command.");
+            p.sendMessage(ChatColor.RED + "Purchase Ranks to Acces This Command - https://store.faramc.uk/");
             return true;
         }
 
         if (api.isInFight(p)) {
-            p.sendMessage(ChatColor.RED + "You can't fly during a fight.");
             return true;
         }
 
         if (!p.getAllowFlight()) {
-            p.sendMessage(ChatColor.GREEN + "Flight Enabled!");
             p.setAllowFlight(true);
         } else if (p.getAllowFlight()) {
-            p.sendMessage(ChatColor.RED + "Flight Disabled!");
             p.setAllowFlight(false);
         }
         return true;
