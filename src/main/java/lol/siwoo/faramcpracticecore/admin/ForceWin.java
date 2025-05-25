@@ -16,7 +16,7 @@ public class ForceWin implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         Player p = (Player) sender;
 
-        if(p.hasPermission("faramcpracticecore.admin")) {
+        if (p.hasPermission("faramcpracticecore.admin")) {
             if (args.length == 0) {
                 api.forceWinFight(p);
                 p.sendMessage(ChatColor.GREEN + "Force Won The Fight!");
