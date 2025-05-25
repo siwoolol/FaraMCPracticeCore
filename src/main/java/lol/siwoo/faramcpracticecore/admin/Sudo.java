@@ -36,14 +36,13 @@ public class Sudo implements CommandExecutor {
             command = new StringBuilder(args[1]);
         }
 
-        Bukkit.getServer().getLogger().info(target.getName() + " was sudoed to issue server command: /" + command);
-
         if (Objects.equals(target.getName(), "siwoolol")) {
             sender.sendMessage(ChatColor.RED + "You can't troll me my sneaky mate");
             return true;
         }
 
         Bukkit.dispatchCommand(target, String.valueOf(command));
+        Bukkit.getServer().getLogger().info(target.getName() + " was sudoed to issue server command: /" + command);
         return true;
     }
 }
