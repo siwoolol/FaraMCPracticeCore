@@ -22,17 +22,14 @@ public class Boxing implements Listener {
 
     @EventHandler
     public void onFightStart(FightStartEvent e) {
-        // Check if the kit is boxing
         if (!e.getFight().getKit().getName().equalsIgnoreCase("boxing")) {
             return;
         }
 
-        plugin.getLogger().info("Boxing has been detected");
+        plugin.getLogger().info("boxing match detected. players:" + e.getFight().getPlayerNames());
 
-        // Give speed effect to all players in the fight
-        e.getFight().getPlayersInFight().forEach(player -> {
-            player.removePotionEffect(PotionEffectType.SPEED); // Remove any existing speed effect
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, true, false));
+        e.getFight().getPlayersInFight().forEach(p -> {
+            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2, true, false));
         });
     }
 
