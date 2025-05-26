@@ -38,17 +38,12 @@ public class BedFight implements Listener {
             @Override
             public void run() {
                 plugin.getLogger().info("bedfight match detected. players:" + e.getFight().getPlayersInFight());
-                plugin.getLogger().info("check 1");
+
+                e.getFight().getPlayersInFight().forEach(p -> {
+                    cooldown.put(UUID.fromString(p.getUniqueId().toString()), System.currentTimeMillis());
+                });
             }
         }.runTaskLater(plugin, 20L);
-
-        plugin.getLogger().info("check 2");
-
-        for (Player uuid : e.getFight().getPlayersInFight()) {
-            cooldown.put(UUID.fromString(uuid.toString()), System.currentTimeMillis());
-        }
-
-        plugin.getLogger().info("check 3");
     }
 
     @EventHandler
