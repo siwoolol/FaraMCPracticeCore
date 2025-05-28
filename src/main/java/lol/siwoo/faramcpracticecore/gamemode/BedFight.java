@@ -106,7 +106,7 @@ public class BedFight implements Listener {
 
         if (isInBedfight.get(p.getUniqueId()) != null
                 && isInBedfight.get(p.getUniqueId()).equals(true)
-                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 20
+                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
                 && isDead.get(p.getUniqueId()) == null) {
 
             Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
@@ -138,10 +138,10 @@ public class BedFight implements Listener {
     public void onPlayerBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
         if (isInBedfight.get(p.getUniqueId()) != null
-                && isInBedfight.get(p.getUniqueId()).equals(true)
-                && p.getLocation().getY() < 50) {
+                && isInBedfight.get(p.getUniqueId()).equals(true)) {
 
-            if (e.getBlock().getY() > api.getFight(p).getArena().getLoc1().getY() + 15 || isInCooldown(e.getPlayer().getUniqueId())) {
+            if (e.getBlock().getY() > api.getFight(p).getArena().getLoc1().getY() + 10
+                    || isInCooldown(e.getPlayer().getUniqueId())) {
                 e.setCancelled(true);
             }
         }
