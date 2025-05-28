@@ -96,6 +96,10 @@ public class BedFight implements Listener {
         if (isInCooldown(e.getPlayer().getUniqueId())) {
             e.setCancelled(true);
         }
+
+        if (e.getBlock().getY() > 85) {
+            e.setCancelled(true);
+        }
     }
 
     private boolean isInCooldown(UUID playerId) {
