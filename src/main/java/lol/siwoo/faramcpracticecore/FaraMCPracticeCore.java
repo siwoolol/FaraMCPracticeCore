@@ -6,6 +6,7 @@ import lol.siwoo.faramcpracticecore.design.FightEnd;
 import lol.siwoo.faramcpracticecore.design.WarningMessage;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
 import lol.siwoo.faramcpracticecore.gamemode.Boxing;
+import lol.siwoo.faramcpracticecore.gamemode.FireballFight;
 import lol.siwoo.faramcpracticecore.lobby.Flight;
 import lol.siwoo.faramcpracticecore.lobby.FlightListener;
 import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
@@ -43,6 +44,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new SuggestPartyOwnerListener(), this);
         pm.registerEvents(new Boxing(this), this);
         pm.registerEvents(new BedFight(this), this);
+        pm.registerEvents(new FireballFight(this), this);
     }
 
     private void registerCommands() {

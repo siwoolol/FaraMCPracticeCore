@@ -5,7 +5,6 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,27 +12,25 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class BedFight implements Listener {
+public class FireballFight implements Listener {
 
     private final FaraMCPracticeCore plugin;
     private final StrikePracticeAPI api;
     private final Map<UUID, Long> cooldownMap;
     private static final long COOLDOWN_DURATION = 5000;
-    private final Map<UUID, Boolean> isInBedfight;
+    private final Map<UUID, Boolean> isInFireballfight;
 
-    public BedFight(FaraMCPracticeCore plugin) {
+    public FireballFight(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
         this.api = StrikePractice.getAPI();
         this.cooldownMap = new HashMap<>();
-        this.isInBedfight = new HashMap<>();
+        this.isInFireballfight = new HashMap<>();
         
         // Start cleanup task
         startCleanupTask();
@@ -52,20 +49,20 @@ public class BedFight implements Listener {
 
     @EventHandler
     public void onFightStart(FightStartEvent e) {
-        if (!e.getFight().getKit().getName().equalsIgnoreCase("bedfight")) {
+        if (!e.getFight().getKit().getName().equalsIgnoreCase("fireballfight")) {
             return;
         }
 
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getLogger().info("Bedfight match started. Players: " + e.getFight().getPlayersInFight());
+                plugin.getLogger().info("Fireballfight match started. Players: " + e.getFight().getPlayersInFight());
 
                 // Apply cooldown to all players in the fight
                 e.getFight().getPlayersInFight().forEach(p -> {
                     UUID playerId = UUID.fromString(p.getUniqueId().toString());
                     cooldownMap.put(playerId, System.currentTimeMillis());
-                    isInBedfight.put(playerId, true);
+                    isInFireballfight.put(playerId, true);
                 });
             }
         }.runTaskLater(plugin, 2L);
@@ -73,21 +70,21 @@ public class BedFight implements Listener {
 
     @EventHandler
     public void onFightEnd(FightEndEvent e) {
-        if (!e.getFight().getKit().getName().equalsIgnoreCase("bedfight")) {
+        if (!e.getFight().getKit().getName().equalsIgnoreCase("fireballfight")) {
             return;
         }
 
         // Remove all players from the cooldown map when fight ends
         e.getFight().getPlayersInFight().forEach(p -> {
             cooldownMap.remove(UUID.fromString(p.getUniqueId().toString()));
-            isInBedfight.remove(UUID.fromString(p.getUniqueId().toString()));
+            isInFireballfight.remove(UUID.fromString(p.getUniqueId().toString()));
         });
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         cooldownMap.remove(e.getPlayer().getUniqueId());
-        isInBedfight.remove(UUID.fromString(e.getPlayer().getUniqueId().toString()));
+        isInFireballfight.remove(UUID.fromString(e.getPlayer().getUniqueId().toString()));
     }
 
     @EventHandler
@@ -96,9 +93,9 @@ public class BedFight implements Listener {
             e.setCancelled(true);
         }
 
-        if (isInBedfight.get(e.getPlayer().getUniqueId()) != null
-                && isInBedfight.get(e.getPlayer().getUniqueId()).equals(true)
-                && e.getPlayer().getLocation().getY() < 50) {
+        if (isInFireballfight.get(e.getPlayer().getUniqueId()) != null
+                && isInFireballfight.get(e.getPlayer().getUniqueId()).equals(true)
+                && e.getPlayer().getLocation().getY() < 70) {
             Player p = e.getPlayer();
 
             p.damage(69420.0);
@@ -109,11 +106,11 @@ public class BedFight implements Listener {
 
     @EventHandler
     public void onPlayerBlockPlace(BlockPlaceEvent e) {
-        if (isInBedfight.get(e.getPlayer().getUniqueId()) != null
-                && isInBedfight.get(e.getPlayer().getUniqueId()).equals(true)
-                && e.getPlayer().getLocation().getY() < 50) {
+        if (isInFireballfight.get(e.getPlayer().getUniqueId()) != null
+                && isInFireballfight.get(e.getPlayer().getUniqueId()).equals(true)
+                && e.getPlayer().getLocation().getY() < 70) {
 
-            if (e.getBlock().getY() > 85 || isInCooldown(e.getPlayer().getUniqueId())) {
+            if (e.getBlock().getY() > 95 || isInCooldown(e.getPlayer().getUniqueId())) {
                 e.setCancelled(true);
             }
         }
