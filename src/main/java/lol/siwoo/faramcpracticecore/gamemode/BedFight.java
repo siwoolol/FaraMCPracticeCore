@@ -69,7 +69,7 @@ public class BedFight implements Listener {
 
                 // Apply cooldown to all players in the fight
                 e.getFight().getPlayersInFight().forEach(p -> {
-                    UUID playerId = UUID.fromString(p.getUniqueId().toString());
+                    UUID playerId = p.getUniqueId();
                     cooldownMap.put(playerId, System.currentTimeMillis());
                     isInBedfight.put(playerId, true);
                 });
