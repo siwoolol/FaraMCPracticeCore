@@ -40,8 +40,7 @@ public class BedFight implements Listener {
         this.cooldownMap = new HashMap<>();
         this.isInBedfight = new HashMap<>();
         this.isDead = new HashMap<>();
-        
-        // Start cleanup task
+
         startCleanupTask();
     }
 
@@ -53,7 +52,7 @@ public class BedFight implements Listener {
                 cooldownMap.entrySet().removeIf(entry -> 
                     currentTime - entry.getValue() > COOLDOWN_DURATION);
             }
-        }.runTaskTimer(plugin, 20L, 20L); // Run every second
+        }.runTaskTimer(plugin, 20L, 20L);
     }
 
     @EventHandler
@@ -67,7 +66,6 @@ public class BedFight implements Listener {
             public void run() {
                 plugin.getLogger().info("Bedfight match started. Players: " + e.getFight().getPlayersInFight());
 
-                // Apply cooldown to all players in the fight
                 e.getFight().getPlayersInFight().forEach(p -> {
                     UUID playerId = p.getUniqueId();
                     cooldownMap.put(playerId, System.currentTimeMillis());
@@ -83,7 +81,6 @@ public class BedFight implements Listener {
             return;
         }
 
-        // Remove all players from the cooldown map when fight ends
         e.getFight().getPlayersInFight().forEach(p -> {
             cooldownMap.remove(UUID.fromString(p.getUniqueId().toString()));
             isInBedfight.remove(UUID.fromString(p.getUniqueId().toString()));
@@ -128,9 +125,6 @@ public class BedFight implements Listener {
                     isDead.remove(e.getPlayer().getUniqueId());
                 }
             }.runTaskLater(plugin, 60L);
-
-//            isDead.put(p.getUniqueId(), true);
-//            p.damage(0.1);
         }
     }
 
@@ -146,35 +140,6 @@ public class BedFight implements Listener {
             }
         }
     }
-
-//    @EventHandler
-//    public void onPlayerDamage(EntityDamageEvent e) {
-//        if (!e.getEntityType().equals(EntityType.PLAYER)) {
-//            return;
-//        }
-//
-//        Player deadPlayer = (Player) e.getEntity();
-//
-//        if (isInBedfight.get(deadPlayer.getUniqueId()) != null
-//                && isInBedfight.get(deadPlayer.getUniqueId())
-//                && isDead.get(deadPlayer.getUniqueId()) != null
-//                && isDead.get(deadPlayer.getUniqueId()).equals(true))
-//        {
-//            deadPlayer.setGameMode(GameMode.SPECTATOR);
-//            deadPlayer.teleport(api.getFight(deadPlayer).getArena().getCenter());
-//
-//            new BukkitRunnable() {
-//                @Override
-//                public void run() {
-//                    deadPlayer.teleport(api.getSpawnLocation());
-//
-//                    deadPlayer.setHealth(20.0);
-//                    deadPlayer.getActivePotionEffects().forEach(effect ->
-//                        deadPlayer.removePotionEffect(effect.getType()));
-//                }
-//            }.runTaskLater(plugin, 60L);
-//        }
-//    }
 
     private boolean isInCooldown(UUID playerId) {
         Long cooldownStart = cooldownMap.get(playerId);
