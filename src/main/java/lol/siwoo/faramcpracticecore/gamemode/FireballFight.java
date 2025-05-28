@@ -5,13 +5,20 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -25,14 +32,15 @@ public class FireballFight implements Listener {
     private final Map<UUID, Long> cooldownMap;
     private static final long COOLDOWN_DURATION = 5000;
     private final Map<UUID, Boolean> isInFireballfight;
+    private final Map<UUID, Boolean> isDead;
 
     public FireballFight(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
         this.api = StrikePractice.getAPI();
         this.cooldownMap = new HashMap<>();
         this.isInFireballfight = new HashMap<>();
-        
-        // Start cleanup task
+        this.isDead = new HashMap<>();
+
         startCleanupTask();
     }
 
@@ -41,10 +49,10 @@ public class FireballFight implements Listener {
             @Override
             public void run() {
                 long currentTime = System.currentTimeMillis();
-                cooldownMap.entrySet().removeIf(entry -> 
-                    currentTime - entry.getValue() > COOLDOWN_DURATION);
+                cooldownMap.entrySet().removeIf(entry ->
+                        currentTime - entry.getValue() > COOLDOWN_DURATION);
             }
-        }.runTaskTimer(plugin, 20L, 20L); // Run every second
+        }.runTaskTimer(plugin, 20L, 20L);
     }
 
     @EventHandler
@@ -56,11 +64,10 @@ public class FireballFight implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getLogger().info("Fireballfight match started. Players: " + e.getFight().getPlayersInFight());
+                plugin.getLogger().info("FireballFight match started. Players: " + e.getFight().getPlayersInFight());
 
-                // Apply cooldown to all players in the fight
                 e.getFight().getPlayersInFight().forEach(p -> {
-                    UUID playerId = UUID.fromString(p.getUniqueId().toString());
+                    UUID playerId = p.getUniqueId();
                     cooldownMap.put(playerId, System.currentTimeMillis());
                     isInFireballfight.put(playerId, true);
                 });
@@ -74,7 +81,6 @@ public class FireballFight implements Listener {
             return;
         }
 
-        // Remove all players from the cooldown map when fight ends
         e.getFight().getPlayersInFight().forEach(p -> {
             cooldownMap.remove(UUID.fromString(p.getUniqueId().toString()));
             isInFireballfight.remove(UUID.fromString(p.getUniqueId().toString()));
@@ -93,24 +99,43 @@ public class FireballFight implements Listener {
             e.setCancelled(true);
         }
 
-        if (isInFireballfight.get(e.getPlayer().getUniqueId()) != null
-                && isInFireballfight.get(e.getPlayer().getUniqueId()).equals(true)
-                && e.getPlayer().getLocation().getY() < 70) {
-            Player p = e.getPlayer();
+        Player p = e.getPlayer();
 
-            p.damage(69420.0);
-            EntityDamageEvent voidDamageEvent = new EntityDamageEvent(p, EntityDamageEvent.DamageCause.VOID, 69420.0);
-            p.setLastDamageCause(voidDamageEvent);
+        if (isInFireballfight.get(p.getUniqueId()) != null
+                && isInFireballfight.get(p.getUniqueId()).equals(true)
+                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
+                && isDead.get(p.getUniqueId()) == null) {
+
+            Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
+            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -20, p.getLocation().getZ());
+
+            isDead.put(e.getPlayer().getUniqueId(), true);
+            p.teleport(location);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.teleport(oldlocation);
+                }
+            }.runTaskLater(plugin, 5L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    isDead.remove(e.getPlayer().getUniqueId());
+                }
+            }.runTaskLater(plugin, 60L);
         }
     }
 
     @EventHandler
     public void onPlayerBlockPlace(BlockPlaceEvent e) {
-        if (isInFireballfight.get(e.getPlayer().getUniqueId()) != null
-                && isInFireballfight.get(e.getPlayer().getUniqueId()).equals(true)
-                && e.getPlayer().getLocation().getY() < 70) {
+        Player p = e.getPlayer();
+        if (isInFireballfight.get(p.getUniqueId()) != null
+                && isInFireballfight.get(p.getUniqueId()).equals(true)) {
 
-            if (e.getBlock().getY() > 95 || isInCooldown(e.getPlayer().getUniqueId())) {
+            if (e.getBlock().getY() > api.getFight(p).getArena().getLoc1().getY() + 10
+                    || isInCooldown(e.getPlayer().getUniqueId())) {
                 e.setCancelled(true);
             }
         }
