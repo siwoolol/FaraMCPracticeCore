@@ -5,12 +5,16 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
@@ -28,12 +32,14 @@ public class BedFight implements Listener {
     private final Map<UUID, Long> cooldownMap;
     private static final long COOLDOWN_DURATION = 5000;
     private final Map<UUID, Boolean> isInBedfight;
+    private final Map<UUID, Boolean> isDead;
 
     public BedFight(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
         this.api = StrikePractice.getAPI();
         this.cooldownMap = new HashMap<>();
         this.isInBedfight = new HashMap<>();
+        this.isDead = new HashMap<>();
         
         // Start cleanup task
         startCleanupTask();
@@ -98,12 +104,32 @@ public class BedFight implements Listener {
 
         if (isInBedfight.get(e.getPlayer().getUniqueId()) != null
                 && isInBedfight.get(e.getPlayer().getUniqueId()).equals(true)
-                && e.getPlayer().getLocation().getY() < 50) {
+                && e.getPlayer().getLocation().getY() < 50
+                && isDead.get(e.getPlayer().getUniqueId()) == null) {
             Player p = e.getPlayer();
 
-            p.damage(69420.0);
-            EntityDamageEvent voidDamageEvent = new EntityDamageEvent(p, EntityDamageEvent.DamageCause.VOID, 69420.0);
-            p.setLastDamageCause(voidDamageEvent);
+            Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
+            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -20, p.getLocation().getZ());
+
+            isDead.put(e.getPlayer().getUniqueId(), true);
+            p.teleport(location);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.teleport(oldlocation);
+                }
+            }.runTaskLater(plugin, 5L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    isDead.remove(e.getPlayer().getUniqueId());
+                }
+            }.runTaskLater(plugin, 60L);
+
+//            isDead.put(p.getUniqueId(), true);
+//            p.damage(0.1);
         }
     }
 
@@ -118,6 +144,35 @@ public class BedFight implements Listener {
             }
         }
     }
+
+//    @EventHandler
+//    public void onPlayerDamage(EntityDamageEvent e) {
+//        if (!e.getEntityType().equals(EntityType.PLAYER)) {
+//            return;
+//        }
+//
+//        Player deadPlayer = (Player) e.getEntity();
+//
+//        if (isInBedfight.get(deadPlayer.getUniqueId()) != null
+//                && isInBedfight.get(deadPlayer.getUniqueId())
+//                && isDead.get(deadPlayer.getUniqueId()) != null
+//                && isDead.get(deadPlayer.getUniqueId()).equals(true))
+//        {
+//            deadPlayer.setGameMode(GameMode.SPECTATOR);
+//            deadPlayer.teleport(api.getFight(deadPlayer).getArena().getCenter());
+//
+//            new BukkitRunnable() {
+//                @Override
+//                public void run() {
+//                    deadPlayer.teleport(api.getSpawnLocation());
+//
+//                    deadPlayer.setHealth(20.0);
+//                    deadPlayer.getActivePotionEffects().forEach(effect ->
+//                        deadPlayer.removePotionEffect(effect.getType()));
+//                }
+//            }.runTaskLater(plugin, 60L);
+//        }
+//    }
 
     private boolean isInCooldown(UUID playerId) {
         Long cooldownStart = cooldownMap.get(playerId);
