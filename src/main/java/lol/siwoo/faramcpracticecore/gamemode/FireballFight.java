@@ -5,13 +5,13 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -137,6 +137,27 @@ public class FireballFight implements Listener {
             if (e.getBlock().getY() > api.getFight(p).getArena().getLoc1().getY() + 10
                     || isInCooldown(e.getPlayer().getUniqueId())) {
                 e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerBlockBreak(BlockBreakEvent e) {
+        Player p = e.getPlayer();
+        if (isInFireballfight.get(p.getUniqueId()) != null
+                && isInFireballfight.get(p.getUniqueId()).equals(true)) {
+
+            if (e.getBlock().equals(Material.BED)) {
+                e.getBlock().setType(Material.AIR);
+
+                api.getFight(p).getPlayersInFight().forEach(t -> {
+                    if (t != api.getFight(p).getTeammates(p)) {{
+                        api.getFight(t).getTeammates(t).forEach(t1 -> {
+                            Player t11 = Bukkit.getPlayer(t1);
+                            t11.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed", ChatColor.WHITE + "You can no longer respawn");
+                        });
+                    }}
+                });
             }
         }
     }
