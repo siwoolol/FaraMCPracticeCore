@@ -49,4 +49,6 @@ commands:
     description: "Gamemode Adventure (Shortcut)"
   sudo:
     usage: "/sudo <target> [command/c:chat]"
-    description: "Types in a command as a Player"
+  ai:
+    usage: "/ai"
+    description: "Toggle AI coach mode to improve your PvP skills"
