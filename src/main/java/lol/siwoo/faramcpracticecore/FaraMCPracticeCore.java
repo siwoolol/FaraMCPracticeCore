@@ -3,6 +3,7 @@ package lol.siwoo.faramcpracticecore;
 import ga.strikepractice.api.StrikePracticeAPI;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aicoach.AICoach;
+import lol.siwoo.faramcpracticecore.aicoach.AICoachListener;
 import lol.siwoo.faramcpracticecore.design.FightEnd;
 import lol.siwoo.faramcpracticecore.design.WarningMessage;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
@@ -21,9 +22,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     private StrikePracticeAPI strikePracticeAPI;
+    private AICoach aiCoach;
 
     @Override
     public void onEnable() {
+        aiCoach = new AICoach(this, strikePracticeAPI);
         registerEvents();
         registerCommands();
 
@@ -46,11 +49,12 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new Boxing(this), this);
         pm.registerEvents(new BedFight(this), this);
         pm.registerEvents(new FireballFight(this), this);
+        pm.registerEvents(new AICoachListener(aiCoach, strikePracticeAPI), this);
     }
 
     private void registerCommands() {
         getCommand("fly").setExecutor(new Flight());
-        getCommand("ai").setExecutor(new AICoach());
+        getCommand("ai").setExecutor(aiCoach);
         getCommand("forcewin").setExecutor(new ForceWin());
         getCommand("hurryuppartyowner").setExecutor(new HurryUpPartyOwner());
         getCommand("suggestgamemodetopartyowner").setExecutor(new SuggestPartyOwner());
