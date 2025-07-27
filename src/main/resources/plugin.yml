@@ -8,10 +8,11 @@ website: siwoo.lol
 
 api-version: 1.8.8
 
+depend: [ StrikePractice ]
+softdepend: [ Luckperms, Multiverse-Core ]
+
 libraries:
   - org.openjdk.nashorn:nashorn-core:15.4
-
-softdepend: [ Luckperms, Multiverse-Core ]
 
 permissions:
   faramcpracticecore.admin:
