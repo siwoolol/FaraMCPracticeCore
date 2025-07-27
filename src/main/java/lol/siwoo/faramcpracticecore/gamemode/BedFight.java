@@ -5,20 +5,13 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -82,15 +75,17 @@ public class BedFight implements Listener {
         }
 
         e.getFight().getPlayersInFight().forEach(p -> {
-            cooldownMap.remove(UUID.fromString(p.getUniqueId().toString()));
-            isInBedfight.remove(UUID.fromString(p.getUniqueId().toString()));
+            UUID playerId = p.getUniqueId();
+            cooldownMap.remove(playerId);
+            isInBedfight.remove(playerId);
         });
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
-        cooldownMap.remove(e.getPlayer().getUniqueId());
-        isInBedfight.remove(UUID.fromString(e.getPlayer().getUniqueId().toString()));
+        UUID playerId = e.getPlayer().getUniqueId();
+        cooldownMap.remove(playerId);
+        isInBedfight.remove(playerId);
     }
 
     @EventHandler
@@ -100,16 +95,16 @@ public class BedFight implements Listener {
         }
 
         Player p = e.getPlayer();
+        UUID playerId = p.getUniqueId();
 
-        if (isInBedfight.get(p.getUniqueId()) != null
-                && isInBedfight.get(p.getUniqueId()).equals(true)
+        if (Boolean.TRUE.equals(isInBedfight.get(playerId))
                 && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
-                && isDead.get(p.getUniqueId()) == null) {
+                && !Boolean.TRUE.equals(isDead.get(playerId))) {
 
             Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
             Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -20, p.getLocation().getZ());
 
-            isDead.put(e.getPlayer().getUniqueId(), true);
+            isDead.put(playerId, true);
             p.teleport(location);
 
             new BukkitRunnable() {
@@ -122,7 +117,7 @@ public class BedFight implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    isDead.remove(e.getPlayer().getUniqueId());
+                    isDead.remove(playerId);
                 }
             }.runTaskLater(plugin, 60L);
         }
@@ -131,11 +126,11 @@ public class BedFight implements Listener {
     @EventHandler
     public void onPlayerBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-        if (isInBedfight.get(p.getUniqueId()) != null
-                && isInBedfight.get(p.getUniqueId()).equals(true)) {
-
+        UUID playerId = p.getUniqueId();
+        
+        if (Boolean.TRUE.equals(isInBedfight.get(playerId))) {
             if (e.getBlock().getY() > api.getFight(p).getArena().getLoc1().getY() + 10
-                    || isInCooldown(e.getPlayer().getUniqueId())) {
+                    || isInCooldown(playerId)) {
                 e.setCancelled(true);
             }
         }
