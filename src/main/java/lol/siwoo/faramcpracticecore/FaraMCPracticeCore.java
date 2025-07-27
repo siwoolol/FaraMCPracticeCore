@@ -16,9 +16,14 @@ import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwnerListener;
 import lol.siwoo.faramcpracticecore.util.WebhookMessage;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
@@ -59,6 +64,19 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         WebhookMessage.statusMessage("Down");
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        p.sendMessage("SIWOOLOL IS THE BEST");
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                p.sendMessage(ChatColor.GREEN + "give siwoolol some money meh hes greedy");
+            }
+        }.runTaskLater(this, 80L);
     }
 
     private void registerEvents() {
