@@ -72,12 +72,12 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new Boxing(this), this);
         pm.registerEvents(new BedFight(this), this);
         pm.registerEvents(new FireballFight(this), this);
-        pm.registerEvents(new AICoachListener(aiCoach, strikePracticeAPI), this);
+//        pm.registerEvents(new AICoachListener(aiCoach, strikePracticeAPI), this);
     }
 
     private void registerCommands() {
         getCommand("fly").setExecutor(new Flight());
-        getCommand("ai").setExecutor(aiCoach);
+//        getCommand("ai").setExecutor(aiCoach);
         getCommand("forcewin").setExecutor(new ForceWin());
         getCommand("hurryuppartyowner").setExecutor(new HurryUpPartyOwner());
         getCommand("suggestgamemodetopartyowner").setExecutor(new SuggestPartyOwner());
