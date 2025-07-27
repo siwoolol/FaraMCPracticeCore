@@ -37,10 +37,10 @@ public class AICoach implements CommandExecutor {
         if (aiCoachEnabled.contains(playerUUID)) {
             aiCoachEnabled.remove(playerUUID);
             stopMonitoring(playerUUID);
-            player.sendMessage(ChatColor.RED + "✨AI Coach Disabled!");
+            player.sendMessage(ChatColor.RED + "✨ AI Coach Disabled!");
         } else {
             aiCoachEnabled.add(playerUUID);
-            player.sendMessage(ChatColor.GREEN + "✨AI Coach Enabled!");
+            player.sendMessage(ChatColor.GREEN + "✨ AI Coach Enabled!");
         }
 
         return true;
@@ -51,12 +51,19 @@ public class AICoach implements CommandExecutor {
             return;
         }
 
-        final StrikePracticeAPI apiRef = this.api; // Create a final reference for the anonymous class
+        final StrikePracticeAPI apiRef = this.api;
 
         BukkitRunnable monitor = new BukkitRunnable() {
             @Override
             public void run() {
-                if (!player.isOnline() || !opponent.isOnline() || apiRef == null || !apiRef.isInFight(player)) {
+                // Check if either player is offline or the fight has ended
+                if (!player.isOnline() || !opponent.isOnline()) {
+                    stopMonitoring(player.getUniqueId());
+                    return;
+                }
+
+                // Check if the fight is still ongoing using StrikePractice API
+                if (apiRef != null && !apiRef.getFight(player).isPresent()) {
                     stopMonitoring(player.getUniqueId());
                     return;
                 }
@@ -66,15 +73,20 @@ public class AICoach implements CommandExecutor {
                 Vector aimDirection = player.getLocation().getDirection();
                 boolean isHitting = player.isBlocking();
 
-                // Format the data
+                // Calculate distance between players
+                double distance = playerLoc.distance(oppLoc);
+
+                // Format the data with extra newlines for better visibility
                 String data = String.format(
-                    "§6=== Combat Data ===\n" +
-                    "§fYour Position: §a%.2f, %.2f, %.2f\n" +
-                    "§fOpponent Position: §c%.2f, %.2f, %.2f\n" +
-                    "§fAim Direction: §e%.2f, %.2f, %.2f\n" +
-                    "§fHitting: §b%s",
+                    "\n§6=== Combat Data ===\n" +
+                    "§fYour Position: §a%.1f, %.1f, %.1f\n" +
+                    "§fOpponent Position: §c%.1f, %.1f, %.1f\n" +
+                    "§fDistance to opponent: §e%.1f blocks\n" +
+                    "§fAim Direction: §e%.1f, %.1f, %.1f\n" +
+                    "§fHitting: §b%s\n",
                     playerLoc.getX(), playerLoc.getY(), playerLoc.getZ(),
                     oppLoc.getX(), oppLoc.getY(), oppLoc.getZ(),
+                    distance,
                     aimDirection.getX(), aimDirection.getY(), aimDirection.getZ(),
                     isHitting ? "Yes" : "No"
                 );
