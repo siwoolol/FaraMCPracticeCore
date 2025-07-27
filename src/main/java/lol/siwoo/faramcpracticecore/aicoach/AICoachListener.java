@@ -20,7 +20,7 @@ public class AICoachListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        event.getPlayer().sendMessage(ChatColor.GREEN + "✨AI Coach is here! Type /ai to experience top-quality AI Experiences!");
+        event.getPlayer().sendMessage(ChatColor.GREEN + "✨ AI Coach is here! Type /ai to experience top-quality AI Experiences!");
     }
 
     @EventHandler
@@ -28,11 +28,13 @@ public class AICoachListener implements Listener {
         Player player1 = event.getPlayer1();
         Player player2 = event.getPlayer2();
 
-        // Start monitoring for both players if they have AI coach enabled
         if (aiCoach.hasAICoach(player1.getUniqueId())) {
+            player1.sendMessage(ChatColor.GREEN + "✨ AI Coach activating - monitoring your duel!");
             aiCoach.startMonitoring(player1, player2);
         }
+
         if (aiCoach.hasAICoach(player2.getUniqueId())) {
+            player2.sendMessage(ChatColor.GREEN + "✨ AI Coach activating - monitoring your duel!");
             aiCoach.startMonitoring(player2, player1);
         }
     }
@@ -42,7 +44,13 @@ public class AICoachListener implements Listener {
         Player winner = event.getWinner();
         Player loser = event.getLoser();
 
-        // Stop monitoring for both players
+        if (aiCoach.hasAICoach(winner.getUniqueId())) {
+            winner.sendMessage(ChatColor.GREEN + "✨ AI Coach deactivating - duel ended!");
+        }
+        if (aiCoach.hasAICoach(loser.getUniqueId())) {
+            loser.sendMessage(ChatColor.GREEN + "✨ AI Coach deactivating - duel ended!");
+        }
+
         aiCoach.stopMonitoring(winner.getUniqueId());
         aiCoach.stopMonitoring(loser.getUniqueId());
     }
