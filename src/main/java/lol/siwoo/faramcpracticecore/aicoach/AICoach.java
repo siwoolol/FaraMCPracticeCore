@@ -63,7 +63,7 @@ public class AICoach implements CommandExecutor {
                 }
 
                 // Check if the fight is still ongoing using StrikePractice API
-                if (apiRef != null && !apiRef.getFight(player).isPresent()) {
+                if (apiRef != null && apiRef.getFight(player).hasEnded()) {
                     stopMonitoring(player.getUniqueId());
                     return;
                 }
@@ -71,7 +71,8 @@ public class AICoach implements CommandExecutor {
                 Location playerLoc = player.getLocation();
                 Location oppLoc = opponent.getLocation();
                 Vector aimDirection = player.getLocation().getDirection();
-                boolean isHitting = player.isBlocking();
+                // Fixed: Using proper method to check if player is blocking
+                boolean isBlocking = player.isBlocking();
 
                 // Calculate distance between players
                 double distance = playerLoc.distance(oppLoc);
@@ -83,12 +84,12 @@ public class AICoach implements CommandExecutor {
                     "§fOpponent Position: §c%.1f, %.1f, %.1f\n" +
                     "§fDistance to opponent: §e%.1f blocks\n" +
                     "§fAim Direction: §e%.1f, %.1f, %.1f\n" +
-                    "§fHitting: §b%s\n",
+                    "§fBlocking: §b%s\n",
                     playerLoc.getX(), playerLoc.getY(), playerLoc.getZ(),
                     oppLoc.getX(), oppLoc.getY(), oppLoc.getZ(),
                     distance,
                     aimDirection.getX(), aimDirection.getY(), aimDirection.getZ(),
-                    isHitting ? "Yes" : "No"
+                    isBlocking ? "Yes" : "No"
                 );
 
                 player.sendMessage(data);
