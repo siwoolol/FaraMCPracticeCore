@@ -1,5 +1,6 @@
 package lol.siwoo.faramcpracticecore;
 
+import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aicoach.AICoach;
@@ -26,6 +27,28 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        // Make sure StrikePractice is loaded first
+        if (getServer().getPluginManager().getPlugin("StrikePractice") == null) {
+            getLogger().severe("StrikePractice not found! Make sure StrikePractice is installed.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        try {
+            // Try to get the API statically
+            strikePracticeAPI = StrikePractice.getAPI();
+
+            if (strikePracticeAPI == null) {
+                getLogger().severe("Failed to get StrikePractice API! Make sure StrikePractice is installed and loaded.");
+                getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
+        } catch (Exception e) {
+            getLogger().severe("Error while getting StrikePractice API: " + e.getMessage());
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         aiCoach = new AICoach(this, strikePracticeAPI);
         registerEvents();
         registerCommands();
