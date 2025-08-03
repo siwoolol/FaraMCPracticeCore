@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -26,6 +27,7 @@ public class BedFight implements Listener {
     private static final long COOLDOWN_DURATION = 5000;
     private final Map<UUID, Boolean> isInBedfight;
     private final Map<UUID, Boolean> isDead;
+    private final Map<UUID, Integer> startCoords;
 
     public BedFight(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
@@ -33,6 +35,7 @@ public class BedFight implements Listener {
         this.cooldownMap = new HashMap<>();
         this.isInBedfight = new HashMap<>();
         this.isDead = new HashMap<>();
+        this.startCoords = new HashMap<>();
 
         startCleanupTask();
     }
@@ -136,11 +139,71 @@ public class BedFight implements Listener {
         }
     }
 
+    @EventHandler
+    public void onPlayerBlockDestroy(BlockDamageEvent e) {
+        Player p = e.getPlayer();
+        UUID playerId = p.getUniqueId();
+
+        int x1 = api.getFight(p).getArena().getLoc1().getBlockX();
+        int y1 = api.getFight(p).getArena().getLoc1().getBlockY();
+        int z1 = api.getFight(p).getArena().getLoc1().getBlockZ();
+
+        int x2 = api.getFight(p).getArena().getLoc2().getBlockX();
+        int y2 = api.getFight(p).getArena().getLoc2().getBlockY();
+        int z2 = api.getFight(p).getArena().getLoc2().getBlockZ();
+
+        int x = e.getBlock().getX();
+        int y = e.getBlock().getY();
+        int z = e.getBlock().getZ();
+
+        String playerTeam = api.getFight(p).get
+
+        if (Boolean.TRUE.equals(isInBedfight.get(playerId))
+                && isInCooldown(playerId)) {
+            if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("1")) {
+                e.setCancelled(true);
+            }
+        }
+    }
+
     private boolean isInCooldown(UUID playerId) {
         Long cooldownStart = cooldownMap.get(playerId);
         if (cooldownStart == null) {
             return false;
         }
         return System.currentTimeMillis() - cooldownStart < COOLDOWN_DURATION;
+    }
+
+    public String compareCoords(int x, int y, int z, int x1, int y1, int z1, int x2, int y2, int z2) {
+        String selected = "";
+
+        int diffx1 = x1 - x;
+        int diffy1 = y1 - y;
+        int diffz1 = z1 - z;
+        int diff1 = makenonMinus(diffx1) + makenonMinus(diffy1) + makenonMinus(diffz1);
+
+        int diffx2 = x2 - x;
+        int diffy2 = y2 - y;
+        int diffz2 = z2 - z;
+        int diff2 = makenonMinus(diffx2) + makenonMinus(diffy2) + makenonMinus(diffz2);
+
+        if (diff1 < diff2) {
+            selected = "1";
+        } else if (diff1 > diff2) {
+            selected = "2";
+        } else {
+            selected = "0";
+        }
+
+        return selected;
+    }
+
+    public int makenonMinus(int i) {
+        if (i < 0) {
+            i = -i;
+        } else {
+            i = i;
+        }
+        return i;
     }
 }
