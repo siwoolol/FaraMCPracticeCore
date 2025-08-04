@@ -21,9 +21,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.material.Bed;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class BedFight implements Listener {
 
@@ -34,6 +32,9 @@ public class BedFight implements Listener {
     private final Map<UUID, Boolean> isInBedfight;
     private final Map<UUID, Boolean> isDead;
     private final Map<UUID, Location> startPositions;
+    private final Map<String, String> fightIds;
+    private final Map<String, List<BedBreakData>> fightBedBreaks;
+    private int fightCounter = 0;
 
     public BedFight(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
@@ -42,8 +43,28 @@ public class BedFight implements Listener {
         this.isInBedfight = new HashMap<>();
         this.isDead = new HashMap<>();
         this.startPositions = new HashMap<>();
+        this.fightIds = new HashMap<>();
+        this.fightBedBreaks = new HashMap<>();
 
         startCleanupTask();
+    }
+
+    private static class BedBreakData {
+        final Location headLocation;
+        final Location footLocation;
+        final Material headMaterial;
+        final Material footMaterial;
+        final byte headData;
+        final byte footData;
+
+        BedBreakData(Location headLoc, Location footLoc, Material headMat, Material footMat, byte headData, byte footData) {
+            this.headLocation = headLoc;
+            this.footLocation = footLoc;
+            this.headMaterial = headMat;
+            this.footMaterial = footMat;
+            this.headData = headData;
+            this.footData = footData;
+        }
     }
 
     private void startCleanupTask() {
@@ -63,6 +84,9 @@ public class BedFight implements Listener {
             return;
         }
 
+        String fightId = "bedfight_" + (++fightCounter)+ "_" + System.currentTimeMillis();
+        fightBedBreaks.put(fightId, new ArrayList<>());
+
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -72,6 +96,7 @@ public class BedFight implements Listener {
                     UUID playerId = p.getUniqueId();
                     cooldownMap.put(playerId, System.currentTimeMillis());
                     isInBedfight.put(playerId, true);
+                    fightIds.put(playerId.toString(), fightId);
 
                     startPositions.put(playerId, p.getLocation().clone());
                     plugin.getLogger().info("Cached starting position for " + p.getName() + ": " + p.getLocation());
@@ -86,12 +111,60 @@ public class BedFight implements Listener {
             return;
         }
 
+        String fightId = null;
+        for (Player p : e.getFight().getPlayersInFight()) {
+            fightId = fightIds.get(p.getUniqueId().toString());
+            if (fightId != null) {
+                break;
+            }
+        }
+
+        if (fightId != null) {
+            final String finalFightId = fightId;
+            plugin.getLogger().info("Fight ended with ID: " + fightId + ". Starting bed rollback in 1 second...");
+
+            // Schedule rollback after 1 second (20 ticks)
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    rollbackBeds(finalFightId);
+                }
+            }.runTaskLater(plugin, 20L);
+        }
+
         e.getFight().getPlayersInFight().forEach(p -> {
             UUID playerId = p.getUniqueId();
             cooldownMap.remove(playerId);
             isInBedfight.remove(playerId);
             startPositions.remove(playerId);
+            fightIds.remove(playerId.toString());
         });
+    }
+
+    private void rollbackBeds(String fightId) {
+        List<BedBreakData> bedBreaks = fightBedBreaks.get(fightId);
+        if (bedBreaks == null || bedBreaks.isEmpty()) {
+            plugin.getLogger().info("No beds to rollback for fight ID: " + fightId);
+            return;
+        }
+
+        plugin.getLogger().info("Rolling back " + bedBreaks.size() + " bed breaks for fight ID: " + fightId);
+
+        for (BedBreakData bedData : bedBreaks) {
+            // Restore head block
+            bedData.headLocation.getBlock().setType(bedData.headMaterial);
+            bedData.headLocation.getBlock().setData(bedData.headData);
+
+            // Restore foot block
+            bedData.footLocation.getBlock().setType(bedData.footMaterial);
+            bedData.footLocation.getBlock().setData(bedData.footData);
+
+            plugin.getLogger().info("Restored bed at head: " + bedData.headLocation + ", foot: " + bedData.footLocation);
+        }
+
+        // Clean up bed break data after rollback
+        fightBedBreaks.remove(fightId);
+        plugin.getLogger().info("Cleaned up bed break data for fight ID: " + fightId);
     }
 
     @EventHandler
@@ -100,6 +173,7 @@ public class BedFight implements Listener {
         cooldownMap.remove(playerId);
         isInBedfight.remove(playerId);
         startPositions.remove(playerId);
+        fightIds.remove(playerId.toString());
     }
 
     @EventHandler
@@ -160,6 +234,12 @@ public class BedFight implements Listener {
             return;
         }
 
+        String fightId = fightIds.get(playerId.toString());
+        if (fightId == null) {
+            plugin.getLogger().warning("No fight ID found for player: " + p.getName());
+            return;
+        }
+
         int x1 = api.getFight(p).getArena().getLoc1().getBlockX();
         int y1 = api.getFight(p).getArena().getLoc1().getBlockY();
         int z1 = api.getFight(p).getArena().getLoc1().getBlockZ();
@@ -190,53 +270,66 @@ public class BedFight implements Listener {
                 if (playerTeam == 2) {
                     e.setCancelled(true);
                 } else {
-                    e.setCancelled(false);
-                    e.getBlock().setType(Material.AIR);
-                    api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), e.getBlock()));
-
-                    api.getFight(p).getPlayersInFight().forEach(player -> {
-                        if (!api.getFight(p).getTeammates(p).contains(player.getName())) {
-                            // This is an opponent, send them the bed destroyed message
-                            player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
-                                    ChatColor.WHITE + "You can no longer respawn");
-                        }
-                    });
+                    handleBedBreak(e, fightId, p);
                 }
             } else if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("2")) {
                 if (playerTeam == 1) {
                     e.setCancelled(true);
                 } else {
-                    if (e.getBlock().equals(Material.BED_BLOCK)) {
-                        Bed bedData = (Bed) e.getBlock().getState().getData();
-
-                        Block headBlock;
-                        Block footBlock;
-
-                        if (bedData.isHeadOfBed()) {
-                            headBlock = e.getBlock();
-                            footBlock = headBlock.getRelative(bedData.getFacing().getOppositeFace());
-                        } else {
-                            footBlock = e.getBlock();
-                            headBlock = footBlock.getRelative(bedData.getFacing());
-                        }
-                    }
-
-                    e.setCancelled(false);
-                    e.getBlock().setType(Material.AIR);
-                    api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), Material.BED, (byte) 0));
-
-                    api.getFight(p).getPlayersInFight().forEach(player -> {
-                        if (!api.getFight(p).getTeammates(p).contains(player.getName())) {
-                            // This is an opponent, send them the bed destroyed message
-                            player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
-                                    ChatColor.WHITE + "You can no longer respawn");
-                        }
-                    });
+                    handleBedBreak(e, fightId, p);
                 }
             } else {
                 e.setCancelled(true);
             }
         }
+    }
+
+    private void handleBedBreak(BlockDamageEvent e, String fightId, Player p) {
+        if (e.getBlock().getType() == Material.BED) {
+            Bed bedData = (Bed) e.getBlock().getState().getData();
+            Block headBlock;
+            Block footBlock;
+
+            if (bedData.isHeadOfBed()) {
+                headBlock = e.getBlock();
+                footBlock = headBlock.getRelative(bedData.getFacing().getOppositeFace());
+            } else {
+                footBlock = e.getBlock();
+                headBlock = footBlock.getRelative(bedData.getFacing());
+            }
+
+            // Log the bed break data before destroying
+            BedBreakData breakData = new BedBreakData(
+                    headBlock.getLocation().clone(),
+                    footBlock.getLocation().clone(),
+                    headBlock.getType(),
+                    footBlock.getType(),
+                    headBlock.getData(),
+                    footBlock.getData()
+            );
+
+            fightBedBreaks.get(fightId).add(breakData);
+
+            plugin.getLogger().info("Bed break logged for fight ID: " + fightId +
+                    " at head: " + headBlock.getLocation() + ", foot: " + footBlock.getLocation());
+
+            // Destroy both parts of the bed
+            headBlock.setType(Material.AIR);
+            footBlock.setType(Material.AIR);
+
+            // Add to StrikePractice's block change tracking
+            api.getFight(p).addBlockChange(new DefaultCachedBlockChange(headBlock.getLocation(), headBlock));
+            api.getFight(p).addBlockChange(new DefaultCachedBlockChange(footBlock.getLocation(), footBlock));
+
+            // Send messages to opponents
+            api.getFight(p).getPlayersInFight().forEach(player -> {
+                if (!api.getFight(p).getTeammates(p).contains(player.getName())) {
+                    player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
+                            ChatColor.WHITE + "You can no longer respawn");
+                }
+            });
+        }
+        e.setCancelled(false);
     }
 
     private boolean isInCooldown(UUID playerId) {
