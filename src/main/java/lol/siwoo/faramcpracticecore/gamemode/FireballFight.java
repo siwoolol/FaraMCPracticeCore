@@ -2,6 +2,7 @@ package lol.siwoo.faramcpracticecore.gamemode;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
+import ga.strikepractice.arena.DefaultCachedBlockChange;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -27,6 +29,7 @@ public class FireballFight implements Listener {
     private static final long COOLDOWN_DURATION = 5000;
     private final Map<UUID, Boolean> isInFireballfight;
     private final Map<UUID, Boolean> isDead;
+    private final Map<UUID, Location> startPositions;
 
     public FireballFight(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
@@ -34,6 +37,7 @@ public class FireballFight implements Listener {
         this.cooldownMap = new HashMap<>();
         this.isInFireballfight = new HashMap<>();
         this.isDead = new HashMap<>();
+        this.startPositions = new HashMap<>();
 
         startCleanupTask();
     }
@@ -64,6 +68,9 @@ public class FireballFight implements Listener {
                     UUID playerId = p.getUniqueId();
                     cooldownMap.put(playerId, System.currentTimeMillis());
                     isInFireballfight.put(playerId, true);
+
+                    startPositions.put(playerId, p.getLocation().clone());
+                    plugin.getLogger().info("Cached starting position for " + p.getName() + ": " + p.getLocation());
                 });
             }
         }.runTaskLater(plugin, 2L);
@@ -79,6 +86,7 @@ public class FireballFight implements Listener {
             UUID playerId = p.getUniqueId();
             cooldownMap.remove(playerId);
             isInFireballfight.remove(playerId);
+            startPositions.remove(playerId);
         });
     }
 
@@ -87,6 +95,7 @@ public class FireballFight implements Listener {
         UUID playerId = e.getPlayer().getUniqueId();
         cooldownMap.remove(playerId);
         isInFireballfight.remove(playerId);
+        startPositions.remove(playerId);
     }
 
     @EventHandler
@@ -138,22 +147,70 @@ public class FireballFight implements Listener {
     }
 
     @EventHandler
-    public void onPlayerBlockBreak(BlockBreakEvent e) {
+    public void onPlayerBlockDestroy(BlockDamageEvent e) {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
-        
-        if (Boolean.TRUE.equals(isInFireballfight.get(playerId))) {
-            if (e.getBlock().getType() == Material.BED || e.getBlock().getType() == Material.BED_BLOCK) {
-                e.getBlock().setType(Material.AIR);
 
-                // Fixed the logic for bed destruction notification
-                api.getFight(p).getPlayersInFight().forEach(player -> {
-                    if (!api.getFight(p).getTeammates(p).contains(player.getName())) {
-                        // This is an opponent, send them the bed destroyed message
-                        player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed", 
-                                        ChatColor.WHITE + "You can no longer respawn");
-                    }
-                });
+        int x1 = api.getFight(p).getArena().getLoc1().getBlockX();
+        int y1 = api.getFight(p).getArena().getLoc1().getBlockY();
+        int z1 = api.getFight(p).getArena().getLoc1().getBlockZ();
+
+        int x2 = api.getFight(p).getArena().getLoc2().getBlockX();
+        int y2 = api.getFight(p).getArena().getLoc2().getBlockY();
+        int z2 = api.getFight(p).getArena().getLoc2().getBlockZ();
+
+        int x = e.getBlock().getX();
+        int y = e.getBlock().getY();
+        int z = e.getBlock().getZ();
+
+        int sx = startPositions.get(playerId).getBlockX();
+        int sy = startPositions.get(playerId).getBlockX();
+        int sz = startPositions.get(playerId).getBlockX();
+
+        int playerTeam = 0;
+
+        if (x1 == sx && y1 == sy && z1 == sz) {
+            playerTeam = 1; // team 1
+        } else if (x2 == sx && y2 == sy && z2 == sz) {
+            playerTeam = 2; // team 2
+        }
+
+        if (Boolean.TRUE.equals(isInFireballfight.get(playerId))
+                && !isInCooldown(playerId)) {
+            if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("1")) {
+                if (playerTeam == 1) {
+                    e.setCancelled(true);
+                } else {
+                    e.setCancelled(false);
+                    e.getBlock().setType(Material.AIR);
+                    api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), Material.BED, (byte) 0));
+
+                    api.getFight(p).getPlayersInFight().forEach(player -> {
+                        if (!api.getFight(p).getTeammates(p).contains(player.getName())) {
+                            // This is an opponent, send them the bed destroyed message
+                            player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
+                                    ChatColor.WHITE + "You can no longer respawn");
+                        }
+                    });
+                }
+            } else if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("2")) {
+                if (playerTeam == 2) {
+                    e.setCancelled(true);
+                } else {
+                    e.setCancelled(false);
+                    e.getBlock().setType(Material.AIR);
+                    api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), Material.BED, (byte) 0));
+
+                    api.getFight(p).getPlayersInFight().forEach(player -> {
+                        if (!api.getFight(p).getTeammates(p).contains(player.getName())) {
+                            // This is an opponent, send them the bed destroyed message
+                            player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
+                                    ChatColor.WHITE + "You can no longer respawn");
+                        }
+                    });
+                }
+            } else {
+                e.setCancelled(true);
             }
         }
     }
@@ -164,5 +221,38 @@ public class FireballFight implements Listener {
             return false;
         }
         return System.currentTimeMillis() - cooldownStart < COOLDOWN_DURATION;
+    }
+
+    public String compareCoords(int x, int y, int z, int x1, int y1, int z1, int x2, int y2, int z2) {
+        String selected = "";
+
+        int diffx1 = x1 - x;
+        int diffy1 = y1 - y;
+        int diffz1 = z1 - z;
+        int diff1 = makenonMinus(diffx1) + makenonMinus(diffy1) + makenonMinus(diffz1);
+
+        int diffx2 = x2 - x;
+        int diffy2 = y2 - y;
+        int diffz2 = z2 - z;
+        int diff2 = makenonMinus(diffx2) + makenonMinus(diffy2) + makenonMinus(diffz2);
+
+        if (diff1 < diff2) {
+            selected = "1";
+        } else if (diff1 > diff2) {
+            selected = "2";
+        } else {
+            selected = "0";
+        }
+
+        return selected;
+    }
+
+    public int makenonMinus(int i) {
+        if (i < 0) {
+            i = -i;
+        } else {
+            i = i;
+        }
+        return i;
     }
 }
