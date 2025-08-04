@@ -6,6 +6,7 @@ import ga.strikepractice.arena.DefaultCachedBlockChange;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -185,6 +186,14 @@ public class BedFight implements Listener {
                     e.setCancelled(false);
                     e.getBlock().setType(Material.AIR);
                     api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), Material.BED, (byte) 0));
+
+                    api.getFight(p).getPlayersInFight().forEach(player -> {
+                        if (!api.getFight(p).getTeammates(p).contains(player.getName())) {
+                            // This is an opponent, send them the bed destroyed message
+                            player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
+                                    ChatColor.WHITE + "You can no longer respawn");
+                        }
+                    });
                 }
             } else if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("2")) {
                 if (playerTeam == 2) {
@@ -193,6 +202,14 @@ public class BedFight implements Listener {
                     e.setCancelled(false);
                     e.getBlock().setType(Material.AIR);
                     api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), Material.BED, (byte) 0));
+
+                    api.getFight(p).getPlayersInFight().forEach(player -> {
+                        if (!api.getFight(p).getTeammates(p).contains(player.getName())) {
+                            // This is an opponent, send them the bed destroyed message
+                            player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
+                                    ChatColor.WHITE + "You can no longer respawn");
+                        }
+                    });
                 }
             } else {
                 e.setCancelled(true);
