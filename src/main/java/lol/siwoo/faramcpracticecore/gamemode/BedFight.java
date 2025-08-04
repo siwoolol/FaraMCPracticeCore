@@ -6,6 +6,7 @@ import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,7 +28,8 @@ public class BedFight implements Listener {
     private static final long COOLDOWN_DURATION = 5000;
     private final Map<UUID, Boolean> isInBedfight;
     private final Map<UUID, Boolean> isDead;
-    private final Map<UUID, Integer> startCoords;
+    private final Map<UUID, Location> startPositions;
+
 
     public BedFight(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
@@ -35,7 +37,7 @@ public class BedFight implements Listener {
         this.cooldownMap = new HashMap<>();
         this.isInBedfight = new HashMap<>();
         this.isDead = new HashMap<>();
-        this.startCoords = new HashMap<>();
+        this.startPositions = new HashMap<>();
 
         startCleanupTask();
     }
@@ -66,6 +68,9 @@ public class BedFight implements Listener {
                     UUID playerId = p.getUniqueId();
                     cooldownMap.put(playerId, System.currentTimeMillis());
                     isInBedfight.put(playerId, true);
+
+                    startPositions.put(playerId, p.getLocation().clone());
+                    plugin.getLogger().info("Cached starting position for " + p.getName() + ": " + p.getLocation());
                 });
             }
         }.runTaskLater(plugin, 2L);
@@ -81,6 +86,8 @@ public class BedFight implements Listener {
             UUID playerId = p.getUniqueId();
             cooldownMap.remove(playerId);
             isInBedfight.remove(playerId);
+            startPositions.remove(playerId);
+
         });
     }
 
@@ -89,6 +96,7 @@ public class BedFight implements Listener {
         UUID playerId = e.getPlayer().getUniqueId();
         cooldownMap.remove(playerId);
         isInBedfight.remove(playerId);
+        startPositions.remove(playerId);
     }
 
     @EventHandler
@@ -156,11 +164,35 @@ public class BedFight implements Listener {
         int y = e.getBlock().getY();
         int z = e.getBlock().getZ();
 
-        String playerTeam = api.getFight(p).get
+        int sx = startPositions.get(playerId).getBlockX();
+        int sy = startPositions.get(playerId).getBlockX();
+        int sz = startPositions.get(playerId).getBlockX();
+
+        int playerTeam = 0;
+
+        if (x1 == sx && y1 == sy && z1 == sz) {
+            playerTeam = 1; // team 1
+        } else if (x2 == sx && y2 == sy && z2 == sz) {
+            playerTeam = 2; // team 2
+        }
 
         if (Boolean.TRUE.equals(isInBedfight.get(playerId))
-                && isInCooldown(playerId)) {
+                && !isInCooldown(playerId)) {
             if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("1")) {
+                if (playerTeam == 1) {
+                    e.setCancelled(true);
+                } else {
+                    e.setCancelled(false);
+//                    e.getBlock().setType(Material.AIR);
+                }
+            } else if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("2")) {
+                if (playerTeam == 2) {
+                    e.setCancelled(true);
+                } else {
+                    e.setCancelled(false);
+//                    e.getBlock().setType(Material.AIR);
+                }
+            } else {
                 e.setCancelled(true);
             }
         }
