@@ -153,6 +153,10 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
+        if (!Boolean.TRUE.equals(isInBedfight.get(playerId))) {
+            return;
+        }
+
         int x1 = api.getFight(p).getArena().getLoc1().getBlockX();
         int y1 = api.getFight(p).getArena().getLoc1().getBlockY();
         int z1 = api.getFight(p).getArena().getLoc1().getBlockZ();
