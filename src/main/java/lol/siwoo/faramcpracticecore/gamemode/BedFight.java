@@ -88,7 +88,6 @@ public class BedFight implements Listener {
             cooldownMap.remove(playerId);
             isInBedfight.remove(playerId);
             startPositions.remove(playerId);
-
         });
     }
 
