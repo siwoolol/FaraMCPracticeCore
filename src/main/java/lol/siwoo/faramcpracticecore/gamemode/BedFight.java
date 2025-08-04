@@ -2,6 +2,7 @@ package lol.siwoo.faramcpracticecore.gamemode;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
+import ga.strikepractice.arena.DefaultCachedBlockChange;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
@@ -183,14 +184,16 @@ public class BedFight implements Listener {
                     e.setCancelled(true);
                 } else {
                     e.setCancelled(false);
-//                    e.getBlock().setType(Material.AIR);
+                    e.getBlock().setType(Material.AIR);
+                    api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), Material.BED, (byte) 0));
                 }
             } else if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("2")) {
                 if (playerTeam == 2) {
                     e.setCancelled(true);
                 } else {
                     e.setCancelled(false);
-//                    e.getBlock().setType(Material.AIR);
+                    e.getBlock().setType(Material.AIR);
+                    api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), Material.BED, (byte) 0));
                 }
             } else {
                 e.setCancelled(true);
