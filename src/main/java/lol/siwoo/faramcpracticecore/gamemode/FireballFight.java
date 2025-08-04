@@ -188,7 +188,7 @@ public class FireballFight implements Listener {
                 } else {
                     e.setCancelled(false);
                     e.getBlock().setType(Material.AIR);
-                    api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), Material.BED, (byte) 0));
+                    api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), e.getBlock()));
 
                     api.getFight(p).getPlayersInFight().forEach(player -> {
                         if (!api.getFight(p).getTeammates(p).contains(player.getName())) {

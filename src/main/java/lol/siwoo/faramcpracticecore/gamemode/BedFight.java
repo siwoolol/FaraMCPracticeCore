@@ -32,7 +32,6 @@ public class BedFight implements Listener {
     private final Map<UUID, Boolean> isDead;
     private final Map<UUID, Location> startPositions;
 
-
     public BedFight(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
         this.api = StrikePractice.getAPI();
@@ -190,7 +189,7 @@ public class BedFight implements Listener {
                 } else {
                     e.setCancelled(false);
                     e.getBlock().setType(Material.AIR);
-                    api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), Material.BED, (byte) 0));
+                    api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), e.getBlock()));
 
                     api.getFight(p).getPlayersInFight().forEach(player -> {
                         if (!api.getFight(p).getTeammates(p).contains(player.getName())) {
