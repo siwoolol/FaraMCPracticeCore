@@ -321,9 +321,8 @@ public class BedFight implements Listener {
             api.getFight(p).addBlockChange(new DefaultCachedBlockChange(headBlock.getLocation(), headBlock));
             api.getFight(p).addBlockChange(new DefaultCachedBlockChange(footBlock.getLocation(), footBlock));
 
-            // Send messages to opponents
             api.getFight(p).getPlayersInFight().forEach(player -> {
-                if (!api.getFight(p).getTeammates(p).contains(player.getName())) {
+                if (!api.getFight(player).getTeammates(player).contains(p.getName())) {
                     player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
                             ChatColor.WHITE + "You can no longer respawn");
                 }
