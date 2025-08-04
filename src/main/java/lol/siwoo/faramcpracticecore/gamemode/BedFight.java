@@ -9,6 +9,8 @@ import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,6 +18,7 @@ import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.material.Bed;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -203,6 +206,21 @@ public class BedFight implements Listener {
                 if (playerTeam == 1) {
                     e.setCancelled(true);
                 } else {
+                    if (e.getBlock().equals(Material.BED_BLOCK)) {
+                        Bed bedData = (Bed) e.getBlock().getState().getData();
+
+                        Block headBlock;
+                        Block footBlock;
+
+                        if (bedData.isHeadOfBed()) {
+                            headBlock = e.getBlock();
+                            footBlock = headBlock.getRelative(bedData.getFacing().getOppositeFace());
+                        } else {
+                            footBlock = e.getBlock();
+                            headBlock = footBlock.getRelative(bedData.getFacing());
+                        }
+                    }
+
                     e.setCancelled(false);
                     e.getBlock().setType(Material.AIR);
                     api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), Material.BED, (byte) 0));
