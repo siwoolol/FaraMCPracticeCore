@@ -154,7 +154,7 @@ public class BedFight implements Listener {
         UUID playerId = p.getUniqueId();
 
         if (!Boolean.TRUE.equals(isInBedfight.get(playerId))
-            && !(e.getBlock().getType() == Material.BED)) {
+            || !(e.getBlock().getType() == Material.BED)) {
             return;
         }
 

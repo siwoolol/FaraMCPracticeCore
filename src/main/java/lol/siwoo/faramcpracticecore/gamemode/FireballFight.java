@@ -152,7 +152,7 @@ public class FireballFight implements Listener {
         UUID playerId = p.getUniqueId();
 
         if (!Boolean.TRUE.equals(isInFireballfight.get(playerId))
-            && !(e.getBlock().getType() == Material.BED)) {
+            || !(e.getBlock().getType() == Material.BED)) {
             return;
         }
 
