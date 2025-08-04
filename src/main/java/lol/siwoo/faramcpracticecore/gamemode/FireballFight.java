@@ -152,7 +152,7 @@ public class FireballFight implements Listener {
         UUID playerId = p.getUniqueId();
 
         if (!Boolean.TRUE.equals(isInFireballfight.get(playerId))
-            || !(e.getBlock().getType() == Material.BED)) {
+                || !(e.getBlock().getType() == Material.BED)) {
             return;
         }
 
@@ -174,16 +174,16 @@ public class FireballFight implements Listener {
 
         int playerTeam = 0;
 
-        if (x1 == sx && y1 == sy && z1 == sz) {
+        if (compareCoords(sx, sy, sz, x1, y1, z1, x2, y2, z2).equals("1")) {
             playerTeam = 1; // team 1
-        } else if (x2 == sx && y2 == sy && z2 == sz) {
+        } else if (compareCoords(sx, sy, sz, x1, y1, z1, x2, y2, z2).equals("2")) {
             playerTeam = 2; // team 2
         }
 
         if (Boolean.TRUE.equals(isInFireballfight.get(playerId))
                 && !isInCooldown(playerId)) {
             if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("1")) {
-                if (playerTeam == 1) {
+                if (playerTeam == 2) {
                     e.setCancelled(true);
                 } else {
                     e.setCancelled(false);
@@ -199,7 +199,7 @@ public class FireballFight implements Listener {
                     });
                 }
             } else if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("2")) {
-                if (playerTeam == 2) {
+                if (playerTeam == 1) {
                     e.setCancelled(true);
                 } else {
                     e.setCancelled(false);
