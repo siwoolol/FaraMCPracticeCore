@@ -336,7 +336,6 @@ public class BedFight implements Listener {
                             ChatColor.WHITE + "You can no longer respawn!");
                 }
             });
-
         }
     }
 
