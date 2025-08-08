@@ -314,13 +314,18 @@ public class BedFight implements Listener {
             plugin.getLogger().info("Bed break logged for fight ID: " + fightId +
                     " at head: " + headBlock.getLocation() + ", foot: " + footBlock.getLocation());
 
-            // Destroy both parts of the bed
-            headBlock.setType(Material.AIR);
-            footBlock.setType(Material.AIR);
+            e.setCancelled(false);
 
-            // Add to StrikePractice's block change tracking
-            api.getFight(p).addBlockChange(new DefaultCachedBlockChange(headBlock.getLocation(), headBlock));
-            api.getFight(p).addBlockChange(new DefaultCachedBlockChange(footBlock.getLocation(), footBlock));
+            if (footBlock.getType() == Material.BED) {
+                footBlock.setType(Material.AIR);
+                api.getFight(p).addBlockChange(new DefaultCachedBlockChange(footBlock.getLocation(), footBlock));
+            }
+            if (headBlock.getType() == Material.BED && !headBlock.equals(e.getBlock())) {
+                headBlock.setType(Material.AIR);
+                api.getFight(p).addBlockChange(new DefaultCachedBlockChange(headBlock.getLocation(), headBlock));
+            }
+
+            api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), e.getBlock()));
 
             api.getFight(p).getPlayersInFight().forEach(player -> {
                 if (!api.getFight(player).getTeammates(player).contains(p.getName())) {
@@ -329,7 +334,6 @@ public class BedFight implements Listener {
                 }
             });
         }
-        e.setCancelled(false);
     }
 
     private boolean isInCooldown(UUID playerId) {
