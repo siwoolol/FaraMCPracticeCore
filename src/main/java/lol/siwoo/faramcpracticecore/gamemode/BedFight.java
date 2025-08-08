@@ -227,6 +227,8 @@ public class BedFight implements Listener {
 
     @EventHandler
     public void onPlayerBlockBreak(BlockBreakEvent e) {
+        plugin.getLogger().info("Bed break event triggered");
+
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
@@ -235,11 +237,15 @@ public class BedFight implements Listener {
             return;
         }
 
+        plugin.getLogger().info("Bed break event triggered: pass 1");
+
         String fightId = fightIds.get(playerId.toString());
         if (fightId == null) {
             plugin.getLogger().warning("No fight ID found for player: " + p.getName());
             return;
         }
+
+        plugin.getLogger().info("Bed break event triggered: pass 2 for fight ID: " + fightId);
 
         int x1 = api.getFight(p).getArena().getLoc1().getBlockX();
         int y1 = api.getFight(p).getArena().getLoc1().getBlockY();
@@ -272,12 +278,14 @@ public class BedFight implements Listener {
                     e.setCancelled(true);
                 } else {
                     handleBedBreak(e, fightId, p);
+                    e.getBlock().setType(Material.AIR);
                 }
             } else if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("2")) {
                 if (playerTeam == 1) {
                     e.setCancelled(true);
                 } else {
                     handleBedBreak(e, fightId, p);
+                    e.getBlock().setType(Material.AIR);
                 }
             } else {
                 e.setCancelled(true);
@@ -286,10 +294,19 @@ public class BedFight implements Listener {
     }
 
     private void handleBedBreak(BlockBreakEvent e, String fightId, Player p) {
+        plugin.getLogger().info("=== BED BREAK DEBUG START ===");
+        plugin.getLogger().info("Player: " + p.getName() + " (" + p.getUniqueId() + ")");
+        plugin.getLogger().info("Fight ID: " + fightId);
+        plugin.getLogger().info("Block type: " + e.getBlock().getType());
+        plugin.getLogger().info("Block location: " + e.getBlock().getLocation());
+
         if (e.getBlock().getType() == Material.BED) {
             Bed bedData = (Bed) e.getBlock().getState().getData();
             Block headBlock;
             Block footBlock;
+
+            plugin.getLogger().info("Bed data - IsHeadOfBed: " + bedData.isHeadOfBed());
+            plugin.getLogger().info("Bed data - Facing: " + bedData.getFacing());
 
             if (bedData.isHeadOfBed()) {
                 headBlock = e.getBlock();
@@ -298,6 +315,11 @@ public class BedFight implements Listener {
                 footBlock = e.getBlock();
                 headBlock = footBlock.getRelative(bedData.getFacing());
             }
+
+            plugin.getLogger().info("Head block location: " + headBlock.getLocation());
+            plugin.getLogger().info("Foot block location: " + footBlock.getLocation());
+            plugin.getLogger().info("Head block type: " + headBlock.getType());
+            plugin.getLogger().info("Foot block type: " + footBlock.getType());
 
             // Log the bed break data before destroying
             BedBreakData breakData = new BedBreakData(
@@ -315,31 +337,60 @@ public class BedFight implements Listener {
                     " at head: " + headBlock.getLocation() + ", foot: " + footBlock.getLocation());
 
             e.setCancelled(false);
+            plugin.getLogger().info("Break event cancelled: false");
 
             if (footBlock.getType() == Material.BED) {
+                plugin.getLogger().info("Breaking foot block at: " + footBlock.getLocation());
                 footBlock.setType(Material.AIR);
                 api.getFight(p).addBlockChange(new DefaultCachedBlockChange(footBlock.getLocation(), footBlock));
             }
             if (headBlock.getType() == Material.BED && !headBlock.equals(e.getBlock())) {
+                plugin.getLogger().info("Breaking head block at: " + headBlock.getLocation());
                 headBlock.setType(Material.AIR);
                 api.getFight(p).addBlockChange(new DefaultCachedBlockChange(headBlock.getLocation(), headBlock));
             }
 
             api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), e.getBlock()));
+            plugin.getLogger().info("Added block change to StrikePractice tracking");
+
+            // Get all players in fight for debugging
+            plugin.getLogger().info("Players in fight: " + api.getFight(p).getPlayersInFight().size());
 
             api.getFight(p).getPlayersInFight().forEach(player -> {
-                List<String> teammates = api.getFight(player).getTeammates(player);
-                boolean sameTeam = teammates.contains(p.getName()) || player.equals(p);
+                plugin.getLogger().info("Processing player: " + player.getName());
 
-                if (!sameTeam) {
+                // Get the list of teammates for the current player
+                java.util.List<String> teammates = api.getFight(player).getTeammates(player);
+                plugin.getLogger().info("Player " + player.getName() + " teammates: " + teammates);
+
+                // Check if the bed breaker is on the same team as the current player
+                boolean sameTeam = teammates.contains(p.getName()) || player.equals(p);
+                plugin.getLogger().info("Player " + player.getName() + " same team as breaker " + p.getName() + ": " + sameTeam);
+
+                if (sameTeam) {
+                    // Same team - bed destroyer and their teammates get success message
+                    plugin.getLogger().info("Sending success title to " + player.getName());
+                    player.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "Bed Destroyed!",
+                            ChatColor.WHITE + "Enemy bed has been destroyed!");
+                    player.sendMessage(ChatColor.GREEN + "[DEBUG] You/your teammate destroyed the enemy bed!");
+                } else {
+                    // Different team - victims get the warning message
+                    plugin.getLogger().info("Sending warning title to " + player.getName());
                     player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
                             ChatColor.WHITE + "You can no longer respawn!");
+                    player.sendMessage(ChatColor.RED + "[DEBUG] Your bed was destroyed by the enemy!");
                 }
             });
+
+            plugin.getLogger().info("Title messages sent to all players");
+        } else {
+            plugin.getLogger().warning("Block is not a bed! Type: " + e.getBlock().getType());
         }
+
+        plugin.getLogger().info("=== BED BREAK DEBUG END ===");
     }
 
-    private boolean isInCooldown(UUID playerId) {
+        private boolean isInCooldown(UUID playerId) {
         Long cooldownStart = cooldownMap.get(playerId);
         if (cooldownStart == null) {
             return false;
