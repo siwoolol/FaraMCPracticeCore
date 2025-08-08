@@ -427,18 +427,9 @@ public void onPlayerBlockBreak(BlockBreakEvent e) {
                 boolean sameTeam = teammates.contains(p.getName()) || player.equals(p);
 //                plugin.getLogger().info("Player " + player.getName() + " same team as breaker " + p.getName() + ": " + sameTeam);
 
-                if (sameTeam) {
-                    // Same team - bed destroyer and their teammates get success message
-//                    plugin.getLogger().info("Sending success title to " + player.getName());
-                    player.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "Bed Destroyed!",
-                            ChatColor.WHITE + "Enemy bed has been destroyed!");
-//                    player.sendMessage(ChatColor.GREEN + "[DEBUG] You/your teammate destroyed the enemy bed!");
-                } else {
-                    // Different team - victims get the warning message
-//                    plugin.getLogger().info("Sending warning title to " + player.getName());
+                if (!sameTeam) {
                     player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
-                            ChatColor.WHITE + "You can no longer respawn!");
-//                    player.sendMessage(ChatColor.RED + "[DEBUG] Your bed was destroyed by the enemy!");
+                            ChatColor.WHITE + "You can no longer respawn");
                 }
             });
 
