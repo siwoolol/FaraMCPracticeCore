@@ -225,73 +225,133 @@ public class BedFight implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerBlockBreak(BlockBreakEvent e) {
-        plugin.getLogger().info("Bed break event triggered");
+@EventHandler
+public void onPlayerBlockBreak(BlockBreakEvent e) {
+    Player p = e.getPlayer();
+    UUID playerId = p.getUniqueId();
 
-        Player p = e.getPlayer();
-        UUID playerId = p.getUniqueId();
+    // Always log basic info first
+    plugin.getLogger().info("=== BLOCK BREAK EVENT TRIGGERED ===");
+    plugin.getLogger().info("Player: " + p.getName() + " (" + playerId + ")");
+    plugin.getLogger().info("Block type: " + e.getBlock().getType());
+    plugin.getLogger().info("Block location: " + e.getBlock().getLocation());
+    
+    // Check if player is in bedfight map
+    Boolean inBedfight = isInBedfight.get(playerId);
+    plugin.getLogger().info("Player in bedfight map: " + inBedfight);
+    plugin.getLogger().info("Boolean.TRUE.equals(inBedfight): " + Boolean.TRUE.equals(inBedfight));
+    
+    // Check if block is bed
+    boolean isBed = e.getBlock().getType() == Material.BED_BLOCK;
+    plugin.getLogger().info("Is block a bed: " + isBed);
+    plugin.getLogger().info("Block type equals Material.BED: " + e.getBlock().getType().equals(Material.BED));
+    
+    // Check the condition that's failing
+    boolean condition1 = !Boolean.TRUE.equals(isInBedfight.get(playerId));
+    boolean condition2 = !(e.getBlock().getType() == Material.BED_BLOCK);
+    plugin.getLogger().info("Condition 1 (not in bedfight): " + condition1);
+    plugin.getLogger().info("Condition 2 (not a bed): " + condition2);
+    plugin.getLogger().info("Overall condition (should return): " + (condition1 || condition2));
 
-        if (Boolean.TRUE.equals(isInBedfight.get(playerId))
-            || !(e.getBlock().getType() == Material.BED)) {
-            return;
-        }
+    if (!Boolean.TRUE.equals(isInBedfight.get(playerId))
+        || !(e.getBlock().getType() == Material.BED_BLOCK)) {
+        plugin.getLogger().info("EARLY RETURN - Condition failed, not processing bed break");
+        plugin.getLogger().info("=== BLOCK BREAK EVENT END (EARLY RETURN) ===");
+        return;
+    }
 
-        plugin.getLogger().info("Bed break event triggered: pass 1");
+    plugin.getLogger().info("PASSED INITIAL CHECKS - Continuing with bed break logic");
 
-        String fightId = fightIds.get(playerId.toString());
-        if (fightId == null) {
-            plugin.getLogger().warning("No fight ID found for player: " + p.getName());
-            return;
-        }
+    String fightId = fightIds.get(playerId.toString());
+    if (fightId == null) {
+        plugin.getLogger().warning("No fight ID found for player: " + p.getName());
+        plugin.getLogger().info("Available fight IDs: " + fightIds.keySet());
+        return;
+    }
 
-        plugin.getLogger().info("Bed break event triggered: pass 2 for fight ID: " + fightId);
+    plugin.getLogger().info("Fight ID: " + fightId);
 
-        int x1 = api.getFight(p).getArena().getLoc1().getBlockX();
-        int y1 = api.getFight(p).getArena().getLoc1().getBlockY();
-        int z1 = api.getFight(p).getArena().getLoc1().getBlockZ();
+    // Continue with rest of the logic...
+    int x1 = api.getFight(p).getArena().getLoc1().getBlockX();
+    int y1 = api.getFight(p).getArena().getLoc1().getBlockY();
+    int z1 = api.getFight(p).getArena().getLoc1().getBlockZ();
 
-        int x2 = api.getFight(p).getArena().getLoc2().getBlockX();
-        int y2 = api.getFight(p).getArena().getLoc2().getBlockY();
-        int z2 = api.getFight(p).getArena().getLoc2().getBlockZ();
+    int x2 = api.getFight(p).getArena().getLoc2().getBlockX();
+    int y2 = api.getFight(p).getArena().getLoc2().getBlockY();
+    int z2 = api.getFight(p).getArena().getLoc2().getBlockZ();
 
-        int x = e.getBlock().getX();
-        int y = e.getBlock().getY();
-        int z = e.getBlock().getZ();
+    plugin.getLogger().info("Arena loc1: " + x1 + ", " + y1 + ", " + z1);
+    plugin.getLogger().info("Arena loc2: " + x2 + ", " + y2 + ", " + z2);
 
-        int sx = startPositions.get(playerId).getBlockX();
-        int sy = startPositions.get(playerId).getBlockX();
-        int sz = startPositions.get(playerId).getBlockX();
+    int x = e.getBlock().getX();
+    int y = e.getBlock().getY();
+    int z = e.getBlock().getZ();
 
-        int playerTeam = 0;
+    plugin.getLogger().info("Bed location: " + x + ", " + y + ", " + z);
 
-        if (compareCoords(sx, sy, sz, x1, y1, z1, x2, y2, z2).equals("1")) {
-            playerTeam = 1; // team 1
-        } else if (compareCoords(sx, sy, sz, x1, y1, z1, x2, y2, z2).equals("2")) {
-            playerTeam = 2; // team 2
-        }
+    Location startPos = startPositions.get(playerId);
+    if (startPos == null) {
+        plugin.getLogger().warning("No start position found for player: " + p.getName());
+        plugin.getLogger().info("Available start positions: " + startPositions.keySet());
+        return;
+    }
 
-        if (Boolean.TRUE.equals(isInBedfight.get(playerId))
-                && !isInCooldown(playerId)) {
-            if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("1")) {
-                if (playerTeam == 2) {
-                    e.setCancelled(true);
-                } else {
-                    handleBedBreak(e, fightId, p);
-                    e.getBlock().setType(Material.AIR);
-                }
-            } else if (compareCoords(x, y, z, x1, y1, z1, x2, y2, z2).equals("2")) {
-                if (playerTeam == 1) {
-                    e.setCancelled(true);
-                } else {
-                    handleBedBreak(e, fightId, p);
-                    e.getBlock().setType(Material.AIR);
-                }
+    int sx = startPos.getBlockX();
+    int sy = startPos.getBlockY(); // Fixed: was using getBlockX() for Y
+    int sz = startPos.getBlockZ(); // Fixed: was using getBlockX() for Z
+
+    plugin.getLogger().info("Player start position: " + sx + ", " + sy + ", " + sz);
+
+    int playerTeam = 0;
+
+    String playerTeamResult = compareCoords(sx, sy, sz, x1, y1, z1, x2, y2, z2);
+    plugin.getLogger().info("Player team coordinate comparison result: " + playerTeamResult);
+
+    if (playerTeamResult.equals("1")) {
+        playerTeam = 1; // team 1
+    } else if (playerTeamResult.equals("2")) {
+        playerTeam = 2; // team 2
+    }
+
+    plugin.getLogger().info("Player team: " + playerTeam);
+
+    String bedTeamResult = compareCoords(x, y, z, x1, y1, z1, x2, y2, z2);
+    plugin.getLogger().info("Bed team coordinate comparison result: " + bedTeamResult);
+
+    if (Boolean.TRUE.equals(isInBedfight.get(playerId)) && !isInCooldown(playerId)) {
+        plugin.getLogger().info("Player is in bedfight and not in cooldown");
+        
+        if (bedTeamResult.equals("1")) {
+            plugin.getLogger().info("Bed is on team 1 side");
+            if (playerTeam == 2) {
+                plugin.getLogger().info("Player is team 2, can break team 1 bed - calling handleBedBreak");
+                handleBedBreak(e, fightId, p);
             } else {
+                plugin.getLogger().info("Player is team 1, cannot break own bed - cancelling event");
                 e.setCancelled(true);
             }
+        } else if (bedTeamResult.equals("2")) {
+            plugin.getLogger().info("Bed is on team 2 side");
+            if (playerTeam == 1) {
+                plugin.getLogger().info("Player is team 1, can break team 2 bed - calling handleBedBreak");
+                handleBedBreak(e, fightId, p);
+            } else {
+                plugin.getLogger().info("Player is team 2, cannot break own bed - cancelling event");
+                e.setCancelled(true);
+            }
+        } else {
+            plugin.getLogger().info("Bed is not in either team area - cancelling event");
+            e.setCancelled(true);
         }
+    } else {
+        plugin.getLogger().info("Player not in bedfight or in cooldown - cancelling event");
+        plugin.getLogger().info("In cooldown: " + isInCooldown(playerId));
+        e.setCancelled(true);
     }
+    
+    plugin.getLogger().info("Final event cancelled status: " + e.isCancelled());
+    plugin.getLogger().info("=== BLOCK BREAK EVENT DEBUG END ===");
+}
 
     private void handleBedBreak(BlockBreakEvent e, String fightId, Player p) {
         plugin.getLogger().info("=== BED BREAK DEBUG START ===");
@@ -300,7 +360,7 @@ public class BedFight implements Listener {
         plugin.getLogger().info("Block type: " + e.getBlock().getType());
         plugin.getLogger().info("Block location: " + e.getBlock().getLocation());
 
-        if (e.getBlock().getType() == Material.BED) {
+        if (e.getBlock().getType() == Material.BED_BLOCK) {
             Bed bedData = (Bed) e.getBlock().getState().getData();
             Block headBlock;
             Block footBlock;
