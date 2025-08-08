@@ -14,6 +14,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -225,7 +226,7 @@ public class BedFight implements Listener {
     }
 
     @EventHandler
-    public void onPlayerBlockDestroy(BlockDamageEvent e) {
+    public void onPlayerBlockBreak(BlockBreakEvent e) {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
@@ -284,7 +285,7 @@ public class BedFight implements Listener {
         }
     }
 
-    private void handleBedBreak(BlockDamageEvent e, String fightId, Player p) {
+    private void handleBedBreak(BlockBreakEvent e, String fightId, Player p) {
         if (e.getBlock().getType() == Material.BED) {
             Bed bedData = (Bed) e.getBlock().getState().getData();
             Block headBlock;
