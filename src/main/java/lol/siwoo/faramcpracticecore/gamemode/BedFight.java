@@ -328,11 +328,15 @@ public class BedFight implements Listener {
             api.getFight(p).addBlockChange(new DefaultCachedBlockChange(e.getBlock().getLocation(), e.getBlock()));
 
             api.getFight(p).getPlayersInFight().forEach(player -> {
-                if (!api.getFight(player).getTeammates(player).contains(p.getName())) {
+                List<String> teammates = api.getFight(player).getTeammates(player);
+                boolean sameTeam = teammates.contains(p.getName()) || player.equals(p);
+
+                if (!sameTeam) {
                     player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
-                            ChatColor.WHITE + "You can no longer respawn");
+                            ChatColor.WHITE + "You can no longer respawn!");
                 }
             });
+
         }
     }
 
