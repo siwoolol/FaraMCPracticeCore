@@ -239,81 +239,81 @@ public class BedFight implements Listener {
         }
     }
 
-@EventHandler
-public void onPlayerBlockBreak(BlockBreakEvent e) {
-    Player p = e.getPlayer();
-    UUID playerId = p.getUniqueId();
+    @EventHandler
+    public void onPlayerBlockBreak(BlockBreakEvent e) {
+        Player p = e.getPlayer();
+        UUID playerId = p.getUniqueId();
 
-    if (!Boolean.TRUE.equals(isInBedfight.get(playerId))
-        || !(e.getBlock().getType() == Material.BED_BLOCK)) {
-        return;
-    }
+        if (!Boolean.TRUE.equals(isInBedfight.get(playerId))
+            || !(e.getBlock().getType() == Material.BED_BLOCK)) {
+            return;
+        }
 
-    String fightId = fightIds.get(playerId.toString());
-    if (fightId == null) {
-        plugin.getLogger().warning("No fight ID found for player: " + p.getName());
-        plugin.getLogger().info("Available fight IDs: " + fightIds.keySet());
-        return;
-    }
+        String fightId = fightIds.get(playerId.toString());
+        if (fightId == null) {
+            plugin.getLogger().warning("No fight ID found for player: " + p.getName());
+            plugin.getLogger().info("Available fight IDs: " + fightIds.keySet());
+            return;
+        }
 
-    plugin.getLogger().info("Fight ID: " + fightId);
+        plugin.getLogger().info("Fight ID: " + fightId);
 
-    int x1 = api.getFight(p).getArena().getLoc1().getBlockX();
-    int y1 = api.getFight(p).getArena().getLoc1().getBlockY();
-    int z1 = api.getFight(p).getArena().getLoc1().getBlockZ();
+        int x1 = api.getFight(p).getArena().getLoc1().getBlockX();
+        int y1 = api.getFight(p).getArena().getLoc1().getBlockY();
+        int z1 = api.getFight(p).getArena().getLoc1().getBlockZ();
 
-    int x2 = api.getFight(p).getArena().getLoc2().getBlockX();
-    int y2 = api.getFight(p).getArena().getLoc2().getBlockY();
-    int z2 = api.getFight(p).getArena().getLoc2().getBlockZ();
+        int x2 = api.getFight(p).getArena().getLoc2().getBlockX();
+        int y2 = api.getFight(p).getArena().getLoc2().getBlockY();
+        int z2 = api.getFight(p).getArena().getLoc2().getBlockZ();
 
-    plugin.getLogger().info("Arena loc1: " + x1 + ", " + y1 + ", " + z1);
-    plugin.getLogger().info("Arena loc2: " + x2 + ", " + y2 + ", " + z2);
+        plugin.getLogger().info("Arena loc1: " + x1 + ", " + y1 + ", " + z1);
+        plugin.getLogger().info("Arena loc2: " + x2 + ", " + y2 + ", " + z2);
 
-    int x = e.getBlock().getX();
-    int y = e.getBlock().getY();
-    int z = e.getBlock().getZ();
+        int x = e.getBlock().getX();
+        int y = e.getBlock().getY();
+        int z = e.getBlock().getZ();
 
-    Location startPos = startPositions.get(playerId);
-    if (startPos == null) {
-        return;
-    }
+        Location startPos = startPositions.get(playerId);
+        if (startPos == null) {
+            return;
+        }
 
-    int sx = startPos.getBlockX();
-    int sy = startPos.getBlockY();
-    int sz = startPos.getBlockZ();
+        int sx = startPos.getBlockX();
+        int sy = startPos.getBlockY();
+        int sz = startPos.getBlockZ();
 
-    int playerTeam = 0;
+        int playerTeam = 0;
 
-    String playerTeamResult = compareCoords(sx, sy, sz, x1, y1, z1, x2, y2, z2);
+        String playerTeamResult = compareCoords(sx, sy, sz, x1, y1, z1, x2, y2, z2);
 
-    if (playerTeamResult.equals("1")) {
-        playerTeam = 1; // team 1
-    } else if (playerTeamResult.equals("2")) {
-        playerTeam = 2; // team 2
-    }
+        if (playerTeamResult.equals("1")) {
+            playerTeam = 1; // team 1
+        } else if (playerTeamResult.equals("2")) {
+            playerTeam = 2; // team 2
+        }
 
-    String bedTeamResult = compareCoords(x, y, z, x1, y1, z1, x2, y2, z2);
+        String bedTeamResult = compareCoords(x, y, z, x1, y1, z1, x2, y2, z2);
 
-    if (Boolean.TRUE.equals(isInBedfight.get(playerId)) && !isInCooldown(playerId)) {
-        if (bedTeamResult.equals("1")) {
-            if (playerTeam == 2) {
-                handleBedBreak(e, fightId, p);
-            } else {
-                e.setCancelled(true);
-            }
-        } else if (bedTeamResult.equals("2")) {
-            if (playerTeam == 1) {
-                handleBedBreak(e, fightId, p);
+        if (Boolean.TRUE.equals(isInBedfight.get(playerId)) && !isInCooldown(playerId)) {
+            if (bedTeamResult.equals("1")) {
+                if (playerTeam == 2) {
+                    handleBedBreak(e, fightId, p);
+                } else {
+                    e.setCancelled(true);
+                }
+            } else if (bedTeamResult.equals("2")) {
+                if (playerTeam == 1) {
+                    handleBedBreak(e, fightId, p);
+                } else {
+                    e.setCancelled(true);
+                }
             } else {
                 e.setCancelled(true);
             }
         } else {
             e.setCancelled(true);
         }
-    } else {
-        e.setCancelled(true);
     }
-}
 
     private void handleBedBreak(BlockBreakEvent e, String fightId, Player p) {
         if (e.getBlock().getType() == Material.BED_BLOCK) {
