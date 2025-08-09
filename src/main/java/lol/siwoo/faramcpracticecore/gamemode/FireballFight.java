@@ -357,6 +357,7 @@ public class FireballFight implements Listener {
                 if (!sameTeam) {
                     player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
                             ChatColor.WHITE + "You can no longer respawn");
+                    isbedBroken.put(player.getUniqueId(), true);
                 }
             });
         }
