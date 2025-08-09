@@ -358,6 +358,7 @@ public class FireballFight implements Listener {
                     isbedBroken.put(player.getUniqueId(), true);
                     player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
                             ChatColor.WHITE + "You can no longer respawn");
+                    player.playSound(player.getLocation(), Sound.ENDERDRAGON_GROWL, 1.0f, 1.0f);
                 }
             });
         }

@@ -9,6 +9,7 @@ import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -361,6 +362,7 @@ public class BedFight implements Listener {
                     isbedBroken.put(player.getUniqueId(), true);
                     player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
                             ChatColor.WHITE + "You can no longer respawn");
+                    player.playSound(player.getLocation(), Sound.ENDERDRAGON_GROWL, 1.0f, 1.0f);
                 }
             });
         }
