@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -421,15 +422,22 @@ public class BedFight implements Listener {
     }
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent e) {
+    public void onPlayerDamage(EntityDamageEvent e) {
+        if (!(e.getEntity() instanceof Player)) {
+            return;
+        }
+
         Player p = (Player) e.getEntity();
 
         if (isInBedfight.get(p.getUniqueId()) == null) {
             return;
         }
 
-        if (Boolean.TRUE.equals(isInBedfight.get(p.getUniqueId()))) {
-            isDead.put(p.getUniqueId(), true);
+        if (p.getHealth() - e.getFinalDamage() <= 0.0f) {
+            Bukkit.getServer().getLogger().info("check 1");
+            if (Boolean.TRUE.equals(isInBedfight.get(p.getUniqueId()))) {
+                isDead.put(p.getUniqueId(), true);
+            }
         }
     }
 
