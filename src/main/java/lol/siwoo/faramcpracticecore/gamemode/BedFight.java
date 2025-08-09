@@ -5,11 +5,9 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.arena.DefaultCachedBlockChange;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
+import ga.strikepractice.events.PlayerStartSpectatingEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -21,6 +19,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.material.Bed;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -211,10 +211,16 @@ public class BedFight implements Listener {
             isDead.put(playerId, true);
             p.teleport(location);
 
+            api.getFight(p).getPlayersInFight().forEach(player -> {
+                player.sendMessage(p.getName() + " died");
+            });
+
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     p.teleport(oldlocation);
+                    p.setAllowFlight(true);
+                    p.setFlying(true);
                 }
             }.runTaskLater(plugin, 5L);
 
@@ -222,8 +228,18 @@ public class BedFight implements Listener {
                 @Override
                 public void run() {
                     isDead.remove(playerId);
+                    p.setAllowFlight(false);
+                    p.setFlying(false);
                 }
-            }.runTaskLater(plugin, 60L);
+            }.runTaskLater(plugin, 80L);
+        } else if (Boolean.TRUE.equals(isDead.get(playerId))
+            && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 18) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.teleport(api.getFight(p).getArena().getCenter());
+                }
+            }.runTaskLater(plugin, 2L);
         }
     }
 
@@ -407,5 +423,69 @@ public class BedFight implements Listener {
             i = i;
         }
         return i;
+    }
+
+    @EventHandler
+    public void onStartSpectate(PlayerStartSpectatingEvent e) {
+        Player p = e.getPlayer();
+        UUID pid = p.getUniqueId();
+
+        if (!isInBedfight.containsKey(pid) || !isInBedfight.get(pid)) {
+            return;
+        }
+
+        if (isInBedfight.get(pid).equals(Boolean.TRUE)
+            && isDead.get(pid).equals(Boolean.TRUE)) {
+            e.setCancelled(true);
+
+            p.getInventory().clear();
+            p.getInventory().setArmorContents(null);
+            p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 100, 1, false, false));
+            p.setAllowFlight(true);
+            p.setFlying(true);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.playSound(p.getLocation(), Sound.NOTE_PLING, 1.0f, 1.0f);
+                    p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "You died!"
+                            , ChatColor.WHITE + "You will respawn in 3 seconds");
+                }
+            }.runTaskLater(plugin, 20L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.playSound(p.getLocation(), Sound.NOTE_PLING, 1.0f, 1.0f);
+                    p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "You died!"
+                            , ChatColor.WHITE + "You will respawn in 2 seconds");
+                }
+            }.runTaskLater(plugin, 40L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.playSound(p.getLocation(), Sound.NOTE_PLING, 1.0f, 1.0f);
+                    p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "You died!"
+                            , ChatColor.WHITE + "You will respawn in 1 seconds");
+                }
+            }.runTaskLater(plugin, 60L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Location spawnLocation = startPositions.get(pid);
+
+                    p.playSound(spawnLocation, Sound.LEVEL_UP, 1.0f, 1.0f);
+                    p.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "Respawned!", "play again nigga");
+
+                    p.teleport(spawnLocation);
+
+                    p.removePotionEffect(PotionEffectType.INVISIBILITY);
+                    p.setFlying(false);
+                    p.setAllowFlight(false);
+                }
+            }.runTaskLater(plugin, 80L);
+        }
     }
 }
