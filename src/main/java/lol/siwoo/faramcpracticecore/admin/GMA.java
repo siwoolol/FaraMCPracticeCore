@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 public class GMA implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command c, String s, String[] args) {
-        Bukkit.dispatchCommand(sender, "/gamemode adventure");
+        Bukkit.dispatchCommand(sender, "gamemode adventure");
         return true;
     }
 }

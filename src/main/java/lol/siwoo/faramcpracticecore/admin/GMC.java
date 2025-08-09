@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 public class GMC implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command c, String s, String[] args) {
-        Bukkit.dispatchCommand(sender, "/gamemode creative");
+        Bukkit.dispatchCommand(sender, "gamemode creative");
         return true;
     }
 }

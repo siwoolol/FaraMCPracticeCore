@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 public class GMSP implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command c, String s, String[] args) {
-        Bukkit.dispatchCommand(sender, "/gamemode spectator");
+        Bukkit.dispatchCommand(sender, "gamemode spectator");
         return true;
     }
 }

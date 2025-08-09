@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 public class GMS implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command c, String s, String[] args) {
-        Bukkit.dispatchCommand(sender, "/gamemode survival");
+        Bukkit.dispatchCommand(sender, "gamemode survival");
         return true;
     }
 }
