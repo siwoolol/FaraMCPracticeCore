@@ -230,37 +230,10 @@ public void onPlayerBlockBreak(BlockBreakEvent e) {
     Player p = e.getPlayer();
     UUID playerId = p.getUniqueId();
 
-    // Always log basic info first
-//    plugin.getLogger().info("=== BLOCK BREAK EVENT TRIGGERED ===");
-//    plugin.getLogger().info("Player: " + p.getName() + " (" + playerId + ")");
-//    plugin.getLogger().info("Block type: " + e.getBlock().getType());
-//    plugin.getLogger().info("Block location: " + e.getBlock().getLocation());
-    
-    // Check if player is in bedfight map
-    Boolean inBedfight = isInBedfight.get(playerId);
-//    plugin.getLogger().info("Player in bedfight map: " + inBedfight);
-//    plugin.getLogger().info("Boolean.TRUE.equals(inBedfight): " + Boolean.TRUE.equals(inBedfight));
-    
-    // Check if block is bed
-    boolean isBed = e.getBlock().getType() == Material.BED_BLOCK;
-//    plugin.getLogger().info("Is block a bed: " + isBed);
-//    plugin.getLogger().info("Block type equals Material.BED: " + e.getBlock().getType().equals(Material.BED));
-    
-    // Check the condition that's failing
-    boolean condition1 = !Boolean.TRUE.equals(isInBedfight.get(playerId));
-    boolean condition2 = !(e.getBlock().getType() == Material.BED_BLOCK);
-//    plugin.getLogger().info("Condition 1 (not in bedfight): " + condition1);
-//    plugin.getLogger().info("Condition 2 (not a bed): " + condition2);
-//    plugin.getLogger().info("Overall condition (should return): " + (condition1 || condition2));
-
     if (!Boolean.TRUE.equals(isInBedfight.get(playerId))
         || !(e.getBlock().getType() == Material.BED_BLOCK)) {
-//        plugin.getLogger().info("EARLY RETURN - Condition failed, not processing bed break");
-//        plugin.getLogger().info("=== BLOCK BREAK EVENT END (EARLY RETURN) ===");
         return;
     }
-
-//    plugin.getLogger().info("PASSED INITIAL CHECKS - Continuing with bed break logic");
 
     String fightId = fightIds.get(playerId.toString());
     if (fightId == null) {
@@ -271,7 +244,6 @@ public void onPlayerBlockBreak(BlockBreakEvent e) {
 
     plugin.getLogger().info("Fight ID: " + fightId);
 
-    // Continue with rest of the logic...
     int x1 = api.getFight(p).getArena().getLoc1().getBlockX();
     int y1 = api.getFight(p).getArena().getLoc1().getBlockY();
     int z1 = api.getFight(p).getArena().getLoc1().getBlockZ();
