@@ -238,6 +238,7 @@ public class BedFight implements Listener {
                 @Override
                 public void run() {
                     p.teleport(api.getFight(p).getArena().getCenter());
+                    p.setFlying(true);
                 }
             }.runTaskLater(plugin, 2L);
         }
