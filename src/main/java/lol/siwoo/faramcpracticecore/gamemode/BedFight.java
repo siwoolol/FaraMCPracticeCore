@@ -243,6 +243,7 @@ public class BedFight implements Listener {
         
         if (Boolean.TRUE.equals(isInBedfight.get(playerId))) {
             if (e.getBlock().getY() > api.getFight(p).getArena().getLoc1().getY() + 10
+                    || e.getBlock().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
                     || isInCooldown(playerId)) {
                 e.setCancelled(true);
             }
