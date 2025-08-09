@@ -355,9 +355,9 @@ public class FireballFight implements Listener {
                 boolean sameTeam = teammates.contains(p.getName()) || player.equals(p);
 
                 if (!sameTeam) {
+                    isbedBroken.put(player.getUniqueId(), true);
                     player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
                             ChatColor.WHITE + "You can no longer respawn");
-                    isbedBroken.put(player.getUniqueId(), true);
                 }
             });
         }
