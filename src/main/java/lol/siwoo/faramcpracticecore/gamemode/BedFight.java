@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.material.Bed;
@@ -420,11 +421,24 @@ public class BedFight implements Listener {
     }
 
     @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent e) {
+        Player p = (Player) e.getEntity();
+
+        if (isInBedfight.get(p.getUniqueId()) == null) {
+            return;
+        }
+
+        if (Boolean.TRUE.equals(isInBedfight.get(p.getUniqueId()))) {
+            isDead.put(p.getUniqueId(), true);
+        }
+    }
+
+    @EventHandler
     public void onStartSpectate(PlayerStartSpectatingEvent e) {
         Player p = e.getPlayer();
         UUID pid = p.getUniqueId();
 
-        if (!isInBedfight.containsKey(pid) || !isInBedfight.get(pid)) {
+        if (!isInBedfight.containsKey(pid) || !isInBedfight.get(pid) || !isDead.containsKey(pid)) {
             return;
         }
 
@@ -478,6 +492,8 @@ public class BedFight implements Listener {
                     p.removePotionEffect(PotionEffectType.INVISIBILITY);
                     p.setFlying(false);
                     p.setAllowFlight(false);
+
+                    isDead.remove(pid);
                 }
             }.runTaskLater(plugin, 80L);
         }
