@@ -218,9 +218,10 @@ public class BedFight implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    p.teleport(oldlocation);
                     p.setAllowFlight(true);
+                    p.teleport(oldlocation);
                     p.setFlying(true);
+                    p.teleport(oldlocation);
                 }
             }.runTaskLater(plugin, 5L);
 
@@ -232,15 +233,6 @@ public class BedFight implements Listener {
                     p.setFlying(false);
                 }
             }.runTaskLater(plugin, 80L);
-        } else if (Boolean.TRUE.equals(isDead.get(playerId))
-            && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 18) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    p.teleport(api.getFight(p).getArena().getCenter());
-                    p.setFlying(true);
-                }
-            }.runTaskLater(plugin, 2L);
         }
     }
 
