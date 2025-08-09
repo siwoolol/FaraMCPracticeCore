@@ -213,10 +213,6 @@ public class BedFight implements Listener {
             isDead.put(playerId, true);
             p.teleport(location);
 
-            api.getFight(p).getPlayersInFight().forEach(player -> {
-                player.sendMessage(p.getName() + " died");
-            });
-
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -459,6 +455,10 @@ public class BedFight implements Listener {
             p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 100, 1, false, false));
             p.setAllowFlight(true);
             p.setFlying(true);
+
+            api.getFight(p).getPlayersInFight().forEach(player -> {
+                player.sendMessage(p.getName() + " died");
+            });
 
             new BukkitRunnable() {
                 @Override
