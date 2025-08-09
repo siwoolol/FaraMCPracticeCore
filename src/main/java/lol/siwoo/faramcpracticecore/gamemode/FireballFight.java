@@ -29,6 +29,7 @@ public class FireballFight implements Listener {
     private static final long COOLDOWN_DURATION = 5000;
     private final Map<UUID, Boolean> isInFireballfight;
     private final Map<UUID, Boolean> isDead;
+    private final Map<UUID, Boolean> isbedBroken;
     private final Map<UUID, Location> startPositions;
     private final Map<String, String> fightIds;
     private final Map<String, List<BedBreakData>> fightBedBreaks;
@@ -40,6 +41,7 @@ public class FireballFight implements Listener {
         this.cooldownMap = new HashMap<>();
         this.isInFireballfight = new HashMap<>();
         this.isDead = new HashMap<>();
+        this.isbedBroken = new HashMap<>();
         this.startPositions = new HashMap<>();
         this.fightIds = new HashMap<>();
         this.fightBedBreaks = new HashMap<>();
@@ -136,6 +138,8 @@ public class FireballFight implements Listener {
             isInFireballfight.remove(playerId);
             startPositions.remove(playerId);
             fightIds.remove(playerId.toString());
+            isbedBroken.remove(playerId);
+            isDead.remove(playerId);
         });
     }
 
@@ -170,6 +174,8 @@ public class FireballFight implements Listener {
         UUID playerId = e.getPlayer().getUniqueId();
         cooldownMap.remove(playerId);
         isInFireballfight.remove(playerId);
+        isDead.remove(playerId);
+        isbedBroken.remove(playerId);
         startPositions.remove(playerId);
         fightIds.remove(playerId.toString());
     }
@@ -182,6 +188,14 @@ public class FireballFight implements Listener {
 
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
+
+        if (Boolean.TRUE.equals(isbedBroken.get(playerId))
+                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
+                && !Boolean.TRUE.equals(isDead.get(playerId))) {
+            p.damage(69420.0);
+            isbedBroken.remove(playerId);
+            return;
+        }
 
         if (Boolean.TRUE.equals(isInFireballfight.get(playerId))
                 && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
