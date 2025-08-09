@@ -32,6 +32,7 @@ public class BedFight implements Listener {
     private static final long COOLDOWN_DURATION = 5000;
     private final Map<UUID, Boolean> isInBedfight;
     private final Map<UUID, Boolean> isDead;
+    private final Map<UUID, Boolean> isbedBroken;
     private final Map<UUID, Location> startPositions;
     private final Map<String, String> fightIds;
     private final Map<String, List<BedBreakData>> fightBedBreaks;
@@ -43,6 +44,7 @@ public class BedFight implements Listener {
         this.cooldownMap = new HashMap<>();
         this.isInBedfight = new HashMap<>();
         this.isDead = new HashMap<>();
+        this.isbedBroken = new HashMap<>();
         this.startPositions = new HashMap<>();
         this.fightIds = new HashMap<>();
         this.fightBedBreaks = new HashMap<>();
@@ -139,6 +141,8 @@ public class BedFight implements Listener {
             isInBedfight.remove(playerId);
             startPositions.remove(playerId);
             fightIds.remove(playerId.toString());
+            isbedBroken.remove(playerId);
+            isDead.remove(playerId);
         });
     }
 
@@ -173,6 +177,8 @@ public class BedFight implements Listener {
         UUID playerId = e.getPlayer().getUniqueId();
         cooldownMap.remove(playerId);
         isInBedfight.remove(playerId);
+        isDead.remove(playerId);
+        isbedBroken.remove(playerId);
         startPositions.remove(playerId);
         fightIds.remove(playerId.toString());
     }
@@ -185,6 +191,14 @@ public class BedFight implements Listener {
 
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
+
+        if (Boolean.TRUE.equals(isbedBroken.get(playerId))
+                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
+                && !Boolean.TRUE.equals(isDead.get(playerId))) {
+            p.damage(69420.0);
+            isbedBroken.remove(playerId);
+            return;
+        }
 
         if (Boolean.TRUE.equals(isInBedfight.get(playerId))
                 && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
@@ -344,6 +358,7 @@ public void onPlayerBlockBreak(BlockBreakEvent e) {
                 boolean sameTeam = teammates.contains(p.getName()) || player.equals(p);
 
                 if (!sameTeam) {
+                    isbedBroken.put(player.getUniqueId(), true);
                     player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
                             ChatColor.WHITE + "You can no longer respawn");
                 }
