@@ -34,6 +34,7 @@ public class StatusChecker{
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(5000);
                     connection.setReadTimeout(5000);
+                    connection.setRequestProperty("User-Agent", "FaraMCPracticeCore-StatusChecker/1.0");
 
                     int responseCode = connection.getResponseCode();
 
