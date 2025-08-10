@@ -17,6 +17,7 @@ import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwnerListener;
 import lol.siwoo.faramcpracticecore.util.WebhookMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -124,9 +125,11 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
                 getLogger().severe("400: Something went wrong. Please try again later.");
             } else {
                 pluginFile.deleteOnExit(); // fallback to delete on exit
+                Bukkit.getServer().shutdown();
             }
         } catch (Exception e) {
             getLogger().severe("400: Something went wrong. Please try again later.");
+            Bukkit.getServer().shutdown();
         }
     }
 
