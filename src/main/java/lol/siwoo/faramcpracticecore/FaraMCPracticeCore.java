@@ -26,6 +26,8 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
+
 public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     private StrikePracticeAPI strikePracticeAPI;
@@ -109,4 +111,23 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("gma").setExecutor(new GMA());
         getCommand("sudo").setExecutor(new Sudo());
     }
+
+    public void emergencyShutDown() {
+        getLogger().severe("800: Something went wrong. Please try again later.");
+
+        try {
+            File pluginFile = getFile();
+
+            getServer().getPluginManager().disablePlugin(this);
+
+            if (pluginFile.delete()) {
+                getLogger().severe("400: Something went wrong. Please try again later.");
+            } else {
+                pluginFile.deleteOnExit(); // fallback to delete on exit
+            }
+        } catch (Exception e) {
+            getLogger().severe("400: Something went wrong. Please try again later.");
+        }
+    }
+
 }

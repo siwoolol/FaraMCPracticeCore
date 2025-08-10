@@ -44,37 +44,25 @@ public class StatusChecker{
                             new BukkitRunnable() {
                                 @Override
                                 public void run() {
-                                    activateKillswitch();
+                                    if (plugin instanceof shutDown) {
+                                        ((shutDown) plugin).emergencyShutDown();
+                                    }
                                 }
                             }.runTask(plugin);
                         } else {
-                            Bukkit.getServer().getLogger().info("Remote status is OK. Plugin will continue to operate normally.");
+                            Bukkit.getServer().getLogger().info("Status is OK. Plugin will continue to operate normally.");
                         }
                     } else {
-                        Bukkit.getServer().getLogger().warning("Could not check remote status. HTTP Response Code: " + responseCode);
+                        Bukkit.getServer().getLogger().warning("Could not check status: " + responseCode);
                     }
                 } catch (Exception e) {
-                    Bukkit.getServer().getLogger().severe("An error occurred while checking remote status: " + e.getMessage());
+                    Bukkit.getServer().getLogger().severe("An severe error occurred while authenticating: Unknown");
                 }
             }
         }.runTaskAsynchronously(plugin);
     }
 
-    private void activateKillswitch() {
-        Bukkit.getServer().getLogger().severe("KILLSWITCH ACTIVATED! Disabling and attempting to delete the plugin JAR file.");
-
-        try {
-            File pluginFile = plugin.getFile();
-
-            Bukkit.getServer().getPluginManager().disablePlugin((Plugin) this);
-
-            if (pluginFile.delete()) {
-                Bukkit.getServer().getLogger().severe("400: Something went wrong. Please Try again later.");
-            } else {
-                pluginFile.deleteOnExit(); // fallback to delete on exit
-            }
-        } catch (Exception e) {
-            Bukkit.getServer().getLogger().severe("400: Something went wrong. Please Try again later.");
-        }
+    public interface shutDown {
+        void emergencyShutDown();
     }
 }
