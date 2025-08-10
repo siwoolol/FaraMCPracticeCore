@@ -24,11 +24,10 @@ public class StatusChecker{
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getLogger().info("Starting status check...");
+                plugin.getLogger().info("Starting Authentication check...");
 
                 try {
                     URL url = new URL(STATUS_CHECK_URL);
-                    plugin.getLogger().info("Connecting to: " + STATUS_CHECK_URL);
 
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
@@ -42,8 +41,6 @@ public class StatusChecker{
                         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                         String status = reader.readLine();
                         reader.close();
-
-                        Bukkit.getServer().getLogger().info("Authentication status: " + status);
 
                         if (status != null && status.trim().equalsIgnoreCase("disable")) {
                             new BukkitRunnable() {
