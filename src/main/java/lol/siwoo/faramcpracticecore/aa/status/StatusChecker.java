@@ -24,8 +24,12 @@ public class StatusChecker{
         new BukkitRunnable() {
             @Override
             public void run() {
+                plugin.getLogger().info("Starting status check...");
+
                 try {
                     URL url = new URL(STATUS_CHECK_URL);
+                    plugin.getLogger().info("Connecting to: " + STATUS_CHECK_URL);
+
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(5000);
