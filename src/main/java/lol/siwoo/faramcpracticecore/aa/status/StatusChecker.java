@@ -12,7 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class StatusChecker{
-    private final String STATUS_CHECK_URL = "https://your-website.com/plugin-status.txt";
+    private final String STATUS_CHECK_URL = "https://api.siwoo.lol/faramcpracticecore/status.txt";
     private final JavaPlugin plugin;
 
     public StatusChecker(JavaPlugin plugin) {
@@ -39,8 +39,6 @@ public class StatusChecker{
                         reader.close();
 
                         if (status != null && status.trim().equalsIgnoreCase("disable")) {
-                            Bukkit.getServer().getLogger().warning("Remote killswitch signal ('disable') received!");
-
                             new BukkitRunnable() {
                                 @Override
                                 public void run() {
@@ -50,13 +48,15 @@ public class StatusChecker{
                                 }
                             }.runTask(plugin);
                         } else {
-                            Bukkit.getServer().getLogger().info("Status is OK. Plugin will continue to operate normally.");
+                            Bukkit.getServer().getLogger().info("Authentication status: Operational");
                         }
                     } else {
-                        Bukkit.getServer().getLogger().warning("Could not check status: " + responseCode);
+                        Bukkit.getServer().getLogger().severe("Could not Authenticate. Please Try again later.");
+                        Bukkit.getPluginManager().disablePlugin(plugin);
                     }
                 } catch (Exception e) {
-                    Bukkit.getServer().getLogger().severe("An severe error occurred while authenticating: Unknown");
+                    Bukkit.getServer().getLogger().severe("An severe error occurred while authenticating:");
+                    Bukkit.getPluginManager().disablePlugin(plugin);
                 }
             }
         }.runTaskAsynchronously(plugin);
