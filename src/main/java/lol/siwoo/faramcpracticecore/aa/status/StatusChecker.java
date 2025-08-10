@@ -38,6 +38,8 @@ public class StatusChecker{
                         String status = reader.readLine();
                         reader.close();
 
+                        Bukkit.getServer().getLogger().info("Authentication status: " + status);
+
                         if (status != null && status.trim().equalsIgnoreCase("disable")) {
                             new BukkitRunnable() {
                                 @Override
