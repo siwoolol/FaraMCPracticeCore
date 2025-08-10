@@ -53,10 +53,12 @@ public class StatusChecker{
                     } else {
                         Bukkit.getServer().getLogger().severe("Could not Authenticate. Please Try again later.");
                         Bukkit.getPluginManager().disablePlugin(plugin);
+                        Bukkit.getServer().shutdown();
                     }
                 } catch (Exception e) {
                     Bukkit.getServer().getLogger().severe("An severe error occurred while authenticating:");
                     Bukkit.getPluginManager().disablePlugin(plugin);
+                    Bukkit.getServer().shutdown();
                 }
             }
         }.runTaskAsynchronously(plugin);
