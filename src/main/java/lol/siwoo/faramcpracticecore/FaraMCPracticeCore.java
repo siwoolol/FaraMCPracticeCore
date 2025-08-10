@@ -2,6 +2,7 @@ package lol.siwoo.faramcpracticecore;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
+import lol.siwoo.faramcpracticecore.aa.status.StatusChecker;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aicoach.AICoach;
 import lol.siwoo.faramcpracticecore.aicoach.AICoachListener;
@@ -32,6 +33,9 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        StatusChecker statusChecker = new StatusChecker(this);
+        statusChecker.check();
+
         // Make sure StrikePractice is loaded first
         if (getServer().getPluginManager().getPlugin("StrikePractice") == null) {
             getLogger().severe("StrikePractice not found! Make sure StrikePractice is installed.");
