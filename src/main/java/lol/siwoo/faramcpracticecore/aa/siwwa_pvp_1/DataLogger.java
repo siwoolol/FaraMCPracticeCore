@@ -10,6 +10,7 @@ import ga.strikepractice.events.DuelStartEvent;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import ga.strikepractice.fights.Fight;
+import ga.strikepractice.fights.duel.Duel;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -207,7 +208,7 @@ public class DataLogger implements Listener {
         private String winner;
         private final Map<String, Object> matchMetadata;
 
-        public MatchSession(String matchId, Fight fight) {
+        public MatchSession(String matchId, Duel fight) {
             this.matchId = matchId;
             this.gameMode = fight.getKit().getName();
             this.players = new ArrayList<>();
