@@ -217,14 +217,20 @@ public class DataLogger implements Listener {
             this.active = true;
             this.matchMetadata = new HashMap<>();
 
-            // Initialize player data
-            for (Player player : fight.getPlayersInFight()) {
-                players.add(new PlayerData(player, fight.getTeammates(player)));
-            }
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    for (Player player : fight.getPlayersInFight()) {
+                        players.add(new PlayerData(player, fight.getTeammates(player)));
+                    }
 
-            // Store match metadata
-            matchMetadata.put("arena", fight.getArena().getName());
-            matchMetadata.put("playerCount", fight.getPlayersInFight().size());
+                    // Store match metadata
+                    matchMetadata.put("arena", fight.getArena().getName());
+                    matchMetadata.put("playerCount", fight.getPlayersInFight().
+
+                            size());
+                }
+            }.runTaskLater(pluginn, 5L);
         }
 
         public void captureGameState() {
