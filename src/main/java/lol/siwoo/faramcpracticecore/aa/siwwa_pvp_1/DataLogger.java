@@ -51,12 +51,24 @@ public class DataLogger implements Listener {
                 .setExclusionStrategies(new ExclusionStrategy() {
                     @Override
                     public boolean shouldSkipField(FieldAttributes f) {
-                        return f.getDeclaredClass() == java.io.File.class;
+                        // Skip problematic types that cause reflection issues
+                        Class<?> fieldType = f.getDeclaredClass();
+                        return fieldType == java.io.File.class ||
+                                fieldType == ClassLoader.class ||
+                                fieldType == Thread.class ||
+                                fieldType.getName().startsWith("java.lang.reflect.") ||
+                                fieldType.getName().startsWith("sun.") ||
+                                fieldType.getName().startsWith("jdk.");
                     }
 
                     @Override
                     public boolean shouldSkipClass(Class<?> clazz) {
-                        return false;
+                        // Skip entire classes that are problematic
+                        return clazz == java.io.File.class ||
+                                clazz == ClassLoader.class ||
+                                clazz == Thread.class ||
+                                clazz.getName().startsWith("sun.") ||
+                                clazz.getName().startsWith("jdk.");
                     }
                 })
                 .create();
@@ -74,7 +86,7 @@ public class DataLogger implements Listener {
             public void run() {
                 collectPeriodicData();
             }
-        }.runTaskTimer(plugin, 0L, 10L); // Collect data every 0.5 seconds
+        }.runTaskTimer(plugin, 0L, 5L); // Collect data every 0.5 seconds
     }
 
     private void collectPeriodicData() {
