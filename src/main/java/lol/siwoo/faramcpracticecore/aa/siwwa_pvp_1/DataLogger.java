@@ -1,6 +1,8 @@
 
 package lol.siwoo.faramcpracticecore.aa.siwwa_pvp_1;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ga.strikepractice.StrikePractice;
@@ -44,7 +46,20 @@ public class DataLogger implements Listener {
     public DataLogger(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
         this.api = StrikePractice.getAPI();
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .setExclusionStrategies(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f) {
+                        return f.getDeclaredClass() == java.io.File.class;
+                    }
+
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                })
+                .create();
         this.activeSessions = new ConcurrentHashMap<>();
         this.playerTrackers = new ConcurrentHashMap<>();
 
