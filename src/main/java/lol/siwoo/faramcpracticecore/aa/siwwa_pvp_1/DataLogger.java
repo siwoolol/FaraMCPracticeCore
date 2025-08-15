@@ -1,22 +1,13 @@
-
 package lol.siwoo.faramcpracticecore.aa.siwwa_pvp_1;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.DuelEndEvent;
 import ga.strikepractice.events.DuelStartEvent;
-import ga.strikepractice.events.FightEndEvent;
-import ga.strikepractice.events.FightStartEvent;
-import ga.strikepractice.fights.Fight;
 import ga.strikepractice.fights.duel.Duel;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,6 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,44 +31,18 @@ public class DataLogger implements Listener {
 
     private final FaraMCPracticeCore plugin;
     private final StrikePracticeAPI api;
-    private final Gson gson;
     private final Map<String, MatchSession> activeSessions;
     private final Map<UUID, PlayerTracker> playerTrackers;
+    private final SimpleDateFormat dateFormat;
 
     public DataLogger(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
         this.api = StrikePractice.getAPI();
-        this.gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .setExclusionStrategies(new ExclusionStrategy() {
-                    @Override
-                    public boolean shouldSkipField(FieldAttributes f) {
-                        // Skip problematic types that cause reflection issues
-                        Class<?> fieldType = f.getDeclaredClass();
-                        return fieldType == java.io.File.class ||
-                                fieldType == ClassLoader.class ||
-                                fieldType == Thread.class ||
-                                fieldType.getName().startsWith("java.lang.reflect.") ||
-                                fieldType.getName().startsWith("sun.") ||
-                                fieldType.getName().startsWith("jdk.");
-                    }
-
-                    @Override
-                    public boolean shouldSkipClass(Class<?> clazz) {
-                        // Skip entire classes that are problematic
-                        return clazz == java.io.File.class ||
-                                clazz == ClassLoader.class ||
-                                clazz == Thread.class ||
-                                clazz.getName().startsWith("sun.") ||
-                                clazz.getName().startsWith("jdk.");
-                    }
-                })
-                .create();
         this.activeSessions = new ConcurrentHashMap<>();
         this.playerTrackers = new ConcurrentHashMap<>();
+        this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         // Start periodic data collection task
-        DataLogger.setPlugin(plugin);
         startPeriodicDataCollection();
     }
 
@@ -211,19 +177,152 @@ public class DataLogger implements Listener {
                 dataDir.mkdirs();
             }
 
+            // Use custom serialization instead of Gson to avoid reflection issues
             File matchFile = new File(dataDir, session.getMatchId() + ".json");
+            
             try (FileWriter writer = new FileWriter(matchFile)) {
-                gson.toJson(session.getMatchData(), writer);
+                writeCustomJson(writer, session);
             }
 
             plugin.getLogger().info("[siwwa-pvp-1] Saved match data: " + matchFile.getName());
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             plugin.getLogger().severe("[siwwa-pvp-1] Failed to save match data: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Fallback: save as plain text
+            saveAsPlainText(session);
         }
     }
 
-    // Inner classes for data structures
+    private void writeCustomJson(FileWriter writer, MatchSession session) throws IOException {
+        writer.write("{\n");
+        
+        // Basic match info
+        writer.write("  \"matchId\": \"" + session.getMatchId() + "\",\n");
+        writer.write("  \"gameMode\": \"" + session.gameMode + "\",\n");
+        writer.write("  \"startTime\": " + session.startTime + ",\n");
+        writer.write("  \"endTime\": " + session.endTime + ",\n");
+        writer.write("  \"winner\": \"" + (session.winner != null ? session.winner : "null") + "\",\n");
+        writer.write("  \"startTimeFormatted\": \"" + dateFormat.format(new Date(session.startTime)) + "\",\n");
+        writer.write("  \"endTimeFormatted\": \"" + dateFormat.format(new Date(session.endTime)) + "\",\n");
+        
+        // Players
+        writer.write("  \"players\": [\n");
+        for (int i = 0; i < session.players.size(); i++) {
+            PlayerData player = session.players.get(i);
+            writer.write("    {\n");
+            writer.write("      \"name\": \"" + player.name + "\",\n");
+            writer.write("      \"uuid\": \"" + player.uuid.toString() + "\",\n");
+            writer.write("      \"joinTime\": " + player.joinTime + ",\n");
+            writer.write("      \"teammates\": [");
+            for (int j = 0; j < player.teammates.size(); j++) {
+                writer.write("\"" + player.teammates.get(j) + "\"");
+                if (j < player.teammates.size() - 1) writer.write(", ");
+            }
+            writer.write("]\n");
+            writer.write("    }");
+            if (i < session.players.size() - 1) writer.write(",");
+            writer.write("\n");
+        }
+        writer.write("  ],\n");
+        
+        // Game states
+        writer.write("  \"gameStates\": [\n");
+        for (int i = 0; i < session.gameStates.size(); i++) {
+            GameState state = session.gameStates.get(i);
+            writer.write("    {\n");
+            writer.write("      \"timestamp\": " + state.timestamp + ",\n");
+            writer.write("      \"playerStates\": [\n");
+            
+            for (int j = 0; j < state.playerStates.size(); j++) {
+                PlayerState playerState = state.playerStates.get(j);
+                writer.write("        {\n");
+                writer.write("          \"playerId\": \"" + playerState.playerId.toString() + "\",\n");
+                writer.write("          \"health\": " + playerState.health + ",\n");
+                writer.write("          \"hunger\": " + playerState.hunger + ",\n");
+                writer.write("          \"onGround\": " + playerState.onGround + ",\n");
+                writer.write("          \"sneaking\": " + playerState.sneaking + ",\n");
+                writer.write("          \"sprinting\": " + playerState.sprinting + ",\n");
+                writer.write("          \"blocking\": " + playerState.blocking + ",\n");
+                
+                // Location
+                writer.write("          \"location\": {\n");
+                writer.write("            \"x\": " + playerState.location.x + ",\n");
+                writer.write("            \"y\": " + playerState.location.y + ",\n");
+                writer.write("            \"z\": " + playerState.location.z + ",\n");
+                writer.write("            \"yaw\": " + playerState.location.yaw + ",\n");
+                writer.write("            \"pitch\": " + playerState.location.pitch + ",\n");
+                writer.write("            \"world\": \"" + playerState.location.world + "\"\n");
+                writer.write("          },\n");
+                
+                // Velocity
+                writer.write("          \"velocity\": {\n");
+                writer.write("            \"x\": " + playerState.velocity.x + ",\n");
+                writer.write("            \"y\": " + playerState.velocity.y + ",\n");
+                writer.write("            \"z\": " + playerState.velocity.z + "\n");
+                writer.write("          }\n");
+                
+                writer.write("        }");
+                if (j < state.playerStates.size() - 1) writer.write(",");
+                writer.write("\n");
+            }
+            
+            writer.write("      ]\n");
+            writer.write("    }");
+            if (i < session.gameStates.size() - 1) writer.write(",");
+            writer.write("\n");
+        }
+        writer.write("  ],\n");
+        
+        // Metadata
+        writer.write("  \"metadata\": {\n");
+        writer.write("    \"totalGameStates\": " + session.gameStates.size() + ",\n");
+        writer.write("    \"playerCount\": " + session.players.size() + ",\n");
+        writer.write("    \"durationMs\": " + (session.endTime - session.startTime) + "\n");
+        writer.write("  }\n");
+        
+        writer.write("}");
+    }
+
+    private void saveAsPlainText(MatchSession session) {
+        try {
+            File dataDir = new File(plugin.getDataFolder(), "ai_training_data");
+            if (!dataDir.exists()) {
+                dataDir.mkdirs();
+            }
+
+            File matchFile = new File(dataDir, session.getMatchId() + "_fallback.txt");
+            try (FileWriter writer = new FileWriter(matchFile)) {
+                writer.write("=== MATCH DATA (FALLBACK FORMAT) ===\n");
+                writer.write("Match ID: " + session.getMatchId() + "\n");
+                writer.write("Game Mode: " + session.gameMode + "\n");
+                writer.write("Start Time: " + dateFormat.format(new Date(session.startTime)) + "\n");
+                writer.write("End Time: " + dateFormat.format(new Date(session.endTime)) + "\n");
+                writer.write("Duration: " + (session.endTime - session.startTime) + "ms\n");
+                writer.write("Winner: " + (session.winner != null ? session.winner : "Unknown") + "\n");
+                writer.write("Players: " + session.players.size() + "\n");
+                writer.write("Game States Captured: " + session.gameStates.size() + "\n\n");
+                
+                writer.write("=== PLAYERS ===\n");
+                for (PlayerData player : session.players) {
+                    writer.write("- " + player.name + " (" + player.uuid + ")\n");
+                    writer.write("  Teammates: " + String.join(", ", player.teammates) + "\n");
+                }
+                
+                writer.write("\n=== GAME STATES SUMMARY ===\n");
+                writer.write("Total states captured: " + session.gameStates.size() + "\n");
+                writer.write("First state: " + (session.gameStates.isEmpty() ? "None" : session.gameStates.get(0).timestamp + "ms") + "\n");
+                writer.write("Last state: " + (session.gameStates.isEmpty() ? "None" : session.gameStates.get(session.gameStates.size()-1).timestamp + "ms") + "\n");
+            }
+            
+            plugin.getLogger().info("[siwwa-pvp-1] Saved fallback match data: " + matchFile.getName());
+        } catch (IOException e) {
+            plugin.getLogger().severe("[siwwa-pvp-1] Failed to save fallback match data: " + e.getMessage());
+        }
+    }
+
+    // Inner classes with simplified structure
     public static class MatchSession {
         private final String matchId;
         private final String gameMode;
@@ -233,7 +332,6 @@ public class DataLogger implements Listener {
         private long endTime;
         private boolean active;
         private String winner;
-        private final Map<String, Object> matchMetadata;
 
         public MatchSession(String matchId, Duel fight) {
             this.matchId = matchId;
@@ -242,22 +340,16 @@ public class DataLogger implements Listener {
             this.gameStates = new ArrayList<>();
             this.startTime = System.currentTimeMillis();
             this.active = true;
-            this.matchMetadata = new HashMap<>();
 
+            // Initialize players after a short delay to ensure everything is loaded
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     for (Player player : fight.getPlayersInFight()) {
                         players.add(new PlayerData(player, fight.getTeammates(player)));
                     }
-
-                    // Store match metadata
-                    matchMetadata.put("arena", fight.getArena().getName());
-                    matchMetadata.put("playerCount", fight.getPlayersInFight().
-
-                            size());
                 }
-            }.runTaskLater(pluginn, 5L);
+            }.runTaskLater((FaraMCPracticeCore) Bukkit.getPluginManager().getPlugin("FaraMCPracticeCore"), 5L);
         }
 
         public void captureGameState() {
@@ -271,7 +363,6 @@ public class DataLogger implements Listener {
                             player.getLocation(),
                             player.getHealth(),
                             player.getFoodLevel(),
-                            Arrays.asList(player.getInventory().getContents()),
                             player.getVelocity(),
                             player.isOnGround(),
                             player.isSneaking(),
@@ -295,25 +386,10 @@ public class DataLogger implements Listener {
             }
         }
 
-        public MatchData getMatchData() {
-            return new MatchData(
-                    matchId,
-                    gameMode,
-                    startTime,
-                    endTime,
-                    winner,
-                    players,
-                    gameStates,
-                    matchMetadata
-            );
-        }
-
         public boolean containsPlayers(List<Player> checkPlayers) {
             Set<UUID> sessionPlayerIds = new HashSet<>();
             for (PlayerData pd : players) {
-                if (pd.getPlayer() != null) {
-                    sessionPlayerIds.add(pd.getPlayer().getUniqueId());
-                }
+                sessionPlayerIds.add(pd.uuid);
             }
 
             for (Player player : checkPlayers) {
@@ -349,20 +425,17 @@ public class DataLogger implements Listener {
         }
 
         public void recordMovement(Location from, Location to) {
-            if (!tracking) return;
+            if (!tracking || from.distanceSquared(to) <= 0.01) return;
 
-            if (from.distanceSquared(to) > 0.01) { // Only record significant movement
-                movementPath.add(new LocationPoint(to, System.currentTimeMillis()));
+            movementPath.add(new LocationPoint(to, System.currentTimeMillis()));
+            
+            double distance = from.distance(to);
+            stats.totalDistanceMoved += distance;
 
-                // Calculate movement metrics
-                double distance = from.distance(to);
-                stats.totalDistanceMoved += distance;
-
-                if (distance > 0.1) {
-                    double speed = distance * 20; // Convert to blocks per second
-                    stats.averageSpeed = (stats.averageSpeed * stats.movementCount + speed) / (stats.movementCount + 1);
-                    stats.movementCount++;
-                }
+            if (distance > 0.1) {
+                double speed = distance * 20; // Convert to blocks per second
+                stats.averageSpeed = (stats.averageSpeed * stats.movementCount + speed) / (stats.movementCount + 1);
+                stats.movementCount++;
             }
         }
 
@@ -375,13 +448,7 @@ public class DataLogger implements Listener {
             PlayerAction action = new PlayerAction(
                     "ATTACK",
                     System.currentTimeMillis(),
-                    attacker.getLocation(),
-                    createMap(
-                            "victim", victim.getName(),
-                            "damage", event.getFinalDamage(),
-                            "weapon", attacker.getItemInHand().getType().toString(),
-                            "distance", attacker.getLocation().distance(victim.getLocation())
-                    )
+                    attacker.getLocation()
             );
 
             actions.add(action);
@@ -391,7 +458,6 @@ public class DataLogger implements Listener {
 
         public void recordBeingAttacked(EntityDamageByEntityEvent event) {
             if (!tracking) return;
-
             stats.damageReceived += event.getFinalDamage();
         }
 
@@ -401,11 +467,7 @@ public class DataLogger implements Listener {
             PlayerAction action = new PlayerAction(
                     "DAMAGE_RECEIVED",
                     System.currentTimeMillis(),
-                    ((Player) event.getEntity()).getLocation(),
-                    createMap(
-                            "cause", event.getCause().toString(),
-                            "damage", event.getFinalDamage()
-                    )
+                    ((Player) event.getEntity()).getLocation()
             );
 
             actions.add(action);
@@ -417,12 +479,7 @@ public class DataLogger implements Listener {
             PlayerAction action = new PlayerAction(
                     "DEATH",
                     System.currentTimeMillis(),
-                    event.getEntity().getLocation(),
-                    createMap(
-                            "killer", event.getEntity().getKiller() != null ?
-                                    event.getEntity().getKiller().getName() : "UNKNOWN",
-                            "deathMessage", event.getDeathMessage()
-                    )
+                    event.getEntity().getLocation()
             );
 
             actions.add(action);
@@ -435,11 +492,7 @@ public class DataLogger implements Listener {
             PlayerAction action = new PlayerAction(
                     "BLOCK_PLACE",
                     System.currentTimeMillis(),
-                    event.getBlock().getLocation(),
-                    createMap(
-                            "material", event.getBlock().getType().toString(),
-                            "playerLocation", event.getPlayer().getLocation()
-                    )
+                    event.getBlock().getLocation()
             );
 
             actions.add(action);
@@ -452,11 +505,7 @@ public class DataLogger implements Listener {
             PlayerAction action = new PlayerAction(
                     "BLOCK_BREAK",
                     System.currentTimeMillis(),
-                    event.getBlock().getLocation(),
-                    createMap(
-                            "material", event.getBlock().getType().toString(),
-                            "playerLocation", event.getPlayer().getLocation()
-                    )
+                    event.getBlock().getLocation()
             );
 
             actions.add(action);
@@ -467,54 +516,28 @@ public class DataLogger implements Listener {
         public void stopTracking() { this.tracking = false; }
     }
 
-    // Data structure classes
-    public static class MatchData {
-        private final String matchId;
-        private final String gameMode;
-        private final long startTime;
-        private final long endTime;
-        private final String winner;
-        private final List<PlayerData> players;
-        private final List<GameState> gameStates;
-        private final Map<String, Object> metadata;
-
-        public MatchData(String matchId, String gameMode, long startTime, long endTime,
-                         String winner, List<PlayerData> players, List<GameState> gameStates,
-                         Map<String, Object> metadata) {
-            this.matchId = matchId;
-            this.gameMode = gameMode;
-            this.startTime = startTime;
-            this.endTime = endTime;
-            this.winner = winner;
-            this.players = players;
-            this.gameStates = gameStates;
-            this.metadata = metadata;
-        }
-    }
-
+    // Simplified data structure classes
     public static class PlayerData {
-        private final String name;
-        private final UUID uuid;
-        private final List<String> teammates;
-        private final long joinTime;
-        private final FaraMCPracticeCore pluginInstance;
+        public final String name;
+        public final UUID uuid;
+        public final List<String> teammates;
+        public final long joinTime;
 
         public PlayerData(Player player, List<String> teammates) {
             this.name = player.getName();
             this.uuid = player.getUniqueId();
             this.teammates = teammates != null ? new ArrayList<>(teammates) : new ArrayList<>();
             this.joinTime = System.currentTimeMillis();
-            this.pluginInstance = (FaraMCPracticeCore) Bukkit.getPluginManager().getPlugin("FaraMCPracticeCore");
         }
 
         public Player getPlayer() {
-            return pluginInstance.getServer().getPlayer(uuid);
+            return Bukkit.getPlayer(uuid);
         }
     }
 
     public static class GameState {
-        private final long timestamp;
-        private final List<PlayerState> playerStates;
+        public final long timestamp;
+        public final List<PlayerState> playerStates;
 
         public GameState(long timestamp) {
             this.timestamp = timestamp;
@@ -527,25 +550,23 @@ public class DataLogger implements Listener {
     }
 
     public static class PlayerState {
-        private final UUID playerId;
-        private final LocationData location;
-        private final double health;
-        private final int hunger;
-        private final List<ItemStack> inventory;
-        private final VelocityData velocity;
-        private final boolean onGround;
-        private final boolean sneaking;
-        private final boolean sprinting;
-        private final boolean blocking;
+        public final UUID playerId;
+        public final LocationData location;
+        public final double health;
+        public final int hunger;
+        public final VelocityData velocity;
+        public final boolean onGround;
+        public final boolean sneaking;
+        public final boolean sprinting;
+        public final boolean blocking;
 
         public PlayerState(UUID playerId, Location location, double health, int hunger,
-                           List<ItemStack> inventory, org.bukkit.util.Vector velocity,
-                           boolean onGround, boolean sneaking, boolean sprinting, boolean blocking) {
+                           org.bukkit.util.Vector velocity, boolean onGround, boolean sneaking, 
+                           boolean sprinting, boolean blocking) {
             this.playerId = playerId;
             this.location = new LocationData(location);
             this.health = health;
             this.hunger = hunger;
-            this.inventory = inventory;
             this.velocity = new VelocityData(velocity);
             this.onGround = onGround;
             this.sneaking = sneaking;
@@ -555,16 +576,14 @@ public class DataLogger implements Listener {
     }
 
     public static class PlayerAction {
-        private final String type;
-        private final long timestamp;
-        private final LocationData location;
-        private final Map<String, Object> data;
+        public final String type;
+        public final long timestamp;
+        public final LocationData location;
 
-        public PlayerAction(String type, long timestamp, Location location, Map<String, Object> data) {
+        public PlayerAction(String type, long timestamp, Location location) {
             this.type = type;
             this.timestamp = timestamp;
             this.location = new LocationData(location);
-            this.data = data;
         }
     }
 
@@ -581,9 +600,9 @@ public class DataLogger implements Listener {
     }
 
     public static class LocationData {
-        private final double x, y, z;
-        private final float yaw, pitch;
-        private final String world;
+        public final double x, y, z;
+        public final float yaw, pitch;
+        public final String world;
 
         public LocationData(Location location) {
             this.x = location.getX();
@@ -596,7 +615,7 @@ public class DataLogger implements Listener {
     }
 
     public static class VelocityData {
-        private final double x, y, z;
+        public final double x, y, z;
 
         public VelocityData(org.bukkit.util.Vector velocity) {
             this.x = velocity.getX();
@@ -606,36 +625,12 @@ public class DataLogger implements Listener {
     }
 
     public static class LocationPoint {
-        private final LocationData location;
-        private final long timestamp;
+        public final LocationData location;
+        public final long timestamp;
 
         public LocationPoint(Location location, long timestamp) {
             this.location = new LocationData(location);
             this.timestamp = timestamp;
         }
-    }
-
-    private static FaraMCPracticeCore pluginn;
-
-    public static void setPlugin(FaraMCPracticeCore pluginInstance) {
-        pluginn = pluginInstance;
-    }
-
-    // Add this helper method to create maps in a Java 8 compatible way
-    private static Map<String, Object> createMap(String key1, Object value1, String key2, Object value2) {
-        Map<String, Object> map = new HashMap<>();
-        map.put(key1, value1);
-        map.put(key2, value2);
-        return map;
-    }
-
-    private static Map<String, Object> createMap(String key1, Object value1, String key2, Object value2,
-                                                 String key3, Object value3, String key4, Object value4) {
-        Map<String, Object> map = new HashMap<>();
-        map.put(key1, value1);
-        map.put(key2, value2);
-        map.put(key3, value3);
-        map.put(key4, value4);
-        return map;
     }
 }
