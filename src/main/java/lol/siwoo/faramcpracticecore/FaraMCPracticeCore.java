@@ -2,6 +2,7 @@ package lol.siwoo.faramcpracticecore;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
+import lol.siwoo.faramcpracticecore.aa.siwwa_pvp_1.DataLogger;
 import lol.siwoo.faramcpracticecore.aa.status.StatusChecker;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aicoach.AICoach;
@@ -98,6 +99,9 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new BedFight(this), this);
         pm.registerEvents(new FireballFight(this), this);
 //        pm.registerEvents(new AICoachListener(aiCoach, strikePracticeAPI), this);
+
+        DataLogger dataLogger = new DataLogger(this);
+        pm.registerEvents(dataLogger, this);
     }
 
     private void registerCommands() {
