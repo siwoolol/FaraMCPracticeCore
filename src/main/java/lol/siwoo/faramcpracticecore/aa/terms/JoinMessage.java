@@ -85,6 +85,17 @@ public class JoinMessage implements Listener {
     @EventHandler
     public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
         Player p = e.getPlayer();
+        String command = e.getMessage().toLowerCase();
+
+        if (command.startsWith("/terms_agree") || command.startsWith("/terms_disagree")) {
+            if (agreementUtils != null && agreementUtils.hasPlayerAgreed(p)) {
+                p.sendMessage(ChatColor.GREEN + "You have already agreed to the terms and conditions.");
+                e.setCancelled(true);
+                return;
+            }
+
+            return;
+        }
 
         if (!(agreementUtils.hasPlayerAgreed(p))) {
             e.setCancelled(true);
