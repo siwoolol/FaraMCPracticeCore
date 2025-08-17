@@ -107,6 +107,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
         DataLogger dataLogger = new DataLogger(this);
         pm.registerEvents(dataLogger, this);
+        pm.registerEvents(new JoinMessage(), this);
     }
 
     private void registerCommands() {
