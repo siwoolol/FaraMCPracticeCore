@@ -66,7 +66,7 @@ public class DataLogger implements Listener {
     @EventHandler
     public void onFightStart(DuelStartEvent e) {
         String matchId = generateMatchId();
-        MatchSession session = new MatchSession(matchId, e.getFight());
+        MatchSession session = new MatchSession(matchId, e.getFight(), this); // Pass 'this' reference
         activeSessions.put(matchId, session);
 
         // Initialize player trackers
@@ -334,14 +334,16 @@ public class DataLogger implements Listener {
         private long endTime;
         private boolean active;
         private String winner;
+        private final DataLogger dataLogger; // Add this field
 
-        public MatchSession(String matchId, Duel fight) {
+        public MatchSession(String matchId, Duel fight, DataLogger dataLogger) {
             this.matchId = matchId;
             this.gameMode = fight.getKit().getName();
             this.players = new ArrayList<>();
             this.gameStates = new ArrayList<>();
             this.startTime = System.currentTimeMillis();
             this.active = true;
+            this.dataLogger = dataLogger; // Store the DataLogger reference
 
             // Initialize players after a short delay to ensure everything is loaded
             new BukkitRunnable() {
@@ -360,9 +362,8 @@ public class DataLogger implements Listener {
             for (PlayerData playerData : players) {
                 Player player = playerData.getPlayer();
                 if (player != null && player.isOnline()) {
-                    // Get the player tracker to check hitting states
-                    PlayerTracker tracker = ((DataLogger) Bukkit.getPluginManager().getPlugin("FaraMCPracticeCore").getServer()
-                            .getPluginManager().getPlugin("FaraMCPracticeCore")).playerTrackers.get(player.getUniqueId());
+                    // Use the stored DataLogger reference
+                    PlayerTracker tracker = dataLogger.playerTrackers.get(player.getUniqueId());
                     
                     boolean isHitting = false;
                     boolean isBeingHit = false;
