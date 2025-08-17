@@ -42,6 +42,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         StatusChecker statusChecker = new StatusChecker(this);
         statusChecker.check();
 
+        JoinMessage.initialize(this);
+
         // Make sure StrikePractice is loaded first
         if (getServer().getPluginManager().getPlugin("StrikePractice") == null) {
             getLogger().severe("StrikePractice not found! Make sure StrikePractice is installed.");
