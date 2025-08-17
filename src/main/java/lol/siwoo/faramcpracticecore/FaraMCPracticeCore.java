@@ -101,12 +101,12 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         agree.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{
                 new TextComponent(ChatColor.GRAY + "By Clicking This,\nYou confirm that you have read, understood, and agree\nto be bound by all statements in this agreement.")
         }));
-        agree.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/terms+agree"));
+        agree.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/terms_agree"));
         TextComponent disagree = new TextComponent(ChatColor.RED + "Disagree");
         disagree.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{
                 new TextComponent(ChatColor.RED + "You have to agree in to continue playing\n" + ChatColor.RED + "the beta version of the server.")
         }));
-        disagree.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/terms+disagree"));
+        disagree.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/terms_disagree"));
 
         p.spigot().sendMessage(agree, disagree);
         p.sendMessage("\n");
@@ -140,8 +140,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("gmsp").setExecutor(new GMSP());
         getCommand("gma").setExecutor(new GMA());
         getCommand("sudo").setExecutor(new Sudo());
-        getCommand("terms+agree").setExecutor(new Agree());
-        getCommand("terms+disagree").setExecutor(new Disagree());
+        getCommand("terms_agree").setExecutor(new Agree());
+        getCommand("terms_disagree").setExecutor(new Disagree());
     }
 
     public void emergencyShutDown() {

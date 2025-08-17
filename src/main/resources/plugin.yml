@@ -53,3 +53,9 @@ commands:
   ai:
     usage: "/ai"
     description: "Toggle AI coach mode to improve your PvP skills"
+  terms_agree:
+    usage: "/terms_agree"
+    description: "Agree to the terms of service for FaraMC Practice Core"
+  terms_disagree:
+    usage: "/terms_disagree"
+    description: "Disagree to the terms of service for FaraMC Practice Core"'
