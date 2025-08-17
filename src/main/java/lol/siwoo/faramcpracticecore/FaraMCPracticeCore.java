@@ -35,8 +35,13 @@ import java.io.File;
 
 public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
+    private final JavaPlugin plugin;
     private StrikePracticeAPI strikePracticeAPI;
     private AICoach aiCoach;
+
+    public FaraMCPracticeCore(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public void onEnable() {
@@ -111,7 +116,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("gmsp").setExecutor(new GMSP());
         getCommand("gma").setExecutor(new GMA());
         getCommand("sudo").setExecutor(new Sudo());
-        getCommand("terms_agree").setExecutor(new Agree());
+        getCommand("terms_agree").setExecutor(new Agree(plugin));
         getCommand("terms_disagree").setExecutor(new Disagree());
     }
 
