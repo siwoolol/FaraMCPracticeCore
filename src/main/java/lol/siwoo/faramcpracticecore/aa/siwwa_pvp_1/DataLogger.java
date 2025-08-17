@@ -52,7 +52,7 @@ public class DataLogger implements Listener {
             public void run() {
                 collectPeriodicData();
             }
-        }.runTaskTimer(plugin, 0L, 5L); // Collect data every 0.5 seconds
+        }.runTaskTimer(plugin, 0L, 2L); // Collect data every 0.5 seconds
     }
 
     private void collectPeriodicData() {
