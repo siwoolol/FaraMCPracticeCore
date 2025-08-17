@@ -31,30 +31,31 @@ public class JoinMessage {
             public void run() {
                 p.playSound(p.getLocation(), Sound.NOTE_PLING, 2, 5);
             }
-        }.runTaskLater(plugin, 10L);
+        }.runTaskLater(plugin, 8L);
         new BukkitRunnable() {
             @Override
             public void run() {
                 p.playSound(p.getLocation(), Sound.NOTE_PLING, 2, 1);
             }
-        }.runTaskLater(plugin, 20L);
+        }.runTaskLater(plugin, 16L);
         new BukkitRunnable() {
             @Override
             public void run() {
                 p.playSound(p.getLocation(), Sound.NOTE_PLING, 2, 5);
             }
-        }.runTaskLater(plugin, 30L);
+        }.runTaskLater(plugin, 24L);
 
         new BukkitRunnable() {
             @Override
             public void run() {
+                p.sendMessage("\n");
                 p.sendMessage(
                         ChatColor.BOLD.toString() + ChatColor.LIGHT_PURPLE + "Welcome to FaraMC Practice Beta!\n" +
                                 ChatColor.GRAY + "Before you can start playing, you need to agree to our Beta Test and Data Analytics Agreement.\n" +
                                 ChatColor.YELLOW + "Please read the agreement below carefully and click 'Agree' to continue.\n" + ChatColor.DARK_GRAY + "\n");
                 p.sendMessage("\n");
                 p.sendMessage(
-                        ChatColor.BOLD.toString() + ChatColor.DARK_GRAY + "Beta Test and Data Analytics Agreement\n" +
+                        ChatColor.BOLD.toString() + ChatColor.DARK_PURPLE + "Beta Test and Data Analytics Agreement\n" +
                                 ChatColor.GRAY + "By accepting this agreement, you consent to provide FaraMC (operating under the online names \"siwoo,\" \"velocated,\" and \"worldy\" at faramc.uk) with access to collect gameplay data during our beta testing period.\n" +
                                 "1. Data Collection: You grant FaraMC permission to collect and analyze gameplay analytics and performance data (\"Data\") resulting from your use of the software.\n" +
                                 "2. Use of Data: FaraMC will use this Data for the purpose of product improvement, which includes, but is not limited to, enhancing the player experience, identifying and fixing bugs, and training specific data models.\n" +
@@ -75,6 +76,6 @@ public class JoinMessage {
                 p.spigot().sendMessage(agree, disagree);
                 p.sendMessage("\n");
             }
-        }.runTaskLater(plugin, 35L);
+        }.runTaskLater(plugin, 25L);
     }
 }
