@@ -20,7 +20,10 @@ public class Disagree implements CommandExecutor {
     }
 
     public void disagreeTerms(Player p) {
-        p.kickPlayer(ChatColor.RED + "You have to agree to the terms and conditions to play on this server.\n" +
-                ChatColor.YELLOW + "Please read the agreement carefully before proceeding.");
+        p.kickPlayer(ChatColor.LIGHT_PURPLE + "{FaraMC Practice Beta}\n\n" +
+                ChatColor.GRAY + "You have to agree to the" + ChatColor.RED + " Beta Terms and Conditions " + ChatColor.GRAY + "in order to play on the beta version of this server.\n" +
+                ChatColor.GRAY + "Please agree to the terms to continue playing the beta version of the server.\n" +
+                ChatColor.GRAY + "If you disagree, you will be kicked from the server.\n\n" +
+                ChatColor.ITALIC + "Learn more at: " + ChatColor.ITALIC + ChatColor.DARK_AQUA + "https://sw.faramc.uk/faramc-beta-terms");
     }
 }
