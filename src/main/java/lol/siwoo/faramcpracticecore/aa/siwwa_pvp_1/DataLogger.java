@@ -52,7 +52,7 @@ public class DataLogger implements Listener {
             public void run() {
                 collectPeriodicData();
             }
-        }.runTaskTimer(plugin, 0L, 2L); // Collect data every 0.5 seconds
+        }.runTaskTimer(plugin, 0L, 5L); // Collect data every 0.5 seconds
     }
 
     private void collectPeriodicData() {
@@ -245,6 +245,8 @@ public class DataLogger implements Listener {
                 writer.write("          \"sneaking\": " + playerState.sneaking + ",\n");
                 writer.write("          \"sprinting\": " + playerState.sprinting + ",\n");
                 writer.write("          \"blocking\": " + playerState.blocking + ",\n");
+                writer.write("          \"isHitting\": " + playerState.isHitting + ",\n");
+                writer.write("          \"isBeingHit\": " + playerState.isBeingHit + ",\n");
                 
                 // Location
                 writer.write("          \"location\": {\n");
@@ -358,6 +360,18 @@ public class DataLogger implements Listener {
             for (PlayerData playerData : players) {
                 Player player = playerData.getPlayer();
                 if (player != null && player.isOnline()) {
+                    // Get the player tracker to check hitting states
+                    PlayerTracker tracker = ((DataLogger) Bukkit.getPluginManager().getPlugin("FaraMCPracticeCore").getServer()
+                            .getPluginManager().getPlugin("FaraMCPracticeCore")).playerTrackers.get(player.getUniqueId());
+                    
+                    boolean isHitting = false;
+                    boolean isBeingHit = false;
+                    
+                    if (tracker != null) {
+                        isHitting = tracker.isCurrentlyHitting();
+                        isBeingHit = tracker.isCurrentlyBeingHit();
+                    }
+
                     PlayerState playerState = new PlayerState(
                             player.getUniqueId(),
                             player.getLocation(),
@@ -367,7 +381,9 @@ public class DataLogger implements Listener {
                             player.isOnGround(),
                             player.isSneaking(),
                             player.isSprinting(),
-                            player.isBlocking()
+                            player.isBlocking(),
+                            isHitting,
+                            isBeingHit
                     );
                     state.addPlayerState(playerState);
                 }
@@ -413,6 +429,11 @@ public class DataLogger implements Listener {
         private final List<LocationPoint> movementPath;
         private final PlayerStats stats;
         private boolean tracking;
+        
+        // Combat state tracking
+        private long lastHitTime = 0;
+        private long lastBeingHitTime = 0;
+        private static final long HIT_STATE_DURATION = 1000; // 1 second
 
         public PlayerTracker(Player player, String matchId) {
             this.playerId = player.getUniqueId();
@@ -444,6 +465,9 @@ public class DataLogger implements Listener {
 
             Player attacker = (Player) event.getDamager();
             Player victim = (Player) event.getEntity();
+            
+            // Update hit state
+            this.lastHitTime = System.currentTimeMillis();
 
             PlayerAction action = new PlayerAction(
                     "ATTACK",
@@ -458,6 +482,10 @@ public class DataLogger implements Listener {
 
         public void recordBeingAttacked(EntityDamageByEntityEvent event) {
             if (!tracking) return;
+            
+            // Update being hit state
+            this.lastBeingHitTime = System.currentTimeMillis();
+            
             stats.damageReceived += event.getFinalDamage();
         }
 
@@ -512,6 +540,17 @@ public class DataLogger implements Listener {
             stats.blocksBroken++;
         }
 
+        // New methods for combat state tracking
+        public boolean isCurrentlyHitting() {
+            long currentTime = System.currentTimeMillis();
+            return (currentTime - lastHitTime) <= HIT_STATE_DURATION;
+        }
+        
+        public boolean isCurrentlyBeingHit() {
+            long currentTime = System.currentTimeMillis();
+            return (currentTime - lastBeingHitTime) <= HIT_STATE_DURATION;
+        }
+
         public boolean isTracking() { return tracking; }
         public void stopTracking() { this.tracking = false; }
     }
@@ -559,10 +598,12 @@ public class DataLogger implements Listener {
         public final boolean sneaking;
         public final boolean sprinting;
         public final boolean blocking;
+        public final boolean isHitting;
+        public final boolean isBeingHit;
 
         public PlayerState(UUID playerId, Location location, double health, int hunger,
                            org.bukkit.util.Vector velocity, boolean onGround, boolean sneaking, 
-                           boolean sprinting, boolean blocking) {
+                           boolean sprinting, boolean blocking, boolean isHitting, boolean isBeingHit) {
             this.playerId = playerId;
             this.location = new LocationData(location);
             this.health = health;
@@ -572,6 +613,8 @@ public class DataLogger implements Listener {
             this.sneaking = sneaking;
             this.sprinting = sprinting;
             this.blocking = blocking;
+            this.isHitting = isHitting;
+            this.isBeingHit = isBeingHit;
         }
     }
 
