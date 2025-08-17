@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Timer;
 
@@ -24,9 +25,10 @@ public class Agree implements CommandExecutor {
     }
 
     public void agreeTerms(Player p) {
+        LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
 
-        p.sendMessage(ChatColor.GREEN + "You have agreed to the terms and conditions to play on this server.\n" +
-                ChatColor.GRAY + "(Agreed time: " + time + ")");
+        p.sendMessage(ChatColor.GREEN + "You have agreed to the terms and conditions to play on this server." +
+                ChatColor.GRAY + " (Agreed time: " + date + ", " + time + ")");
     }
 }
