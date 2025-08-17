@@ -34,14 +34,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 
 public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
-
-    private FaraMCPracticeCore plugin;
     private StrikePracticeAPI strikePracticeAPI;
     private AICoach aiCoach;
-
-    public FaraMCPracticeCore() {
-        this.plugin = plugin;
-    }
 
     @Override
     public void onEnable() {
