@@ -35,11 +35,11 @@ import java.io.File;
 
 public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
-    private final JavaPlugin plugin;
+    private FaraMCPracticeCore plugin;
     private StrikePracticeAPI strikePracticeAPI;
     private AICoach aiCoach;
 
-    public FaraMCPracticeCore(JavaPlugin plugin) {
+    public FaraMCPracticeCore() {
         this.plugin = plugin;
     }
 
