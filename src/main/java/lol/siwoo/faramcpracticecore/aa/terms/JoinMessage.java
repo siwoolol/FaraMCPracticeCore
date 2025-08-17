@@ -6,9 +6,23 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class JoinMessage {
+
+    private static JavaPlugin plugin;
+    private static AgreementUtils agreementUtils;
+
+    public static void initialize(JavaPlugin pluginInstance) {
+        plugin = pluginInstance;
+        agreementUtils = new AgreementUtils(plugin);
+    }
+
     public static void sendJoinMessage(Player p) {
+        if (agreementUtils != null && agreementUtils.hasPlayerAgreed(p)) {
+            return;
+        }
+
         p.sendMessage(
                 ChatColor.DARK_GRAY + "Beta Test and Data Analytics Agreement\n" +
                         ChatColor.GRAY + "By accepting this agreement, you consent to provide FaraMC (operating under the online names \"siwoo,\" \"velocated,\" and \"worldy\" at faramc.uk) with access to collect gameplay data during our beta testing period.\n" +
