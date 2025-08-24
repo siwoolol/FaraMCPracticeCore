@@ -74,7 +74,7 @@ public class DataLogger implements Listener {
             playerTrackers.put(player.getUniqueId(), new PlayerTracker(player, matchId));
         }
 
-        plugin.getLogger().info("[siwwa-pvp-1] Started data logging for match: " + matchId);
+        plugin.getLogger().info("[silas-pvp-1] Started data logging for match: " + matchId);
     }
 
     @EventHandler
