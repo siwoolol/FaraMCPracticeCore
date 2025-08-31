@@ -188,12 +188,17 @@ public class BedFight implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
-        if (isInCooldown(e.getPlayer().getUniqueId())) {
-            e.setCancelled(true);
-        }
-
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
+
+        if (isInCooldown(playerId)) {
+            Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
+            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -20, p.getLocation().getZ());
+
+            if (location != oldlocation) {
+                e.setCancelled(true);
+            }
+        }
 
         if (Boolean.TRUE.equals(isbedBroken.get(playerId))
                 && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
@@ -493,7 +498,7 @@ public class BedFight implements Listener {
                     Location spawnLocation = startPositions.get(pid);
 
                     p.playSound(spawnLocation, Sound.LEVEL_UP, 1.0f, 1.0f);
-                    p.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "Respawned!", "play again nigga");
+                    p.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "Respawned!", "Playe Again");
 
                     p.teleport(spawnLocation);
 
