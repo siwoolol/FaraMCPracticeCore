@@ -195,9 +195,14 @@ public class BedFight implements Listener {
             Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
             Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -20, p.getLocation().getZ());
 
-            if (location != oldlocation) {
-                e.setCancelled(true);
-            }
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (location != oldlocation) {
+                        e.setCancelled(true);
+                    }
+                }
+            }.runTaskTimer(plugin, 5L, 0);
         }
 
         if (Boolean.TRUE.equals(isbedBroken.get(playerId))
