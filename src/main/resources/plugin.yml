@@ -27,6 +27,9 @@ commands:
   unranked:
     usage: "/unranked"
     description: "Open the Unranked Queue GUI"
+  pvpbot:
+    usage: "/pvpbot"
+    description: "Open the PvP Bot GUI"
   fly:
     usage: "/fly"
     description: "Allows You To Fly"

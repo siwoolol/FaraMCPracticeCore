@@ -9,10 +9,7 @@ import lol.siwoo.faramcpracticecore.aa.terms.Disagree;
 import lol.siwoo.faramcpracticecore.aa.terms.JoinMessage;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aicoach.AICoach;
-import lol.siwoo.faramcpracticecore.design.FightEnd;
-import lol.siwoo.faramcpracticecore.design.QueueGUIListener;
-import lol.siwoo.faramcpracticecore.design.UnrankedGUI;
-import lol.siwoo.faramcpracticecore.design.WarningMessage;
+import lol.siwoo.faramcpracticecore.design.*;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
 import lol.siwoo.faramcpracticecore.gamemode.Boxing;
 import lol.siwoo.faramcpracticecore.gamemode.FireballFight;
@@ -95,7 +92,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         PluginManager pm = getServer().getPluginManager();
 
         pm.registerEvents(this, this);
-        pm.registerEvents(new QueueGUIListener(), this);
+        pm.registerEvents(new QueueGUIListener(this), this);
         pm.registerEvents(new WarningMessage(), this);
         pm.registerEvents(new FightEnd(), this);
         pm.registerEvents(new FlightListener(), this);
@@ -112,6 +109,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     private void registerCommands() {
         getCommand("unranked").setExecutor(new UnrankedGUI());
+        getCommand("pvpbot").setExecutor(new PvpBotQueue());
+
         getCommand("fly").setExecutor(new Flight());
 //        getCommand("ai").setExecutor(aiCoach);
         getCommand("forcewin").setExecutor(new ForceWin());
