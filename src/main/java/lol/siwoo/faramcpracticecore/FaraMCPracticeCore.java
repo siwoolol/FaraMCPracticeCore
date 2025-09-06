@@ -136,6 +136,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
             if (pluginFile.delete()) {
                 getLogger().severe("400: Something went wrong. Please try again later.");
             } else {
+                getLogger().severe("400: Something went wrong. Please try again later.");
                 pluginFile.deleteOnExit(); // fallback to delete on exit
                 Bukkit.getServer().shutdown();
             }
