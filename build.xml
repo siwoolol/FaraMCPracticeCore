@@ -7,7 +7,7 @@
     <property name="discord-webhook.version" value="1.0.0"/>
 
     <target name="Build">
-        <jar jarfile="C:\Users\strai\Documents\drizzypractice\plugins\${ant.project.name}-${project.version}.jar"
+        <jar jarfile="C:\Users\strai\Documents\farapractice-beta\plugins\${ant.project.name}-${project.version}.jar"
              basedir="./target/classes/" includes="**/*">
 
             <zipgroupfileset
