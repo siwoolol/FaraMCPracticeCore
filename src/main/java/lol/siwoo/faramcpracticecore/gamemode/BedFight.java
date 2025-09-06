@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -208,6 +209,7 @@ public class BedFight implements Listener {
         if (Boolean.TRUE.equals(isbedBroken.get(playerId))
                 && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
                 && !Boolean.TRUE.equals(isDead.get(playerId))) {
+            // TODO b1
             p.damage(69420.0);
             isbedBroken.remove(playerId);
             return;
@@ -241,6 +243,19 @@ public class BedFight implements Listener {
                     p.setFlying(false);
                 }
             }.runTaskLater(plugin, 80L);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDamage(EntityDamageByEntityEvent e) {
+        Player p = (Player) e.getEntity();
+        UUID playerId = p.getUniqueId();
+
+        if (Boolean.TRUE.equals(isbedBroken.get(playerId))) {
+            // TODO b1
+            p.damage(69420.0);
+            isbedBroken.remove(playerId);
+            return;
         }
     }
 
