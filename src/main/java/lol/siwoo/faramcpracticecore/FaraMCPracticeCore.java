@@ -10,8 +10,8 @@ import lol.siwoo.faramcpracticecore.aa.terms.JoinMessage;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aicoach.AICoach;
 import lol.siwoo.faramcpracticecore.design.FightEnd;
-import lol.siwoo.faramcpracticecore.design.QueueGUICommand;
 import lol.siwoo.faramcpracticecore.design.QueueGUIListener;
+import lol.siwoo.faramcpracticecore.design.UnrankedGUI;
 import lol.siwoo.faramcpracticecore.design.WarningMessage;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
 import lol.siwoo.faramcpracticecore.gamemode.Boxing;
@@ -22,9 +22,7 @@ import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwnerListener;
 import lol.siwoo.faramcpracticecore.util.WebhookMessage;
-import net.md_5.bungee.api.chat.*;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,7 +30,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 
@@ -114,7 +111,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     }
 
     private void registerCommands() {
-        getCommand("queue").setExecutor(new QueueGUICommand());
+        getCommand("unranked").setExecutor(new UnrankedGUI());
         getCommand("fly").setExecutor(new Flight());
 //        getCommand("ai").setExecutor(aiCoach);
         getCommand("forcewin").setExecutor(new ForceWin());

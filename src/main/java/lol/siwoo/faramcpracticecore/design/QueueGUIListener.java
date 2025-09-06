@@ -26,29 +26,35 @@ public class QueueGUIListener implements Listener {
         String itemName = clickedItem.getItemMeta().getDisplayName();
 
         // Execute queue commands based on clicked item
-        if (itemName.contains("Unranked")) {
-            player.performCommand("queue unranked");
+        if (itemName.contains("Boxing")) {
+            player.performCommand("queue boxing");
             player.closeInventory();
-        } else if (itemName.contains("Ranked")) {
-            player.performCommand("queue ranked");
-            player.closeInventory();
-        } else if (itemName.contains("BuildUHC")) {
-            player.performCommand("queue builduHC");
-            player.closeInventory();
-        } else if (itemName.contains("NoDebuff")) {
+        } else if (itemName.contains("Nodebuff")) {
             player.performCommand("queue nodebuff");
             player.closeInventory();
-        } else if (itemName.contains("Combo")) {
-            player.performCommand("queue combo");
+        } else if (itemName.contains("BuildUHC")) {
+            player.performCommand("queue builduhc");
             player.closeInventory();
         } else if (itemName.contains("Sumo")) {
             player.performCommand("queue sumo");
             player.closeInventory();
-        } else if (itemName.contains("Boxing")) {
-            player.performCommand("queue boxing");
+        } else if (itemName.contains("Sumo (Best of 3)")) {
+            player.performCommand("queue sumobestof3");
             player.closeInventory();
-        } else if (itemName.contains("Archer")) {
-            player.performCommand("queue archer");
+        } else if (itemName.contains("Soup")) {
+            player.performCommand("queue soup");
+            player.closeInventory();
+        } else if (itemName.contains("Axe")) {
+            player.performCommand("queue axe");
+            player.closeInventory();
+        } else if (itemName.contains("Combo")) {
+            player.performCommand("queue combo");
+            player.closeInventory();
+        } else if (itemName.contains("BedFight")) {
+            player.performCommand("queue bedfight");
+            player.closeInventory();
+        } else if (itemName.contains("Fireball Fight")) {
+            player.performCommand("fireballfight");
             player.closeInventory();
         }
     }
