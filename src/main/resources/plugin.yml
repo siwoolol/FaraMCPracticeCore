@@ -27,6 +27,9 @@ commands:
   unranked:
     usage: "/unranked"
     description: "Open the Unranked Queue GUI"
+  ranked:
+    usage: "/ranked"
+    description: "Open the Ranked Queue GUI"
   botduel:
     usage: "/botduel"
     description: "Open the PvP Bot GUI"
