@@ -109,7 +109,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     private void registerCommands() {
         getCommand("unranked").setExecutor(new UnrankedGUI());
-        getCommand("pvpbot").setExecutor(new PvpBotQueue());
+        getCommand("botduel").setExecutor(new PvpBotQueue());
 
         getCommand("fly").setExecutor(new Flight());
 //        getCommand("ai").setExecutor(aiCoach);
