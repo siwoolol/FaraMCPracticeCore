@@ -518,7 +518,7 @@ public class BedFight implements Listener {
                     Location spawnLocation = startPositions.get(pid);
 
                     p.playSound(spawnLocation, Sound.LEVEL_UP, 1.0f, 1.0f);
-                    p.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "Respawned!", "Playe Again");
+                    p.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "Respawned!", "Start Playing Again");
 
                     p.teleport(spawnLocation);
 
