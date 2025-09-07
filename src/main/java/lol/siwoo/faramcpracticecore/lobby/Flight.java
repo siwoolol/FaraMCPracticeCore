@@ -16,7 +16,7 @@ public class Flight implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         Player p = (Player) sender;
         if (!p.hasPermission("faramcpracticecore.fly")) {
-            p.sendMessage(ChatColor.RED + "Purchase Ranks to Acces This Command - https://store.faramc.uk/");
+            p.sendMessage(ChatColor.RED + "Purchase Ranks to Access This Command - https://store.faramc.uk/");
             return true;
         }
 
