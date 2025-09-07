@@ -482,7 +482,7 @@ public class BedFight implements Listener {
             p.setFlying(true);
 
             api.getFight(p).getPlayersInFight().forEach(player -> {
-                player.sendMessage(p.getName() + " died");
+                player.sendMessage(ChatColor.GRAY + p.getName() + " died");
             });
 
             new BukkitRunnable() {
