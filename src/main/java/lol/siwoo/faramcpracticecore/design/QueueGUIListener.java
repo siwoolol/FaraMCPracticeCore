@@ -3,6 +3,7 @@ package lol.siwoo.faramcpracticecore.design;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -76,7 +77,7 @@ public class QueueGUIListener implements Listener {
 
     public void afterActivities(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
-        p.playSound(p.getLocation(), "random.orb", 1, 1);
+        p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
         p.openInventory(UnrankedGUI.createQueueGUI(p, 0, "n word"));
         new BukkitRunnable() {
             @Override
@@ -88,7 +89,7 @@ public class QueueGUIListener implements Listener {
 
     public void newafterActivities(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
-        p.playSound(p.getLocation(), "random.orb", 1, 1);
+        p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
         p.openInventory(UnrankedGUI.createQueueGUI(p, 0, "n word"));
     }
 }
