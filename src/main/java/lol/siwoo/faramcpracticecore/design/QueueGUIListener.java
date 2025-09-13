@@ -42,37 +42,37 @@ public class QueueGUIListener implements Listener {
         if (clickedItem.getType().equals(Material.REDSTONE_BLOCK)) {
             player.performCommand("queue leave");
             newafterActivities(event);
-        } else if (itemName.equalsIgnoreCase("Boxing")) {
+        } else if (itemName.contains("Boxing")) {
             player.performCommand("queue boxing");
             afterActivities(event);
-        } else if (itemName.equalsIgnoreCase("Nodebuff")) {
+        } else if (itemName.contains("Nodebuff")) {
             player.performCommand("queue nodebuff");
             afterActivities(event);
-        } else if (itemName.equalsIgnoreCase("BuildUHC")) {
+        } else if (itemName.contains("BuildUHC")) {
             player.performCommand("queue builduhc");
             afterActivities(event);
-        } else if (itemName.equalsIgnoreCase("Sumo")) {
-            player.performCommand("queue sumo");
-            afterActivities(event);
-        } else if (itemName.equalsIgnoreCase("Sumo (Best of 3)")) {
+        } else if (itemName.contains("Sumo (Best of 3)")) {
             player.performCommand("queue sumobestof3");
             afterActivities(event);
-        } else if (itemName.equalsIgnoreCase("Soup")) {
+        } else if (itemName.contains("Sumo")) {
+            player.performCommand("queue sumo");
+            afterActivities(event);
+        } else if (itemName.contains("Soup")) {
             player.performCommand("queue soup");
             afterActivities(event);
-        } else if (itemName.equalsIgnoreCase("Axe")) {
+        } else if (itemName.contains("Axe")) {
             player.performCommand("queue axe");
             afterActivities(event);
-        } else if (itemName.equalsIgnoreCase("Combo")) {
+        } else if (itemName.contains("Combo")) {
             player.performCommand("queue combo");
             afterActivities(event);
-        } else if (itemName.equalsIgnoreCase("Gapple")) {
+        } else if (itemName.contains("Gapple")) {
             player.performCommand("queue gapple");
             afterActivities(event);
-        } else if (itemName.equalsIgnoreCase("BedFight")) {
+        } else if (itemName.contains("BedFight")) {
             player.performCommand("queue bedfight");
             afterActivities(event);
-        } else if (itemName.equalsIgnoreCase("Fireball Fight")) {
+        } else if (itemName.contains("Fireball Fight")) {
             player.performCommand("queue fireballfight");
             afterActivities(event);
         }
