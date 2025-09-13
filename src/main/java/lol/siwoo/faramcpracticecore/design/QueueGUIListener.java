@@ -61,7 +61,7 @@ public class QueueGUIListener implements Listener {
             player.performCommand("queue soup");
             afterActivities(event);
         } else if (itemName.contains("Axe")) {
-            player.performCommand("queue axe");
+            player.performCommand("queue axepvp");
             afterActivities(event);
         } else if (itemName.contains("Combo")) {
             player.performCommand("queue combo");
