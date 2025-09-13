@@ -29,7 +29,7 @@ public class QueueGUIListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         String title = event.getInventory().getTitle();
 
-        if (!title.equals(ChatColor.DARK_PURPLE + "Queue Selection")) return;
+        if (!title.equals(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Unranked Queue")) return;
 
         event.setCancelled(true);
 

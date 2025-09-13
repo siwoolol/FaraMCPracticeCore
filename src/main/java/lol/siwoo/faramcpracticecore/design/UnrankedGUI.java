@@ -32,7 +32,7 @@ public class UnrankedGUI implements CommandExecutor {
     }
 
     public static Inventory createQueueGUI(Player player, int slot, String name) {
-        Inventory gui = Bukkit.createInventory(null, 45, ChatColor.DARK_PURPLE + "Queue Selection");
+        Inventory gui = Bukkit.createInventory(null, 45, ChatColor.YELLOW.toString() + ChatColor.BOLD + "Unranked Queue");
 
         // Fill background
         fillBackground(gui);
