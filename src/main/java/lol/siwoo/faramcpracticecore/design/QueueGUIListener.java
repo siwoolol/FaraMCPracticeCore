@@ -1,5 +1,6 @@
 package lol.siwoo.faramcpracticecore.design;
 
+import ga.strikepractice.events.DuelStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -10,6 +11,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import javax.xml.stream.events.StartDocument;
 
 public class QueueGUIListener implements Listener {
 
@@ -91,5 +94,14 @@ public class QueueGUIListener implements Listener {
         Player p = (Player) e.getWhoClicked();
         p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
         p.openInventory(UnrankedGUI.createQueueGUI(p, 0, "n word"));
+    }
+
+    @EventHandler
+    public void onMatchStart(DuelStartEvent e) {
+        Player p1 = e.getPlayer1();
+        Player p2 = e.getPlayer2();
+
+        p1.closeInventory();
+        p2.closeInventory();
     }
 }
