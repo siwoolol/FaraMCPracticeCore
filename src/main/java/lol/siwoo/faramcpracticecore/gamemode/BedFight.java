@@ -194,7 +194,7 @@ public class BedFight implements Listener {
 
         if (isInCooldown(playerId)) {
             Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
-            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -20, p.getLocation().getZ());
+            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
 
             new BukkitRunnable() {
                 @Override
@@ -220,7 +220,7 @@ public class BedFight implements Listener {
                 && !Boolean.TRUE.equals(isDead.get(playerId))) {
 
             Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
-            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -20, p.getLocation().getZ());
+            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -80, p.getLocation().getZ());
 
             isDead.put(playerId, true);
             p.teleport(location);
@@ -231,7 +231,6 @@ public class BedFight implements Listener {
                     p.setAllowFlight(true);
                     p.teleport(oldlocation);
                     p.setFlying(true);
-                    p.teleport(oldlocation);
                 }
             }.runTaskLater(plugin, 5L);
 
@@ -239,10 +238,24 @@ public class BedFight implements Listener {
                 @Override
                 public void run() {
                     isDead.remove(playerId);
+                }
+            }.runTaskLater(plugin, 80L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
                     p.setAllowFlight(false);
                     p.setFlying(false);
                 }
-            }.runTaskLater(plugin, 80L);
+            }.runTaskLater(plugin, 85L);
+        }
+
+        if (Boolean.TRUE.equals(isInBedfight.get(playerId))
+                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 7
+                && Boolean.TRUE.equals(isDead.get(playerId))) {
+            Location teleportLoc = p.getLocation().clone();
+            teleportLoc.add(0, 5, 0);
+            p.teleport(teleportLoc);
         }
     }
 
@@ -529,6 +542,14 @@ public class BedFight implements Listener {
                     isDead.remove(pid);
                 }
             }.runTaskLater(plugin, 80L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Location spawnLocation = startPositions.get(pid);
+                    p.teleport(spawnLocation);
+                }
+            }.runTaskLater(plugin, 85L);
         }
     }
 }
