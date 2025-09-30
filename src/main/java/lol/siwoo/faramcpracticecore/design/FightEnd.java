@@ -1,7 +1,6 @@
 package lol.siwoo.faramcpracticecore.design;
 
 import ga.strikepractice.events.DuelEndEvent;
-import ga.strikepractice.events.DuelStartEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -14,6 +13,7 @@ import java.util.List;
 
 public class FightEnd implements Listener {
     private final List<String> defeatMessages = new ArrayList<>();
+    private final List<Sound> randomSound = new ArrayList<>();
 
     public void randomDefeatMessage() {
         defeatMessages.add(" Has Obliterated ");
@@ -42,9 +42,18 @@ public class FightEnd implements Listener {
         defeatMessages.add(" Vanquished ");
     }
 
+    public void randomSound() {
+        randomSound.add(Sound.EXPLODE);
+        randomSound.add(Sound.FIREWORK_BLAST);
+        randomSound.add(Sound.LEVEL_UP);
+        randomSound.add(Sound.ORB_PICKUP);
+        randomSound.add(Sound.WITHER_DEATH);
+    }
+
     @EventHandler
     public void onFightEnd(DuelEndEvent event) {
         randomDefeatMessage();
+        randomSound();
         Player w = event.getWinner();
         Player l = event.getLoser();
 
@@ -53,14 +62,16 @@ public class FightEnd implements Listener {
         Collections.shuffle(shuffled);
         String selectedMessage = shuffled.get(0);
 
+        List<Sound> soundshuffled = new ArrayList<>(randomSound);
+        Collections.shuffle(soundshuffled);
+        Sound randomSound = soundshuffled.get(0);
+
         // Winner Prompt
-        w.playSound((w.getLocation()), Sound.EXPLODE, 1, 1);
+        w.playSound((w.getLocation()), randomSound, 1, 1);
         w.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "VICTORY", ChatColor.GREEN + w.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + l.getName());
-//        w.sendMessage(ChatColor.GREEN + "You Won the Match");
 
         // Loser Prompt
-        l.playSound((l.getLocation()), Sound.EXPLODE, 1, 1);
+        l.playSound((l.getLocation()), randomSound, 1, 1);
         l.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "DEFEAT", ChatColor.RED + w.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + l.getName());
-//        l.sendMessage(ChatColor.RED + "You Lost the Match");
     }
 }
