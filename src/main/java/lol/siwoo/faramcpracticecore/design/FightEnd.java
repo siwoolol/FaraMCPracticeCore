@@ -21,6 +21,25 @@ public class FightEnd implements Listener {
         defeatMessages.add(" Has Defeated ");
         defeatMessages.add(" Destroyed ");
         defeatMessages.add(" Has Won Against ");
+        defeatMessages.add(" Has Annihilated ");
+        defeatMessages.add(" Outplayed ");
+        defeatMessages.add(" Has Demolished ");
+        defeatMessages.add(" Has Crushed ");
+        defeatMessages.add(" Deleted ");
+        defeatMessages.add(" Erased ");
+        defeatMessages.add(" Has Dominated ");
+        defeatMessages.add(" Sent ");
+        defeatMessages.add(" Vaporized ");
+        defeatMessages.add(" Beat ");
+        defeatMessages.add(" Pummeled ");
+        defeatMessages.add(" Trounced ");
+        defeatMessages.add(" Rout ");
+        defeatMessages.add(" Drubbed ");
+        defeatMessages.add(" Walloped ");
+        defeatMessages.add(" Whipped ");
+        defeatMessages.add(" Trounced ");
+        defeatMessages.add(" Annihilated ");
+        defeatMessages.add(" Vanquished ");
     }
 
     @EventHandler
