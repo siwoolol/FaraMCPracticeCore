@@ -1,11 +1,10 @@
-package lol.siwoo.faramcpracticecore.safety;
+package lol.siwoo.faramcpracticecore.lobby;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

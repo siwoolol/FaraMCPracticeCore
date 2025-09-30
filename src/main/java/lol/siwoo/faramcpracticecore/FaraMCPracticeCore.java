@@ -18,7 +18,7 @@ import lol.siwoo.faramcpracticecore.lobby.FlightListener;
 import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwnerListener;
-import lol.siwoo.faramcpracticecore.safety.KitEditor;
+import lol.siwoo.faramcpracticecore.lobby.KitEditor;
 import lol.siwoo.faramcpracticecore.util.WebhookMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
