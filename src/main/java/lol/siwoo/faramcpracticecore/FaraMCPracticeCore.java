@@ -2,7 +2,7 @@ package lol.siwoo.faramcpracticecore;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
-import lol.siwoo.faramcpracticecore.aa.siwwa_pvp_1.DataLogger;
+import lol.siwoo.faramcpracticecore.aa.silas_pvp.DataLogger;
 import lol.siwoo.faramcpracticecore.aa.status.StatusChecker;
 import lol.siwoo.faramcpracticecore.aa.terms.Agree;
 import lol.siwoo.faramcpracticecore.aa.terms.Disagree;
