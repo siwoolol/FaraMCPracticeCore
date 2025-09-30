@@ -15,6 +15,11 @@ public class FightEnd implements Listener {
     private final List<String> defeatMessages = new ArrayList<>();
     private final List<Sound> randomSound = new ArrayList<>();
 
+    public FightEnd() {
+        randomDefeatMessage();
+        randomSound();
+    }
+
     public void randomDefeatMessage() {
         defeatMessages.add(" Has Obliterated ");
         defeatMessages.add(" Has Touched Up Against ");
@@ -52,8 +57,6 @@ public class FightEnd implements Listener {
 
     @EventHandler
     public void onFightEnd(DuelEndEvent event) {
-        randomDefeatMessage();
-        randomSound();
         Player w = event.getWinner();
         Player l = event.getLoser();
 
