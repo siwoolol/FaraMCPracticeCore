@@ -9,7 +9,6 @@ import lol.siwoo.faramcpracticecore.aa.terms.Disagree;
 import lol.siwoo.faramcpracticecore.aa.terms.JoinMessage;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aa.aicoach.AICoach;
-import lol.siwoo.faramcpracticecore.command.Kit;
 import lol.siwoo.faramcpracticecore.design.*;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
 import lol.siwoo.faramcpracticecore.gamemode.Boxing;
@@ -138,7 +137,6 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("gms").setExecutor(new GMS());
         getCommand("gmsp").setExecutor(new GMSP());
         getCommand("gma").setExecutor(new GMA());
-        getCommand("kit").setExecutor(new Kit());
         getCommand("sudo").setExecutor(new Sudo());
         getCommand("terms_agree").setExecutor(new Agree(this));
         getCommand("terms_disagree").setExecutor(new Disagree());
