@@ -40,10 +40,18 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     public void onEnable() {
         StatusChecker statusChecker = new StatusChecker(this);
         statusChecker.check();
+        apiCheck();
+
+        aiCoach = new AICoach(this, strikePracticeAPI);
+        registerEvents();
+        registerCommands();
 
         JoinMessage.initialize(this);
 
-        // Make sure StrikePractice is loaded first
+        WebhookMessage.statusMessage("Back Up");
+    }
+
+    public void apiCheck() {
         if (getServer().getPluginManager().getPlugin("StrikePractice") == null) {
             getLogger().severe("StrikePractice not found! Make sure StrikePractice is installed.");
             getServer().getPluginManager().disablePlugin(this);
@@ -71,14 +79,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-
-        aiCoach = new AICoach(this, strikePracticeAPI);
-        registerEvents();
-        registerCommands();
-
-        WebhookMessage.statusMessage("Back Up");
     }
-
     @Override
     public void onDisable() {
         WebhookMessage.statusMessage("Down");
