@@ -76,7 +76,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         registerEvents();
         registerCommands();
 
-        WebhookMessage.statusMessage("Back On");
+        WebhookMessage.statusMessage("Back Up");
     }
 
     @Override
