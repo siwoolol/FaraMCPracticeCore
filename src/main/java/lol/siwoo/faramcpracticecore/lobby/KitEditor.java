@@ -2,7 +2,9 @@ package lol.siwoo.faramcpracticecore.lobby;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
+import ga.strikepractice.events.DuelStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
+import lol.siwoo.faramcpracticecore.design.PvpBotQueue;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -39,5 +41,22 @@ public class KitEditor implements Listener {
             e.setCancelled(true);
             e.getPlayer().sendMessage(ChatColor.GRAY + "You need to leave the Kit Editor first! " + ChatColor.RED + "(/leave)");
         }
+    }
+
+    @EventHandler
+    public void onPlayerQueue(DuelStartEvent e) {
+        Player p1 = e.getPlayer1();
+        Player p2 = e.getPlayer2();
+
+        if (api.isEditingKit(p1)) {
+            Bukkit.dispatchCommand(p1, "kiteditor leave");
+            p1.sendMessage(ChatColor.GRAY + "You have been removed from the Kit Editor since you joined a duel.");
+        }
+
+        if (api.isEditingKit(p2)) {
+            Bukkit.dispatchCommand(p2, "kiteditor leave");
+            p2.sendMessage(ChatColor.GRAY + "You have been removed from the Kit Editor since you joined a duel.");
+        }
+
     }
 }
