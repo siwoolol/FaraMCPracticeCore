@@ -183,10 +183,10 @@ public class DataLogger implements Listener {
                 writeCustomJson(writer, session);
             }
 
-            plugin.getLogger().info("[siwwa-pvp-1] Saved match data: " + matchFile.getName());
+            plugin.getLogger().info("[silas-pvp-1] Saved match data: " + matchFile.getName());
 
         } catch (Exception e) {
-            plugin.getLogger().severe("[siwwa-pvp-1] Failed to save match data: " + e.getMessage());
+            plugin.getLogger().severe("[silas-pvp-1] Failed to save match data: " + e.getMessage());
             e.printStackTrace();
             
             // Fallback: save as plain text
@@ -317,9 +317,9 @@ public class DataLogger implements Listener {
                 writer.write("Last state: " + (session.gameStates.isEmpty() ? "None" : session.gameStates.get(session.gameStates.size()-1).timestamp + "ms") + "\n");
             }
             
-            plugin.getLogger().info("[siwwa-pvp-1] Saved fallback match data: " + matchFile.getName());
+            plugin.getLogger().info("[silas-pvp-1] Saved fallback match data: " + matchFile.getName());
         } catch (IOException e) {
-            plugin.getLogger().severe("[siwwa-pvp-1] Failed to save fallback match data: " + e.getMessage());
+            plugin.getLogger().severe("[silas-pvp-1] Failed to save fallback match data: " + e.getMessage());
         }
     }
 
