@@ -25,7 +25,7 @@ public class KitEditor implements Listener {
         Player p = e.getPlayer();
 
         if (api.isEditingKit(p) && !e.getMessage().toLowerCase().startsWith("/kiteditor")) {
-            if (e.getMessage().toLowerCase().startsWith("/leave")) {
+            if (e.getMessage().toLowerCase().startsWith("/leave") || e.getMessage().toLowerCase().startsWith("/l")) {
                 Bukkit.dispatchCommand(p, "kiteditor leave");
 
                 p.sendMessage(ChatColor.GREEN + "You have left the Kit Editor.");
@@ -33,7 +33,7 @@ public class KitEditor implements Listener {
             }
 
             e.setCancelled(true);
-            e.getPlayer().sendMessage(ChatColor.GRAY + "You need to leave the Kit Editor first!" + ChatColor.RED + "(/leave)");
+            e.getPlayer().sendMessage(ChatColor.GRAY + "You need to leave the Kit Editor first! " + ChatColor.RED + "(/leave)");
         }
     }
 }
