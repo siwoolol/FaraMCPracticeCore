@@ -1,4 +1,4 @@
-package lol.siwoo.faramcpracticecore.aicoach;
+package lol.siwoo.faramcpracticecore.aa.aicoach;
 
 import ga.strikepractice.api.StrikePracticeAPI;
 import org.bukkit.ChatColor;

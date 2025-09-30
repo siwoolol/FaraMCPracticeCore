@@ -8,7 +8,7 @@ import lol.siwoo.faramcpracticecore.aa.terms.Agree;
 import lol.siwoo.faramcpracticecore.aa.terms.Disagree;
 import lol.siwoo.faramcpracticecore.aa.terms.JoinMessage;
 import lol.siwoo.faramcpracticecore.admin.*;
-import lol.siwoo.faramcpracticecore.aicoach.AICoach;
+import lol.siwoo.faramcpracticecore.aa.aicoach.AICoach;
 import lol.siwoo.faramcpracticecore.design.*;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
 import lol.siwoo.faramcpracticecore.gamemode.Boxing;
