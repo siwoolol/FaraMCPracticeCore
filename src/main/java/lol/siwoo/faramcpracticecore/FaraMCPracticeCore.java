@@ -98,7 +98,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onPlayerAdvacement(PlayerAchievementAwardedEvent e) {
+    public void onPlayerAdvancement(PlayerAchievementAwardedEvent e) {
         e.setCancelled(true);
     }
 
