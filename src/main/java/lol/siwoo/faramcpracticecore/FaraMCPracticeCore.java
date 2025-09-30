@@ -18,6 +18,7 @@ import lol.siwoo.faramcpracticecore.lobby.FlightListener;
 import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwnerListener;
+import lol.siwoo.faramcpracticecore.safety.KitEditor;
 import lol.siwoo.faramcpracticecore.util.WebhookMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -106,6 +107,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
         pm.registerEvents(this, this);
         pm.registerEvents(new QueueGUIListener(this), this);
+        pm.registerEvents(new KitEditor(this), this);
         pm.registerEvents(new WarningMessage(), this);
         pm.registerEvents(new FightEnd(), this);
         pm.registerEvents(new FlightListener(), this);
