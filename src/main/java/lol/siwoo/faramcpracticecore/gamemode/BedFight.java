@@ -265,10 +265,11 @@ public class BedFight implements Listener {
         UUID playerId = p.getUniqueId();
 
         if (Boolean.TRUE.equals(isbedBroken.get(playerId))) {
-            // TODO b1
-            p.damage(69420.0);
-            isbedBroken.remove(playerId);
-            return;
+            if (p.getHealth() - e.getFinalDamage() <= 1f) {
+                p.damage(69420.0);
+                isbedBroken.remove(playerId);
+                return;
+            }
         }
     }
 
