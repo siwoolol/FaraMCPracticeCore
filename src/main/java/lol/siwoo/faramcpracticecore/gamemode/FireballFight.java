@@ -5,6 +5,7 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.arena.DefaultCachedBlockChange;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
+import ga.strikepractice.events.PlayerStartSpectatingEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -12,11 +13,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.material.Bed;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -72,8 +76,8 @@ public class FireballFight implements Listener {
             @Override
             public void run() {
                 long currentTime = System.currentTimeMillis();
-                cooldownMap.entrySet().removeIf(entry ->
-                        currentTime - entry.getValue() > COOLDOWN_DURATION);
+                cooldownMap.entrySet().removeIf(entry -> 
+                    currentTime - entry.getValue() > COOLDOWN_DURATION);
             }
         }.runTaskTimer(plugin, 20L, 20L);
     }
@@ -84,7 +88,7 @@ public class FireballFight implements Listener {
             return;
         }
 
-        String fightId = "bedfight_" + (++fightCounter)+ "_" + System.currentTimeMillis();
+        String fightId = "fireballfight_" + (++fightCounter)+ "_" + System.currentTimeMillis();
         fightBedBreaks.put(fightId, new ArrayList<>());
 
         new BukkitRunnable() {
@@ -182,15 +186,25 @@ public class FireballFight implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
-        if (isInCooldown(e.getPlayer().getUniqueId())) {
-            e.setCancelled(true);
-        }
-
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
+        if (isInCooldown(playerId)) {
+            Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
+            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (location != oldlocation) {
+                        e.setCancelled(true);
+                    }
+                }
+            }.runTaskTimer(plugin, 5L, 0);
+        }
+
         if (Boolean.TRUE.equals(isbedBroken.get(playerId))
-                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
+                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
                 && !Boolean.TRUE.equals(isDead.get(playerId))) {
             p.damage(69420.0);
             isbedBroken.remove(playerId);
@@ -198,11 +212,11 @@ public class FireballFight implements Listener {
         }
 
         if (Boolean.TRUE.equals(isInFireballfight.get(playerId))
-                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 12
+                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
                 && !Boolean.TRUE.equals(isDead.get(playerId))) {
 
             Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
-            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -20, p.getLocation().getZ());
+            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -80, p.getLocation().getZ());
 
             isDead.put(playerId, true);
             p.teleport(location);
@@ -210,7 +224,9 @@ public class FireballFight implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
+                    p.setAllowFlight(true);
                     p.teleport(oldlocation);
+                    p.setFlying(true);
                 }
             }.runTaskLater(plugin, 5L);
 
@@ -219,7 +235,37 @@ public class FireballFight implements Listener {
                 public void run() {
                     isDead.remove(playerId);
                 }
-            }.runTaskLater(plugin, 60L);
+            }.runTaskLater(plugin, 80L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.setAllowFlight(false);
+                    p.setFlying(false);
+                }
+            }.runTaskLater(plugin, 85L);
+        }
+
+        if (Boolean.TRUE.equals(isInFireballfight.get(playerId))
+                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
+                && Boolean.TRUE.equals(isDead.get(playerId))) {
+            Location teleportLoc = p.getLocation().clone();
+            teleportLoc.add(0, 5, 0);
+            p.teleport(teleportLoc);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDamage(EntityDamageByEntityEvent e) {
+        Player p = (Player) e.getEntity();
+        UUID playerId = p.getUniqueId();
+
+        if (Boolean.TRUE.equals(isbedBroken.get(playerId))) {
+            if (p.getHealth() - e.getFinalDamage() <= 1f) {
+                p.damage(69420.0);
+                isbedBroken.remove(playerId);
+                return;
+            }
         }
     }
 
@@ -229,7 +275,8 @@ public class FireballFight implements Listener {
         UUID playerId = p.getUniqueId();
         
         if (Boolean.TRUE.equals(isInFireballfight.get(playerId))) {
-            if (e.getBlock().getY() > api.getFight(p).getArena().getLoc1().getY() + 10
+            if (e.getBlock().getY() > api.getFight(p).getArena().getLoc1().getY() + 8
+                    || e.getBlock().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
                     || isInCooldown(playerId)) {
                 e.setCancelled(true);
             }
@@ -242,7 +289,7 @@ public class FireballFight implements Listener {
         UUID playerId = p.getUniqueId();
 
         if (!Boolean.TRUE.equals(isInFireballfight.get(playerId))
-                || !(e.getBlock().getType() == Material.BED_BLOCK)) {
+            || !(e.getBlock().getType() == Material.BED_BLOCK)) {
             return;
         }
 
@@ -403,5 +450,103 @@ public class FireballFight implements Listener {
             i = i;
         }
         return i;
+    }
+
+    @EventHandler
+    public void onPlayerDamage(EntityDamageEvent e) {
+        if (!(e.getEntity() instanceof Player)) {
+            return;
+        }
+
+        Player p = (Player) e.getEntity();
+
+        if (isInFireballfight.get(p.getUniqueId()) == null) {
+            return;
+        }
+
+        if (p.getHealth() - e.getFinalDamage() <= 0.0f) {
+            Bukkit.getServer().getLogger().info("check 1");
+            if (Boolean.TRUE.equals(isInFireballfight.get(p.getUniqueId()))) {
+                isDead.put(p.getUniqueId(), true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onStartSpectate(PlayerStartSpectatingEvent e) {
+        Player p = e.getPlayer();
+        UUID pid = p.getUniqueId();
+
+        if (!isInFireballfight.containsKey(pid) || !isInFireballfight.get(pid) || !isDead.containsKey(pid)) {
+            return;
+        }
+
+        if (isInFireballfight.get(pid).equals(Boolean.TRUE)
+            && isDead.get(pid).equals(Boolean.TRUE)) {
+            e.setCancelled(true);
+
+            p.getInventory().clear();
+            p.getInventory().setArmorContents(null);
+            p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 100, 1, false, false));
+            p.setAllowFlight(true);
+            p.setFlying(true);
+
+            api.getFight(p).getPlayersInFight().forEach(player -> {
+                player.sendMessage(ChatColor.GRAY + p.getName() + " died");
+            });
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.playSound(p.getLocation(), Sound.NOTE_PLING, 1.0f, 1.0f);
+                    p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "You died!"
+                            , ChatColor.WHITE + "You will respawn in 3 seconds");
+                }
+            }.runTaskLater(plugin, 20L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.playSound(p.getLocation(), Sound.NOTE_PLING, 1.0f, 1.0f);
+                    p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "You died!"
+                            , ChatColor.WHITE + "You will respawn in 2 seconds");
+                }
+            }.runTaskLater(plugin, 40L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.playSound(p.getLocation(), Sound.NOTE_PLING, 1.0f, 1.0f);
+                    p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "You died!"
+                            , ChatColor.WHITE + "You will respawn in 1 seconds");
+                }
+            }.runTaskLater(plugin, 60L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Location spawnLocation = startPositions.get(pid);
+
+                    p.playSound(spawnLocation, Sound.LEVEL_UP, 1.0f, 1.0f);
+                    p.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "Respawned!", "");
+
+                    p.teleport(spawnLocation);
+
+                    p.removePotionEffect(PotionEffectType.INVISIBILITY);
+                    p.setFlying(false);
+                    p.setAllowFlight(false);
+
+                    isDead.remove(pid);
+                }
+            }.runTaskLater(plugin, 80L);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Location spawnLocation = startPositions.get(pid);
+                    p.teleport(spawnLocation);
+                }
+            }.runTaskLater(plugin, 85L);
+        }
     }
 }
