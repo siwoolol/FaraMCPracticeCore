@@ -66,6 +66,12 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
             return;
         }
 
+        if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
+            getLogger().severe("ProtocolLib is required for training features!\n");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         try {
             // Try to get the API statically
             strikePracticeAPI = StrikePractice.getAPI();

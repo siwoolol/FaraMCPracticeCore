@@ -1,5 +1,10 @@
 package lol.siwoo.faramcpracticecore.train;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -18,6 +23,19 @@ public class TrainingGUIListener implements Listener {
     public TrainingGUIListener(FaraMCPracticeCore plugin, TrainingManager trainingManager) {
         this.plugin = plugin;
         this.trainingManager = trainingManager;
+
+        // Register packet listener for NPC clicks [[1]](https://bukkit.org/threads/entity-shown-only-to-specific-player-s.155715/)
+        ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(plugin,
+                ListenerPriority.NORMAL, PacketType.Play.Client.USE_ENTITY) {
+            @Override
+            public void onPacketReceiving(PacketEvent event) {
+                Player player = event.getPlayer();
+                if (trainingManager.isInTraining(player)) {
+                    int entityId = event.getPacket().getIntegers().read(0);
+                    trainingManager.handleNPCClick(player, entityId);
+                }
+            }
+        });
     }
 
     @EventHandler
@@ -51,7 +69,7 @@ public class TrainingGUIListener implements Listener {
             trainingManager.startTraining(player, TrainingMode.W_TAP_TRAINER);
         } else if (clickedItem.getType() == Material.ARROW) {
             player.closeInventory();
-            // You can add logic here to return to your main menu
+            // Return to main menu logic
         }
     }
 }

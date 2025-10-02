@@ -8,7 +8,7 @@ website: siwoo.lol
 
 api-version: 1.8.8
 
-depend: [ "StrikePractice", "PlaceholderAPI" ]
+depend: [ "StrikePractice", "PlaceholderAPI", "ProtocolLib" ]
 softdepend: [ "Luckperms", "Multiverse-Core", "PlaceholderAPI" ]
 
 libraries:
