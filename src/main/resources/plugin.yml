@@ -68,3 +68,6 @@ commands:
   terms_disagree:
     usage: "/terms_disagree"
     description: "Disagree to the terms of service for FaraMC Practice Core"
+  train:
+    description: "Access training modes"
+    usage: "/train [mode]"

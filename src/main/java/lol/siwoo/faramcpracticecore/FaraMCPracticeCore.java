@@ -19,6 +19,9 @@ import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwnerListener;
 import lol.siwoo.faramcpracticecore.lobby.KitEditor;
+import lol.siwoo.faramcpracticecore.train.TrainingCommand;
+import lol.siwoo.faramcpracticecore.train.TrainingGUIListener;
+import lol.siwoo.faramcpracticecore.train.TrainingManager;
 import lol.siwoo.faramcpracticecore.util.WebhookMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -34,6 +37,7 @@ import java.io.File;
 
 public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     private StrikePracticeAPI strikePracticeAPI;
+    private TrainingManager trainingManager;
     private AICoach aiCoach;
 
     @Override
@@ -41,10 +45,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         StatusChecker statusChecker = new StatusChecker(this);
         statusChecker.check();
         apiCheck();
-
-        aiCoach = new AICoach(this, strikePracticeAPI);
         registerEvents();
-        registerCommands();
 
         JoinMessage.initialize(this);
 
@@ -105,8 +106,11 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     private void registerEvents() {
         PluginManager pm = getServer().getPluginManager();
+        aiCoach = new AICoach(this, strikePracticeAPI);
+        trainingManager = new TrainingManager(this);
 
         pm.registerEvents(this, this);
+        pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
         pm.registerEvents(new QueueGUIListener(this), this);
         pm.registerEvents(new KitEditor(this), this);
         pm.registerEvents(new WarningMessage(), this);
@@ -121,12 +125,11 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         DataLogger dataLogger = new DataLogger(this);
         pm.registerEvents(dataLogger, this);
         pm.registerEvents(new JoinMessage(), this);
-    }
 
-    private void registerCommands() {
         getCommand("unranked").setExecutor(new UnrankedGUI());
         getCommand("ranked").setExecutor(new RankedQueue());
         getCommand("botduel").setExecutor(new PvpBotQueue());
+        getCommand("train").setExecutor(new TrainingCommand(this, trainingManager));
 
         getCommand("fly").setExecutor(new Flight());
 //        getCommand("ai").setExecutor(aiCoach);
