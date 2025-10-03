@@ -13,12 +13,12 @@
             <zipgroupfileset
                     dir="${user.home}/.m2/repository/com/github/eduardomcb/discord-webhook/${discord-webhook.version}/"
                     includes="**/*discord-webhook-${discord-webhook.version}.jar"/>
-            <zipgroupfileset
-                    dir="${user.home}/.m2/repository/me/clip/placeholderapi/2.11.6/"
-                    includes="**/*placeholderapi-2.11.6.jar"/>
-            <zipgroupfileset
-                    dir="${user.home}/.m2/repository/net/dmulloy2/ProtocolLib/5.3.0/"
-                    includes="**/*ProtocolLib-5.3.0.jar"/>
+<!--            <zipgroupfileset-->
+<!--                    dir="${user.home}/.m2/repository/me/clip/placeholderapi/2.11.6/"-->
+<!--                    includes="**/*placeholderapi-2.11.6.jar"/>-->
+<!--            <zipgroupfileset-->
+<!--                    dir="${user.home}/.m2/repository/net/dmulloy2/ProtocolLib/5.3.0/"-->
+<!--                    includes="**/*ProtocolLib-5.3.0.jar"/>-->
         </jar>
     </target>
 
