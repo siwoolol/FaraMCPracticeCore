@@ -112,11 +112,11 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     private void registerEvents() {
         PluginManager pm = getServer().getPluginManager();
-        aiCoach = new AICoach(this, strikePracticeAPI);
-        trainingManager = new TrainingManager(this);
+//        aiCoach = new AICoach(this, strikePracticeAPI);
+//        trainingManager = new TrainingManager(this);
 
         pm.registerEvents(this, this);
-        pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
+//        pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
         pm.registerEvents(new QueueGUIListener(this), this);
         pm.registerEvents(new KitEditor(this), this);
         pm.registerEvents(new WarningMessage(), this);
@@ -135,7 +135,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("unranked").setExecutor(new UnrankedGUI());
         getCommand("ranked").setExecutor(new RankedQueue());
         getCommand("botduel").setExecutor(new PvpBotQueue());
-        getCommand("train").setExecutor(new TrainingCommand(this, trainingManager));
+//        getCommand("train").setExecutor(new TrainingCommand(this, trainingManager));
 
         getCommand("fly").setExecutor(new Flight());
 //        getCommand("ai").setExecutor(aiCoach);
