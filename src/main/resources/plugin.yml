@@ -8,8 +8,8 @@ website: siwoo.lol
 
 api-version: 1.8.8
 
-depend: [ "StrikePractice", "PlaceholderAPI", "ProtocolLib" ]
-softdepend: [ "Luckperms", "Multiverse-Core", "PlaceholderAPI", "ProtocolLib" ]
+depend: [ StrikePractice, PlaceholderAPI, ProtocolLib ]
+softdepend: [ Luckperms, Multiverse-Core, PlaceholderAPI, ProtocolLib ]
 
 libraries:
   - org.openjdk.nashorn:nashorn-core:15.4
