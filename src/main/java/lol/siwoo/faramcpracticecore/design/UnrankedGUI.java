@@ -20,7 +20,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Arrays;
 
-public class UnrankedGUI implements CommandExecutor {
+public class UnrankedGUI implements CommandExecutor, Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -152,5 +152,18 @@ public class UnrankedGUI implements CommandExecutor {
 
         item.setItemMeta(meta);
         gui.setItem(slot, item);
+    }
+
+    @EventHandler
+    public void onQueueCommand(PlayerCommandPreprocessEvent e) {
+        Player p = e.getPlayer();
+
+        if (e.getMessage().equalsIgnoreCase("/queue")
+                || e.getMessage().equalsIgnoreCase("/strikepractice:queue")
+                || e.getMessage().toLowerCase().startsWith("/unranked")
+                || e.getMessage().toLowerCase().startsWith("/strikepractice:unranked")) {
+            e.setCancelled(true);
+            Bukkit.dispatchCommand(p, "unrankedgui");
+        }
     }
 }

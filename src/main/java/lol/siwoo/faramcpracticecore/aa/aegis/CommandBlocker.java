@@ -31,17 +31,4 @@ public class CommandBlocker implements Listener {
             }
         }
     }
-
-    @EventHandler
-    public void onQueueCommand(PlayerCommandPreprocessEvent e) {
-        Player p = e.getPlayer();
-
-        if (e.getMessage().equalsIgnoreCase("/queue")
-                || e.getMessage().equalsIgnoreCase("/strikepractice:queue")
-                || e.getMessage().toLowerCase().startsWith("/unranked")
-                || e.getMessage().toLowerCase().startsWith("/strikepractice:unranked")) {
-            e.setCancelled(true);
-            Bukkit.dispatchCommand(p, "unrankedgui");
-        }
-    }
 }
