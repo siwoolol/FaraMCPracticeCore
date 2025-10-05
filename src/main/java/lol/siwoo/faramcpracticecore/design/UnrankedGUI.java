@@ -8,6 +8,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -17,7 +20,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Arrays;
 
-public class UnrankedGUI implements CommandExecutor {
+public class UnrankedGUI implements CommandExecutor, Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -149,5 +152,15 @@ public class UnrankedGUI implements CommandExecutor {
 
         item.setItemMeta(meta);
         gui.setItem(slot, item);
+    }
+
+    @EventHandler
+    public void onQueueCommand(PlayerCommandPreprocessEvent e) {
+        Player p = e.getPlayer();
+
+        if (e.getMessage().equalsIgnoreCase("/queue") || e.getMessage().equalsIgnoreCase("/unranked")) {
+            e.setCancelled(true);
+            p.performCommand("unrankedgui");
+        }
     }
 }
