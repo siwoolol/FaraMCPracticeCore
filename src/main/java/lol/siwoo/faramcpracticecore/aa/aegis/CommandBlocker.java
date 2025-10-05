@@ -1,5 +1,6 @@
 package lol.siwoo.faramcpracticecore.aa.aegis;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,6 +29,19 @@ public class CommandBlocker implements Listener {
                 e.setCancelled(true);
                 p.sendMessage(ChatColor.GRAY + "Unknown command. Type" + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
             }
+        }
+    }
+
+    @EventHandler
+    public void onQueueCommand(PlayerCommandPreprocessEvent e) {
+        Player p = e.getPlayer();
+
+        if (e.getMessage().equalsIgnoreCase("/queue")
+                || e.getMessage().equalsIgnoreCase("/strikepractice:queue")
+                || e.getMessage().toLowerCase().startsWith("/unranked")
+                || e.getMessage().toLowerCase().startsWith("/strikepractice:unranked")) {
+            e.setCancelled(true);
+            Bukkit.dispatchCommand(p, "unrankedgui");
         }
     }
 }
