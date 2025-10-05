@@ -160,7 +160,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
 
         if (e.getMessage().equalsIgnoreCase("/queue") || e.getMessage().equalsIgnoreCase("/unranked")) {
             e.setCancelled(true);
-            p.performCommand("/unrankedgui");
+            Bukkit.dispatchCommand(p, "/unrankedgui");
         }
     }
 }
