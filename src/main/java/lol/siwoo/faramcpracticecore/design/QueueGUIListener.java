@@ -1,6 +1,7 @@
 package lol.siwoo.faramcpracticecore.design;
 
 import ga.strikepractice.events.DuelStartEvent;
+import ga.strikepractice.events.FightStartEvent;
 import ga.strikepractice.events.KitSelectEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.ChatColor;
@@ -98,9 +99,16 @@ public class QueueGUIListener implements Listener {
     }
 
     @EventHandler
-    public void onMatchStart(KitSelectEvent e) {
-        Player p = e.getPlayer();
+    public void onFightStart(FightStartEvent e) {
+        e.getFight().getPlayersInFight().forEach(p -> {
+            p.closeInventory();
+        });
+    }
 
-        p.closeInventory();
+    @EventHandler
+    public void onDuelStart(DuelStartEvent e) {
+        e.getFight().getPlayersInFight().forEach(p -> {
+            p.closeInventory();
+        });
     }
 }
