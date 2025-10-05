@@ -39,7 +39,7 @@ public class ForceWin implements CommandExecutor {
             }
             return true;
         } else {
-            p.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
+            p.sendMessage(ChatColor.GRAY + "Unknown command. Type " + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
             return true;
         }
     }
