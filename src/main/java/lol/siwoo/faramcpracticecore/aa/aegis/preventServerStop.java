@@ -14,7 +14,13 @@ public class preventServerStop implements Listener {
 
         if (e.getMessage().equalsIgnoreCase("/stop")
                 || e.getMessage().equalsIgnoreCase("/bukkit:stop")
-                || e.getMessage().equalsIgnoreCase("/minecraft:stop")) {
+                || e.getMessage().equalsIgnoreCase("/minecraft:stop")
+                || e.getMessage().equalsIgnoreCase("/reload")
+                || e.getMessage().equalsIgnoreCase("/bukkit:reload")
+                || e.getMessage().equalsIgnoreCase("/minecraft:reload")
+                || e.getMessage().equalsIgnoreCase("/restart")
+                || e.getMessage().equalsIgnoreCase("/bukkit:restart")
+                || e.getMessage().equalsIgnoreCase("/minecraft:restart")) {
             e.setCancelled(true);
             p.sendMessage(ChatColor.GRAY + "Unknown command. Type" + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
         }
