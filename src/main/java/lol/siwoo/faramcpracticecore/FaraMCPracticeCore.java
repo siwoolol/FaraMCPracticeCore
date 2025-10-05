@@ -134,6 +134,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new JoinMessage(), this);
 
         getCommand("unranked").setExecutor(new UnrankedGUI());
+        getCommand("queue").setExecutor(new UnrankedGUI());
         getCommand("ranked").setExecutor(new RankedQueue());
         getCommand("botduel").setExecutor(new PvpBotQueue());
 //        getCommand("train").setExecutor(new TrainingCommand(this, trainingManager));
