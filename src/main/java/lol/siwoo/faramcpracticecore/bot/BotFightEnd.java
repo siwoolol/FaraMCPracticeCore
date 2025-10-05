@@ -73,7 +73,7 @@ public class BotFightEnd implements Listener {
         Collections.shuffle(soundshuffled);
         Sound randomSound = soundshuffled.get(0);
 
-        if (event.getLoser().isEmpty()) {
+        if (event.getWinner().equals(p)) {
             // Winner Prompt
             p.playSound((p.getLocation()), randomSound, 1, 1);
             p.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "VICTORY", ChatColor.GREEN + p.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + "Bot");
