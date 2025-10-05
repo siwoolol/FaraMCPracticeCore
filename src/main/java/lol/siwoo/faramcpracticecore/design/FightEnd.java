@@ -55,7 +55,6 @@ public class FightEnd implements Listener {
         randomSound.add(Sound.FIREWORK_LARGE_BLAST);
         randomSound.add(Sound.FIREWORK_TWINKLE);
         randomSound.add(Sound.LEVEL_UP);
-        randomSound.add(Sound.SUCCESSFUL_HIT);
         randomSound.add(Sound.ZOMBIE_DEATH);
         randomSound.add(Sound.SKELETON_DEATH);
     }
