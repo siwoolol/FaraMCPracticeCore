@@ -209,7 +209,6 @@ public class BedFight implements Listener {
         if (Boolean.TRUE.equals(isbedBroken.get(playerId))
                 && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
                 && !Boolean.TRUE.equals(isDead.get(playerId))) {
-            // TODO b1
             p.damage(69420.0);
             isbedBroken.remove(playerId);
             return;
@@ -251,7 +250,7 @@ public class BedFight implements Listener {
         }
 
         if (Boolean.TRUE.equals(isInBedfight.get(playerId))
-                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
+                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 7
                 && Boolean.TRUE.equals(isDead.get(playerId))) {
             Location teleportLoc = p.getLocation().clone();
             teleportLoc.add(0, 5, 0);
