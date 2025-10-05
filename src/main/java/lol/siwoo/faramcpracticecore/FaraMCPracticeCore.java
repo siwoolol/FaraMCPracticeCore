@@ -11,6 +11,7 @@ import lol.siwoo.faramcpracticecore.aa.terms.Disagree;
 import lol.siwoo.faramcpracticecore.aa.terms.JoinMessage;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aa.aicoach.AICoach;
+import lol.siwoo.faramcpracticecore.bot.BotFightEnd;
 import lol.siwoo.faramcpracticecore.bot.BotHitDelayFix;
 import lol.siwoo.faramcpracticecore.design.*;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
@@ -125,7 +126,10 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 //        aiCoach = new AICoach(this, strikePracticeAPI);
 //        trainingManager = new TrainingManager(this);
 
+        // Bot Fixes
+        pm.registerEvents(new BotFightEnd(), this);
         pm.registerEvents(new BotHitDelayFix(), this);
+
         pm.registerEvents(this, this);
 //        pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
         pm.registerEvents(new QueueGUIListener(this), this);
