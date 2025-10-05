@@ -24,6 +24,7 @@ import lol.siwoo.faramcpracticecore.train.TrainingGUIListener;
 import lol.siwoo.faramcpracticecore.train.TrainingManager;
 import lol.siwoo.faramcpracticecore.util.WebhookMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -172,4 +173,9 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         }
     }
 
+// Basic permission check example
+//    if (!p.hasPermission("faramcpracticecore.admin")) {
+//        p.sendMessage(ChatColor.GRAY + "Unknown command. Type " + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
+//        return true;
+//    }
 }
