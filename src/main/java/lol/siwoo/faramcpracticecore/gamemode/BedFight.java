@@ -215,7 +215,7 @@ public class BedFight implements Listener {
         }
 
         if (Boolean.TRUE.equals(isInBedfight.get(playerId))
-                && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
+                && p.getLocation().getY() < Objects.requireNonNull(api.getFight(p)).getArena().getLoc1().getY() - 8
                 && !Boolean.TRUE.equals(isDead.get(playerId))) {
 
             Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
