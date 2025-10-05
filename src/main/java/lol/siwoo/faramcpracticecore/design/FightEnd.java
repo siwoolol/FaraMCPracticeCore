@@ -48,11 +48,16 @@ public class FightEnd implements Listener {
     }
 
     public void randomSound() {
-        randomSound.add(Sound.EXPLODE);
-        randomSound.add(Sound.FIREWORK_BLAST);
+        randomSound.add(Sound.ANVIL_USE);
+        randomSound.add(Sound.WITHER_SPAWN);
+        randomSound.add(Sound.ENDERDRAGON_DEATH);
+        randomSound.add(Sound.FIREWORK_BLAST2);
+        randomSound.add(Sound.FIREWORK_LARGE_BLAST);
+        randomSound.add(Sound.FIREWORK_TWINKLE);
         randomSound.add(Sound.LEVEL_UP);
-        randomSound.add(Sound.ORB_PICKUP);
-        randomSound.add(Sound.WITHER_DEATH);
+        randomSound.add(Sound.SUCCESSFUL_HIT);
+        randomSound.add(Sound.ZOMBIE_DEATH);
+        randomSound.add(Sound.SKELETON_DEATH);
     }
 
     @EventHandler
