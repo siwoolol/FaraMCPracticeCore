@@ -2,6 +2,7 @@ package lol.siwoo.faramcpracticecore;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
+import lol.siwoo.faramcpracticecore.aa.aegis.CommandBlocker;
 import lol.siwoo.faramcpracticecore.aa.silas_pvp.DataLogger;
 import lol.siwoo.faramcpracticecore.aa.status.StatusChecker;
 import lol.siwoo.faramcpracticecore.aa.terms.Agree;
@@ -25,6 +26,7 @@ import lol.siwoo.faramcpracticecore.train.TrainingManager;
 import lol.siwoo.faramcpracticecore.util.WebhookMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -115,11 +117,13 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         PluginManager pm = getServer().getPluginManager();
 //        aiCoach = new AICoach(this, strikePracticeAPI);
 //        trainingManager = new TrainingManager(this);
+        pm.registerEvents(new CommandBlocker(), this);
 
         pm.registerEvents(this, this);
 //        pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
         pm.registerEvents(new QueueGUIListener(this), this);
         pm.registerEvents(new KitEditor(this), this);
+        pm.registerEvents(new UnrankedGUI(), this);
         pm.registerEvents(new WarningMessage(), this);
         pm.registerEvents(new FightEnd(), this);
         pm.registerEvents(new FlightListener(), this);
@@ -133,6 +137,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(dataLogger, this);
         pm.registerEvents(new JoinMessage(), this);
 
+        getCommand("unrankedgui").setExecutor(new UnrankedGUI());
         getCommand("unranked").setExecutor(new UnrankedGUI());
         getCommand("queue").setExecutor(new UnrankedGUI());
         getCommand("ranked").setExecutor(new RankedQueue());
