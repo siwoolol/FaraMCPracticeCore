@@ -192,19 +192,19 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
-        if (isInCooldown(playerId)) {
-            Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
-            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (location != oldlocation) {
-                        e.setCancelled(true);
-                    }
-                }
-            }.runTaskTimer(plugin, 5L, 0);
-        }
+//        if (isInCooldown(playerId)) {
+//            Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
+//            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
+//
+//            new BukkitRunnable() {
+//                @Override
+//                public void run() {
+//                    if (location != oldlocation) {
+//                        e.setCancelled(true);
+//                    }
+//                }
+//            }.runTaskTimer(plugin, 5L, 0);
+//        }
 
         if (Boolean.TRUE.equals(isbedBroken.get(playerId))
                 && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
