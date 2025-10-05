@@ -3,6 +3,7 @@ package lol.siwoo.faramcpracticecore;
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
 import lol.siwoo.faramcpracticecore.aa.aegis.CommandBlocker;
+import lol.siwoo.faramcpracticecore.aa.aegis.preventServerStop;
 import lol.siwoo.faramcpracticecore.aa.silas_pvp.DataLogger;
 import lol.siwoo.faramcpracticecore.aa.status.StatusChecker;
 import lol.siwoo.faramcpracticecore.aa.terms.Agree;
@@ -117,6 +118,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         PluginManager pm = getServer().getPluginManager();
 
         // Aegis
+        pm.registerEvents(new preventServerStop(), this);
         pm.registerEvents(new CommandBlocker(), this);
 
 //        aiCoach = new AICoach(this, strikePracticeAPI);
