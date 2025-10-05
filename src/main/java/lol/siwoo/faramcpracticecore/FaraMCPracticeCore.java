@@ -128,7 +128,6 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 //        pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
         pm.registerEvents(new QueueGUIListener(this), this);
         pm.registerEvents(new KitEditor(this), this);
-        pm.registerEvents(new UnrankedGUI(), this);
         pm.registerEvents(new WarningMessage(), this);
         pm.registerEvents(new FightEnd(), this);
         pm.registerEvents(new FlightListener(), this);
