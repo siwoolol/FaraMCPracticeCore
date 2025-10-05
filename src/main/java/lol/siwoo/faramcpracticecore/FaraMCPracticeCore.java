@@ -115,9 +115,12 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     private void registerEvents() {
         PluginManager pm = getServer().getPluginManager();
+
+        // Aegis
+        pm.registerEvents(new CommandBlocker(), this);
+
 //        aiCoach = new AICoach(this, strikePracticeAPI);
 //        trainingManager = new TrainingManager(this);
-        pm.registerEvents(new CommandBlocker(), this);
 
         pm.registerEvents(this, this);
 //        pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
