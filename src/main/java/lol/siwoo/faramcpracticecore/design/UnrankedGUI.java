@@ -158,9 +158,12 @@ public class UnrankedGUI implements CommandExecutor, Listener {
     public void onQueueCommand(PlayerCommandPreprocessEvent e) {
         Player p = e.getPlayer();
 
-        if (e.getMessage().equalsIgnoreCase("/queue") || e.getMessage().equalsIgnoreCase("/unranked")) {
+        if (e.getMessage().equalsIgnoreCase("/queue")
+                || e.getMessage().equalsIgnoreCase("/strikepractice:queue")
+                || e.getMessage().toLowerCase().startsWith("/unranked")
+                || e.getMessage().toLowerCase().startsWith("/strikepractice:unranked")) {
             e.setCancelled(true);
-            Bukkit.dispatchCommand(p, "/unrankedgui");
+            Bukkit.dispatchCommand(p, "unrankedgui");
         }
     }
 }
