@@ -11,7 +11,7 @@ public class Aegis implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         Player p = (Player) sender;
         if (!p.hasPermission("faramcpracticecore.admin")) {
-            p.sendMessage(ChatColor.GRAY + "Unknown command. Type " + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
+            p.sendMessage(ChatColor.GRAY + "Unknown command. Type" + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
             return true;
         }
 

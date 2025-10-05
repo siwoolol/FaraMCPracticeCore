@@ -186,7 +186,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
 // Basic permission check example
 //    if (!p.hasPermission("faramcpracticecore.admin")) {
-//        p.sendMessage(ChatColor.GRAY + "Unknown command. Type " + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
+//        p.sendMessage(ChatColor.GRAY + "Unknown command. Type" + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
 //        return true;
 //    }
 }

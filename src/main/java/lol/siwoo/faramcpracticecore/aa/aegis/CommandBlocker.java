@@ -26,7 +26,7 @@ public class CommandBlocker implements Listener {
                     e.getMessage().toLowerCase().startsWith("/me") ||
                     e.getMessage().toLowerCase().startsWith("/bukkit:me")) {
                 e.setCancelled(true);
-                p.sendMessage(ChatColor.GRAY + "Unknown command. Type " + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
+                p.sendMessage(ChatColor.GRAY + "Unknown command. Type" + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
             }
         }
     }
