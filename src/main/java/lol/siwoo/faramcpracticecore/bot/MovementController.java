@@ -4,6 +4,7 @@ import ga.strikepractice.events.BotDuelStartEvent;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.npc.NPCRegistry;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,13 +16,16 @@ public class MovementController implements Listener {
         NPC n = event.getBot();
         int nId = n.getId();
 
-        if (event.getFight().getDifficulty().equals("easy")) {
+        Bukkit.getServer().getLogger().info(String.valueOf(event.getFight().getDifficulty()));
+        Bukkit.getServer().getLogger().info(String.valueOf(n.getName()));
+
+        if (event.getFight().getDifficulty().equals("EASY")) {
             n.setName(ChatColor.GREEN + "Easy Bot");
-        } else if (event.getFight().getDifficulty().equals("normal")) {
+        } else if (event.getFight().getDifficulty().equals("NORMAL")) {
             n.setName(ChatColor.YELLOW + "Normal Bot");
-        } else if (event.getFight().getDifficulty().equals("hard")) {
+        } else if (event.getFight().getDifficulty().equals("HARD")) {
             n.setName(ChatColor.RED + "Hard Bot");
-        } else if (event.getFight().getDifficulty().equals("expert")) {
+        } else if (event.getFight().getDifficulty().equals("EXPERT")) {
             n.setName(ChatColor.DARK_RED + "Expert Bot");
         } else {
             event.setCancelled(true);
