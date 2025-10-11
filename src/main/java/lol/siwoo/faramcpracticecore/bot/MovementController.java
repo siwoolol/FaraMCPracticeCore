@@ -67,10 +67,10 @@ public class MovementController implements Listener {
             @Override
             public void run() {
                 if (Bukkit.getPlayer(playerUUID) != null && npc.isSpawned()) {
-                    setNPCSpeed(nId, 1.67F);
+                    setNPCSpeed(nId, 1.77F);
                     npc.faceLocation(Bukkit.getPlayer(playerUUID).getLocation());
                 } else {
-                    resetNPCSpeed(nId);
+                    setNPCSpeed(nId, 1.44F);
                     this.cancel();
                 }
             }
@@ -95,7 +95,7 @@ public class MovementController implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    resetNPCSpeed(npc.getId());
+                    npc.getNavigator().getLocalParameters().speed(1.44F);
                 }
             }.runTaskLater(plugin, 10L);
         }
@@ -105,9 +105,9 @@ public class MovementController implements Listener {
     public void onBotKnockBack(NPCKnockbackEvent e) {
         e.setCancelled(true);
         NPC npc = e.getNPC();
-        npc.getNavigator().getLocalParameters().speed(1.11F);
+        npc.getNavigator().getLocalParameters().speed(1.24F);
 
-        e.getKnockbackVector().multiply(0.01F).setY(0.05F);
+        e.getKnockbackVector().multiply(0.01F).setY(0.03F);
 
         new BukkitRunnable() {
             @Override
