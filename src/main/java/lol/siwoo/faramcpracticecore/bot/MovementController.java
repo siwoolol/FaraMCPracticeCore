@@ -20,18 +20,18 @@ public class MovementController implements Listener {
         Bukkit.getServer().getLogger().info(String.valueOf(n.getName()));
 
         if (event.getFight().getDifficulty().equals("EASY")) {
-            n.setName(ChatColor.GREEN + "Easy Bot");
+            n.setName(ChatColor.GREEN + "[★] Easy Bot");
         } else if (event.getFight().getDifficulty().equals("NORMAL")) {
-            n.setName(ChatColor.YELLOW + "Normal Bot");
+            n.setName(ChatColor.YELLOW + "[★★] Normal Bot");
         } else if (event.getFight().getDifficulty().equals("HARD")) {
-            n.setName(ChatColor.RED + "Hard Bot");
+            n.setName(ChatColor.RED + "[★★★] Hard Bot");
         } else if (event.getFight().getDifficulty().equals("EXPERT")) {
-            n.setName(ChatColor.DARK_RED + "Expert Bot");
+            n.setName(ChatColor.DARK_RED + "[★★★★] Expert Bot");
         } else {
             event.setCancelled(true);
         }
 
-        setNPCSpeed(nId, 1.44F);
+        setNPCSpeed(nId, 2.33F);
     }
 
     public void setNPCSpeed(int nId, float speed) {
