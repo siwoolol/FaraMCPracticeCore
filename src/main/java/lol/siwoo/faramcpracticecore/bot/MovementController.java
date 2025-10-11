@@ -30,14 +30,14 @@ public class MovementController implements Listener {
             public void run() {
                 Bukkit.getServer().getLogger().info("bot_difficulty: " + event.getFight().getDifficulty() + ", bot_name: " + n.getName());
 
-                String displayName = "";
-                if (event.getFight().getDifficulty().equals("EASY")) {
+                String displayName = ChatColor.RED + "[★★★★★] Bugged Bot";
+                if (event.getFight().getDifficulty().toString().equals("EASY")) {
                     displayName = ChatColor.GREEN + "[★] Easy Bot";
-                } else if (event.getFight().getDifficulty().equals("NORMAL")) {
+                } else if (event.getFight().getDifficulty().toString().equals("NORMAL")) {
                     displayName = ChatColor.YELLOW + "[★★] Normal Bot";
-                } else if (event.getFight().getDifficulty().equals("HARD")) {
+                } else if (event.getFight().getDifficulty().toString().equals("HARD")) {
                     displayName = ChatColor.RED + "[★★★] Hard Bot";
-                } else if (event.getFight().getDifficulty().equals("EXPERT")) {
+                } else if (event.getFight().getDifficulty().toString().equals("EXPERT")) {
                     displayName = ChatColor.DARK_RED + "[★★★★] Expert Bot";
                 } else {
                     event.setCancelled(true);
@@ -45,8 +45,10 @@ public class MovementController implements Listener {
 
                 n.setName(displayName);
                 n.data().set("display-name", displayName);
+                n.getEntity().setCustomNameVisible(true);
+                n.getEntity().setCustomName(displayName);
 
-                setNPCSpeed(nId, 0.77F);
+//                setNPCSpeed(nId, 0.38F);
             }
         }.runTaskLater(plugin, 5L);
     }
