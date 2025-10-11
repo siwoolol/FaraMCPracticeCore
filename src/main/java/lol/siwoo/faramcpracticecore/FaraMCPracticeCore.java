@@ -130,7 +130,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
         // Bot Fixes
         pm.registerEvents(new CitizensListener(), this);
-        pm.registerEvents(new MovementController(), this);
+        pm.registerEvents(new MovementController(this), this);
         pm.registerEvents(new BotHitDelayFix(), this);
         pm.registerEvents(new BotFightEnd(), this);
 
