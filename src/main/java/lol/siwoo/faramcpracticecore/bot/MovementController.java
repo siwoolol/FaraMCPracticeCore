@@ -3,6 +3,9 @@ package lol.siwoo.faramcpracticecore.bot;
 import ga.strikepractice.events.BotDuelStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.event.NPCDamageByEntityEvent;
+import net.citizensnpcs.api.event.NPCKnockbackEvent;
+import net.citizensnpcs.api.event.NPCLinkToPlayerEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.npc.NPCRegistry;
 import org.bukkit.Bukkit;
@@ -10,6 +13,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.UUID;
 
@@ -48,9 +52,52 @@ public class MovementController implements Listener {
                 n.getEntity().setCustomNameVisible(true);
                 n.getEntity().setCustomName(displayName);
 
-//                setNPCSpeed(nId, 0.38F);
+                setNPCSpeed(nId, 0.38F);
             }
         }.runTaskLater(plugin, 5L);
+    }
+
+    @EventHandler
+    public void onBotMovement(NPCLinkToPlayerEvent e) {
+        NPC npc = e.getNPC();
+        UUID playerUUID = e.getPlayer().getUniqueId();
+        int nId = npc.getId();
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (Bukkit.getPlayer(playerUUID) != null && npc.isSpawned()) {
+                    setNPCSpeed(nId, 2.33F);
+                    npc.faceLocation(Bukkit.getPlayer(playerUUID).getLocation());
+                } else {
+                    resetNPCSpeed(nId);
+                    this.cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
+    }
+
+    @EventHandler
+    public void onBotHit(NPCDamageByEntityEvent e) {
+        e.getNPC().faceLocation(e.getDamager().getLocation());
+
+        NPC npc = e.getNPC();
+        if (npc.getEntity() != null && e.getDamager() != null) {
+            npc.getNavigator().getLocalParameters().speed(0.77F);
+
+            Vector knockbackDirection = npc.getEntity().getLocation().toVector()
+                    .subtract(e.getDamager().getLocation().toVector()).normalize();
+
+            knockbackDirection.multiply(0.4F);
+            knockbackDirection.setY(0.2F);
+
+            npc.getEntity().setVelocity(knockbackDirection);
+        }
+    }
+
+    @EventHandler
+    public void onBotKnockBack(NPCKnockbackEvent e) {
+        e.getKnockbackVector().multiply(0.4F).setY(0.2F);
     }
 
     public void setNPCSpeed(int nId, float speed) {
