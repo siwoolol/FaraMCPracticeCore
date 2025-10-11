@@ -52,7 +52,7 @@ public class MovementController implements Listener {
                 n.getEntity().setCustomNameVisible(true);
                 n.getEntity().setCustomName(displayName);
 
-                setNPCSpeed(nId, 0.38F);
+                setNPCSpeed(nId, 1.44F);
             }
         }.runTaskLater(plugin, 5L);
     }
@@ -67,7 +67,7 @@ public class MovementController implements Listener {
             @Override
             public void run() {
                 if (Bukkit.getPlayer(playerUUID) != null && npc.isSpawned()) {
-                    setNPCSpeed(nId, 2.33F);
+                    setNPCSpeed(nId, 1.67F);
                     npc.faceLocation(Bukkit.getPlayer(playerUUID).getLocation());
                 } else {
                     resetNPCSpeed(nId);
@@ -83,21 +83,44 @@ public class MovementController implements Listener {
 
         NPC npc = e.getNPC();
         if (npc.getEntity() != null && e.getDamager() != null) {
-            npc.getNavigator().getLocalParameters().speed(0.77F);
+            npc.getNavigator().getLocalParameters().speed(1.77F);
 
             Vector knockbackDirection = npc.getEntity().getLocation().toVector()
                     .subtract(e.getDamager().getLocation().toVector()).normalize();
 
-            knockbackDirection.multiply(0.4F);
-            knockbackDirection.setY(0.2F);
+            knockbackDirection.multiply(0.22F).setY(0.1F);
 
             npc.getEntity().setVelocity(knockbackDirection);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    resetNPCSpeed(npc.getId());
+                }
+            }.runTaskLater(plugin, 10L);
         }
     }
 
     @EventHandler
     public void onBotKnockBack(NPCKnockbackEvent e) {
-        e.getKnockbackVector().multiply(0.4F).setY(0.2F);
+        e.setCancelled(true);
+        NPC npc = e.getNPC();
+        npc.getNavigator().getLocalParameters().speed(1.11F);
+
+        e.getKnockbackVector().multiply(0.01F).setY(0.05F);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                npc.getNavigator().getLocalParameters().speed(1.44F);
+            }
+        }.runTaskLater(plugin, 10L);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                resetNPCSpeed(npc.getId());
+            }
+        }.runTaskLater(plugin, 20L);
     }
 
     public void setNPCSpeed(int nId, float speed) {
