@@ -15,6 +15,10 @@ public class Aegis implements CommandExecutor {
             return true;
         }
 
+        p.sendMessage(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "Aegis Matrix" + ChatColor.GRAY + " - Aegis Full-Protection Activated");
+        p.sendMessage(ChatColor.GRAY + "Aegis Matrix is a full-protection system that protects you from all damage.");
+        p.sendMessage(ChatColor.GRAY + "The server is invincible to all hack, bug, and glitch attempts");
+
         return true;
     }
 }
