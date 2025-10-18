@@ -16,6 +16,7 @@ import lol.siwoo.faramcpracticecore.bot.BotHitDelayFix;
 import lol.siwoo.faramcpracticecore.bot.CitizensListener;
 import lol.siwoo.faramcpracticecore.bot.MovementController;
 import lol.siwoo.faramcpracticecore.design.*;
+import lol.siwoo.faramcpracticecore.fix.PotThrowMech;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
 import lol.siwoo.faramcpracticecore.gamemode.Boxing;
 import lol.siwoo.faramcpracticecore.gamemode.FireballFight;
@@ -128,11 +129,12 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 //        aiCoach = new AICoach(this, strikePracticeAPI);
 //        trainingManager = new TrainingManager(this);
 
-        // Bot Fixes
+        // Fixes
 //        pm.registerEvents(new CitizensListener(), this);
 //        pm.registerEvents(new MovementController(this), this);
 //        pm.registerEvents(new BotHitDelayFix(), this);
         pm.registerEvents(new BotFightEnd(), this);
+        pm.registerEvents(new PotThrowMech(), this);
 
         pm.registerEvents(this, this);
 //        pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
