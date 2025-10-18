@@ -73,14 +73,16 @@ public class BotFightEnd implements Listener {
         Collections.shuffle(soundshuffled);
         Sound randomSound = soundshuffled.get(0);
 
+        String botname = event.getBot().getName();
+
         if (!(event.getWinnerType() == BotDuelEndEvent.WinnerType.BOT)) {
             // Winner Prompt
             p.playSound((p.getLocation()), randomSound, 1, 1);
-            p.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "VICTORY", ChatColor.GREEN + p.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + "Bot");
+            p.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "VICTORY", ChatColor.GREEN + p.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + botname);
         } else {
             // Loser Prompt
             p.playSound((p.getLocation()), randomSound, 1, 1);
-            p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "DEFEAT", ChatColor.RED + "Bot" + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + p.getName());
+            p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "DEFEAT", ChatColor.RED + botname + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + p.getName());
         }
     }
 }
