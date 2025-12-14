@@ -91,8 +91,6 @@ public class QueueGUIListener implements Listener {
     public void afterActivities(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
         p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
-        
-        plugin.getLogger().info("DEBUG: afterActivities started for " + p.getName());
 
         ItemStack clickedItem = e.getCurrentItem();
         if (clickedItem == null) return;
@@ -132,7 +130,6 @@ public class QueueGUIListener implements Listener {
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
                 if (item.getType() == Material.REDSTONE_BLOCK) {
-                    plugin.getLogger().info("DEBUG: Updating REDSTONE_BLOCK at slot " + slot);
                     String displayName = meta.getDisplayName();
                     int forIndex = displayName.indexOf(" for ");
                     if (forIndex != -1) {

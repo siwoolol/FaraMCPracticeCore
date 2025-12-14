@@ -144,9 +144,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
     }
 
     public static ItemStack createNodebuffPotion() {
-        Potion potion = new Potion(PotionType.INSTANT_HEAL, 2);
-        potion.setSplash(true);
-        return potion.toItemStack(1);
+        return new ItemStack(Material.POTION, 1, (short) 16421);
     }
 
     private static void addQueueItem(Inventory gui, int slot, Material material, String gameMode,
