@@ -121,7 +121,6 @@ public class UnrankedGUI implements CommandExecutor, Listener {
             @Override
             public void run() {
                 if (!p.isOnline() || !(Objects.equals(p.getOpenInventory().getTopInventory().getTitle(), ChatColor.YELLOW.toString() + ChatColor.BOLD + "Unranked Queue"))) {
-                    plugin.getLogger().info("DEBUG: Cancelling update task for " + p.getName());
                     this.cancel();
                     return;
                 }
