@@ -5,8 +5,8 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.battlekit.BattleKit;
 import ga.strikepractice.events.DuelStartEvent;
 import ga.strikepractice.events.FightStartEvent;
-import ga.strikepractice.events.KitSelectEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -17,9 +17,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import javax.xml.stream.events.StartDocument;
+import java.util.Arrays;
 
 public class QueueGUIListener implements Listener {
 
@@ -89,12 +90,65 @@ public class QueueGUIListener implements Listener {
     public void afterActivities(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
         p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
-        p.openInventory(UnrankedGUI.createQueueGUI(p, 0, "n word"));
-        p.openInventory(UnrankedGUI.createQueueGUI(p, e.getSlot(), e.getCurrentItem().getItemMeta().getDisplayName()));
+
+        ItemStack clickedItem = e.getCurrentItem();
+        if (clickedItem == null) return;
+
+        // Change the clicked item to "leave queue" item
+        ItemStack leaveItem = new ItemStack(Material.REDSTONE_BLOCK);
+        ItemMeta leaveMeta = leaveItem.getItemMeta();
+        String originalName = clickedItem.getItemMeta().getDisplayName();
+
+        leaveMeta.setDisplayName(ChatColor.GOLD + "Queued for " + originalName);
+        leaveMeta.setLore(Arrays.asList(
+                ChatColor.GRAY + "You are currently Queued for the " + originalName + " Queue",
+                "",
+                ChatColor.RED + "Click Again to Leave the Queue!"
+        ));
+        leaveItem.setItemMeta(leaveMeta);
+        e.getInventory().setItem(e.getSlot(), leaveItem);
+
+        // Start a task to update the queue counts
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!p.isOnline() || !p.getOpenInventory().getTitle().equals(e.getInventory().getTitle())) {
+                    this.cancel();
+                    return;
+                }
+                updateInventory(p, p.getOpenInventory().getTopInventory());
+            }
+        }.runTaskTimer(plugin, 20L, 20L); // Update every second (20 ticks)
     }
 
-    public void updateInventory(Inventory i) {
-        i.getSize();
+    public void updateInventory(Player p, Inventory i) {
+        updateQueueItem(p, i, 10, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_boxing%");
+        updateQueueItem(p, i, 11, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_nodebuff%");
+        updateQueueItem(p, i, 12, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_builduhc%");
+        updateQueueItem(p, i, 13, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumo%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumo%");
+        updateQueueItem(p, i, 14, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumobestof3%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumobestof3%");
+        updateQueueItem(p, i, 15, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_soup%");
+        updateQueueItem(p, i, 16, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_axepvp%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_axepvp%");
+        updateQueueItem(p, i, 19, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_combo%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_combo%");
+        updateQueueItem(p, i, 20, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_gapple%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_gapple%");
+        updateQueueItem(p, i, 21, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_bedfight%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_bedfight%");
+        updateQueueItem(p, i, 22, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_fireballfight%");
+    }
+
+    private void updateQueueItem(Player p, Inventory gui, int slot, String queued, String playing) {
+        ItemStack item = gui.getItem(slot);
+        if (item != null && item.getType() != Material.REDSTONE_BLOCK) {
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.setLore(Arrays.asList(
+                        PlaceholderAPI.setPlaceholders(p, queued),
+                        PlaceholderAPI.setPlaceholders(p, playing),
+                        "",
+                        ChatColor.GREEN + "Click to join!"
+                ));
+                item.setItemMeta(meta);
+            }
+        }
     }
 
     public void newafterActivities(InventoryClickEvent e) {
