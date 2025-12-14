@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 public class QueueGUIListener implements Listener {
 
-    private final FaraMCPracticeCore plugin;
+    private static FaraMCPracticeCore plugin;
     StrikePracticeAPI api = StrikePractice.getAPI();
 
     public QueueGUIListener(FaraMCPracticeCore plugin) {
@@ -46,6 +46,7 @@ public class QueueGUIListener implements Listener {
         if (clickedItem == null || !clickedItem.hasItemMeta()) return;
 
         String itemName = clickedItem.getItemMeta().getDisplayName();
+        plugin.getLogger().info("DEBUG: Clicked " + itemName + " (" + clickedItem.getType() + ")");
 
         // Execute queue commands based on clicked item
         if (clickedItem.getType().equals(Material.REDSTONE_BLOCK)) {
@@ -90,6 +91,8 @@ public class QueueGUIListener implements Listener {
     public void afterActivities(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
         p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
+        
+        plugin.getLogger().info("DEBUG: afterActivities started for " + p.getName());
 
         ItemStack clickedItem = e.getCurrentItem();
         if (clickedItem == null) return;
@@ -107,21 +110,9 @@ public class QueueGUIListener implements Listener {
         ));
         leaveItem.setItemMeta(leaveMeta);
         e.getInventory().setItem(e.getSlot(), leaveItem);
-
-        // Start a task to update the queue counts
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!p.isOnline() || !p.getOpenInventory().getTitle().equals(e.getInventory().getTitle())) {
-                    this.cancel();
-                    return;
-                }
-                updateInventory(p, p.getOpenInventory().getTopInventory());
-            }
-        }.runTaskTimer(plugin, 20L, 20L); // Update every second (20 ticks)
     }
 
-    public void updateInventory(Player p, Inventory i) {
+    public static void updateInventory(Player p, Inventory i) {
         updateQueueItem(p, i, 10, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_boxing%");
         updateQueueItem(p, i, 11, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_nodebuff%");
         updateQueueItem(p, i, 12, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_builduhc%");
@@ -135,18 +126,36 @@ public class QueueGUIListener implements Listener {
         updateQueueItem(p, i, 22, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_fireballfight%");
     }
 
-    private void updateQueueItem(Player p, Inventory gui, int slot, String queued, String playing) {
+    public static void updateQueueItem(Player p, Inventory gui, int slot, String queued, String playing) {
         ItemStack item = gui.getItem(slot);
-        if (item != null && item.getType() != Material.REDSTONE_BLOCK) {
+        if (item != null) {
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
-                meta.setLore(Arrays.asList(
-                        PlaceholderAPI.setPlaceholders(p, queued),
-                        PlaceholderAPI.setPlaceholders(p, playing),
-                        "",
-                        ChatColor.GREEN + "Click to join!"
-                ));
-                item.setItemMeta(meta);
+                if (item.getType() == Material.REDSTONE_BLOCK) {
+                    plugin.getLogger().info("DEBUG: Updating REDSTONE_BLOCK at slot " + slot);
+                    String displayName = meta.getDisplayName();
+                    int forIndex = displayName.indexOf(" for ");
+                    if (forIndex != -1) {
+                        String originalNameWithColor = displayName.substring(forIndex + 5);
+                        meta.setLore(Arrays.asList(
+                                ChatColor.GRAY + "You are currently Queued for the " + originalNameWithColor + " Queue",
+                                "",
+                                PlaceholderAPI.setPlaceholders(p, queued),
+                                PlaceholderAPI.setPlaceholders(p, playing),
+                                "",
+                                ChatColor.RED + "Click Again to Leave the Queue!"
+                        ));
+                        item.setItemMeta(meta);
+                    }
+                } else {
+                    meta.setLore(Arrays.asList(
+                            PlaceholderAPI.setPlaceholders(p, queued),
+                            PlaceholderAPI.setPlaceholders(p, playing),
+                            "",
+                            ChatColor.GREEN + "Click to join!"
+                    ));
+                    item.setItemMeta(meta);
+                }
             }
         }
     }
