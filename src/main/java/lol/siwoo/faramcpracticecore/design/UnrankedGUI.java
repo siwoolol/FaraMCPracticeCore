@@ -17,9 +17,8 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.Potion;
+import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
@@ -60,7 +59,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
                 ChatColor.GREEN + "Boxing",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_boxing%", p);
-        addQueueItem(gui, 11, createRegenerationPotion().getType(), "Nodebuff",
+        addQueueItem(gui, 11, createNodebuffPotion(), "Nodebuff",
                 ChatColor.GOLD + "Nodebuff",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_nodebuff%", p);
@@ -116,7 +115,6 @@ public class UnrankedGUI implements CommandExecutor, Listener {
             gui.setItem(slot, item);
         }
 
-        // Start a task to update the queue counts
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -126,7 +124,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
                 }
                 updateInventory(p, p.getOpenInventory().getTopInventory());
             }
-        }.runTaskTimer(plugin, 20L, 20L); // Update every second (20 ticks)
+        }.runTaskTimer(plugin, 20L, 20L);
 
         return gui;
     }
@@ -137,7 +135,6 @@ public class UnrankedGUI implements CommandExecutor, Listener {
         glassMeta.setDisplayName(" ");
         glass.setItemMeta(glassMeta);
 
-        // Fill empty slots
         for (int i = 0; i < gui.getSize(); i++) {
             if (gui.getItem(i) == null) {
                 gui.setItem(i, glass);
@@ -145,28 +142,45 @@ public class UnrankedGUI implements CommandExecutor, Listener {
         }
     }
 
-    public static ItemStack createRegenerationPotion() {
-        ItemStack regenerationPotion = new ItemStack(Material.POTION);
-
-        PotionMeta potionMeta = (PotionMeta) regenerationPotion.getItemMeta();
-
-        PotionEffect regenerationEffect = new PotionEffect(
-                PotionEffectType.REGENERATION,
-                10 * 20,
-                10
-        );
-
-        potionMeta.addCustomEffect(regenerationEffect, true);
-        regenerationPotion.setItemMeta(potionMeta);
-        return regenerationPotion;
+    public static ItemStack createNodebuffPotion() {
+        ItemStack potionwrapper = new ItemStack(Material.POTION);
+        Potion potion = new Potion(PotionType.INSTANT_HEAL, 2);
+        potion.setSplash(true);
+        potion.apply(potionwrapper);
+        ItemMeta potionmeta = potionwrapper.getItemMeta();
+        potionmeta.setLore(null);
+        potionwrapper.setItemMeta(potionmeta);
+        return potionwrapper;
     }
 
+    // Material
     private static void addQueueItem(Inventory gui, int slot, Material material, String gameMode,
                                      String displayName, String queued, String playing, Player p) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
         meta.setDisplayName(displayName);
+        meta.setLore(null);
+        queued = PlaceholderAPI.setPlaceholders(p, queued);
+        playing = PlaceholderAPI.setPlaceholders(p, playing);
+        meta.setLore(Arrays.asList(
+                queued,
+                playing,
+                "",
+                ChatColor.GREEN + "Click to join!"
+        ));
+
+        item.setItemMeta(meta);
+        gui.setItem(slot, item);
+    }
+
+    // ItemStack
+    private static void addQueueItem(Inventory gui, int slot, ItemStack item, String gameMode,
+                                     String displayName, String queued, String playing, Player p) {
+        ItemMeta meta = item.getItemMeta();
+
+        meta.setDisplayName(displayName);
+        meta.setLore(null);
         queued = PlaceholderAPI.setPlaceholders(p, queued);
         playing = PlaceholderAPI.setPlaceholders(p, playing);
         meta.setLore(Arrays.asList(
