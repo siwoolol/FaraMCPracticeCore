@@ -1,5 +1,8 @@
 package lol.siwoo.faramcpracticecore.design;
 
+import ga.strikepractice.StrikePractice;
+import ga.strikepractice.api.StrikePracticeAPI;
+import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,10 +20,21 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
+import java.util.Objects;
+
+import static lol.siwoo.faramcpracticecore.design.QueueGUIListener.updateInventory;
 
 public class UnrankedGUI implements CommandExecutor, Listener {
+
+    private static FaraMCPracticeCore plugin;
+    StrikePracticeAPI api = StrikePractice.getAPI();
+
+    public UnrankedGUI(FaraMCPracticeCore plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -101,6 +115,19 @@ public class UnrankedGUI implements CommandExecutor, Listener {
             item.setItemMeta(meta);
             gui.setItem(slot, item);
         }
+
+        // Start a task to update the queue counts
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!p.isOnline() || !(Objects.equals(p.getOpenInventory().getTopInventory().getTitle(), ChatColor.YELLOW.toString() + ChatColor.BOLD + "Unranked Queue"))) {
+                    plugin.getLogger().info("DEBUG: Cancelling update task for " + p.getName());
+                    this.cancel();
+                    return;
+                }
+                updateInventory(p, p.getOpenInventory().getTopInventory());
+            }
+        }.runTaskTimer(plugin, 20L, 20L); // Update every second (20 ticks)
 
         return gui;
     }
