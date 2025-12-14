@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.Potion;
@@ -143,24 +144,21 @@ public class UnrankedGUI implements CommandExecutor, Listener {
     }
 
     public static ItemStack createNodebuffPotion() {
-        ItemStack potionwrapper = new ItemStack(Material.POTION);
         Potion potion = new Potion(PotionType.INSTANT_HEAL, 2);
         potion.setSplash(true);
-        potion.apply(potionwrapper);
-        ItemMeta potionmeta = potionwrapper.getItemMeta();
-        potionmeta.setLore(null);
-        potionwrapper.setItemMeta(potionmeta);
-        return potionwrapper;
+        ItemStack itemStack = potion.toItemStack(1);
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+        itemStack.setItemMeta(meta);
+        return itemStack;
     }
 
-    // Material
     private static void addQueueItem(Inventory gui, int slot, Material material, String gameMode,
                                      String displayName, String queued, String playing, Player p) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
         meta.setDisplayName(displayName);
-        meta.setLore(null);
         queued = PlaceholderAPI.setPlaceholders(p, queued);
         playing = PlaceholderAPI.setPlaceholders(p, playing);
         meta.setLore(Arrays.asList(
@@ -174,13 +172,11 @@ public class UnrankedGUI implements CommandExecutor, Listener {
         gui.setItem(slot, item);
     }
 
-    // ItemStack
     private static void addQueueItem(Inventory gui, int slot, ItemStack item, String gameMode,
                                      String displayName, String queued, String playing, Player p) {
         ItemMeta meta = item.getItemMeta();
 
         meta.setDisplayName(displayName);
-        meta.setLore(null);
         queued = PlaceholderAPI.setPlaceholders(p, queued);
         playing = PlaceholderAPI.setPlaceholders(p, playing);
         meta.setLore(Arrays.asList(
