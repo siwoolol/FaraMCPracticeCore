@@ -146,11 +146,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
     public static ItemStack createNodebuffPotion() {
         Potion potion = new Potion(PotionType.INSTANT_HEAL, 2);
         potion.setSplash(true);
-        ItemStack itemStack = potion.toItemStack(1);
-        ItemMeta meta = itemStack.getItemMeta();
-        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-        itemStack.setItemMeta(meta);
-        return itemStack;
+        return potion.toItemStack(1);
     }
 
     private static void addQueueItem(Inventory gui, int slot, Material material, String gameMode,
@@ -185,6 +181,10 @@ public class UnrankedGUI implements CommandExecutor, Listener {
                 "",
                 ChatColor.GREEN + "Click to join!"
         ));
+
+        if (item.getType() == Material.POTION) {
+            meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+        }
 
         item.setItemMeta(meta);
         gui.setItem(slot, item);
