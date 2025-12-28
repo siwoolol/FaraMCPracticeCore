@@ -62,19 +62,21 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     }
 
     public void apiCheck() {
+        // StrikePractice check
         if (getServer().getPluginManager().getPlugin("StrikePractice") == null) {
             getLogger().severe("StrikePractice not found! Make sure StrikePractice is installed.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
-        // Make sure PlaceHolderAPI is loaded first
+        // PlaceHolderAPI check
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
             getLogger().severe("PlaceholderAPI not found! Make sure PlaceholderAPI is installed.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
+        // ProtocolLib check
         if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
             getLogger().severe("ProtocolLib is required for training features!\n");
             getServer().getPluginManager().disablePlugin(this);
@@ -129,7 +131,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 //        aiCoach = new AICoach(this, strikePracticeAPI);
 //        trainingManager = new TrainingManager(this);
 
-        // Fixes
+        // Fixes (disabled due to implementation on sprac itself)
 //        pm.registerEvents(new CitizensListener(), this);
 //        pm.registerEvents(new MovementController(this), this);
 //        pm.registerEvents(new BotHitDelayFix(), this);
