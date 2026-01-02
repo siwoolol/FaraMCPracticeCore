@@ -3,23 +3,28 @@ package lol.siwoo.faramcpracticecore.gamemode;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
+import org.bukkit.Effect;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class AirForce implements Listener {
+public class WindFight implements Listener {
 
     private final FaraMCPracticeCore plugin;
     private final Map<String, String> fightIds;
     private int fightCounter = 0;
 
-    public AirForce(FaraMCPracticeCore plugin) {
+    public WindFight(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
         this.fightIds = new HashMap<>();
     }
@@ -38,8 +43,6 @@ public class AirForce implements Listener {
                 e.getFight().getPlayersInFight().forEach(p -> {
                     UUID playerId = p.getUniqueId();
                     fightIds.put(playerId.toString(), fightId);
-
-                    summonAirCrafts(p);
                 });
             }
         }.runTaskLater(plugin, 2L);
@@ -70,8 +73,38 @@ public class AirForce implements Listener {
         });
     }
 
-    public void summonAirCrafts(Player p) {
-        // TODO make this shit
+    @EventHandler
+    public void onClick(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
+    }
+
+    public void launchPlayer(Player p) {
+        World world = p.getWorld();
+        Location center = p.getLocation();
+        Vector direction = p.getLocation().getDirection().normalize();
+
+        p.setVelocity(direction.multiply(6));
+        world.playEffect(center, Effect.EXPLOSION_HUGE, 0);
+    }
+
+    public void pushEntity(Player p) {
+        World world = p.getWorld();
+        Location center = p.getLocation();
+
+        world.getNearbyEntities(center, 10, 10, 10).forEach(entity -> {
+            if (entity != p) {
+                Location entityLoc = entity.getLocation();
+                Vector push = entityLoc.toVector().subtract(center.toVector());
+
+                if (push.length() > 0) {
+                    push.normalize().multiply(3.0);
+                    push.setY(1.2);
+                    entity.setVelocity(push);
+
+                    world.playEffect(center, Effect.CLOUD, 0);
+                }
+            }
+        });
     }
 
     @EventHandler
