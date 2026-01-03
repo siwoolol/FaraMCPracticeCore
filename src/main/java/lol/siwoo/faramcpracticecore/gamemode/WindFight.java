@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -76,6 +77,12 @@ public class WindFight implements Listener {
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+
+        if (e.getItem().getItemMeta().getDisplayName().equals("Launch")) {
+            launchPlayer(p);
+        } else if (e.getItem().getItemMeta().getDisplayName().equals("Push")) {
+            pushEntity(p);
+        }
     }
 
     public void launchPlayer(Player p) {
