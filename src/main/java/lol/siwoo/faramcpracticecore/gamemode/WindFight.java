@@ -29,8 +29,8 @@ public class WindFight implements Listener {
     private final FaraMCPracticeCore plugin;
     private final StrikePracticeAPI api = StrikePractice.getAPI();
     private final Map<String, String> fightIds;
-    private final Map<String, Integer> lastLaunch = new HashMap<>();
-    private final Map<String, Integer> lastPush = new HashMap<>();
+    private final Map<String, Long> lastLaunch = new HashMap<>();
+    private final Map<String, Long> lastPush = new HashMap<>();
     private int fightCounter = 0;
 
     public WindFight(FaraMCPracticeCore plugin) {
@@ -99,18 +99,20 @@ public class WindFight implements Listener {
         }
 
         if (itemName.contains("Launch ")) {
-            if (lastLaunch.get(p.getUniqueId().toString()) + 1000 >= System.currentTimeMillis()) {
+            Long lastLaunchTime = lastLaunch.get(p.getUniqueId().toString());
+            if (lastLaunchTime != null && (System.currentTimeMillis() - lastLaunchTime) < 1000) {
                 return;
             }
 
-            lastLaunch.put(p.getUniqueId().toString(), (int) System.currentTimeMillis());
+            lastLaunch.put(p.getUniqueId().toString(), System.currentTimeMillis());
             launchPlayer(p);
         } else if (itemName.contains("Push ")) {
-            if (lastPush.get(p.getUniqueId().toString()) + 1000 >= System.currentTimeMillis()) {
+            Long lastPushTime = lastPush.get(p.getUniqueId().toString());
+            if (lastPushTime != null && (System.currentTimeMillis() - lastPushTime) < 1000) {
                 return;
             }
 
-            lastPush.put(p.getUniqueId().toString(), (int) System.currentTimeMillis());
+            lastPush.put(p.getUniqueId().toString(), System.currentTimeMillis());
             pushEntity(p);
         }
     }
