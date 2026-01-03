@@ -56,47 +56,51 @@ public class UnrankedGUI implements CommandExecutor, Listener {
         fillBackground(gui);
 
         // Add queue items
-        addQueueItem(gui, 10, Material.DIAMOND_CHESTPLATE, "Boxing",
+        addQueueItem(gui, 10, Material.SOUL_SAND, "WindFight",
+                ChatColor.GREEN + "Wind Fight",
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_windfight%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_windfight%", p);
+        addQueueItem(gui, 11, Material.DIAMOND_CHESTPLATE, "Boxing",
                 ChatColor.GREEN + "Boxing",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_boxing%", p);
-        addQueueItem(gui, 11, createNodebuffPotion(), "Nodebuff",
+        addQueueItem(gui, 12, createNodebuffPotion(), "Nodebuff",
                 ChatColor.GOLD + "Nodebuff",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_nodebuff%", p);
-        addQueueItem(gui, 12, Material.LAVA_BUCKET, "BuildUHC",
+        addQueueItem(gui, 13, Material.LAVA_BUCKET, "BuildUHC",
                 ChatColor.YELLOW + "BuildUHC",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_builduhc%", p);
-        addQueueItem(gui, 13, Material.LEASH, "Sumo",
+        addQueueItem(gui, 14, Material.LEASH, "Sumo",
                 ChatColor.LIGHT_PURPLE + "Sumo",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumo%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumo%", p);
-        addQueueItem(gui, 14, Material.LEASH, "Sumo (Best of 3)",
+        addQueueItem(gui, 15, Material.LEASH, "Sumo (Best of 3)",
                 ChatColor.RED + "Sumo (Best of 3)",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumobestof3%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumobestof3%", p);
-        addQueueItem(gui, 15, Material.MUSHROOM_SOUP, "Soup",
+        addQueueItem(gui, 16, Material.MUSHROOM_SOUP, "Soup",
                 ChatColor.AQUA + "Soup",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_soup%", p);
-        addQueueItem(gui, 16, Material.DIAMOND_AXE, "Axe",
+        addQueueItem(gui, 19, Material.DIAMOND_AXE, "Axe",
                 ChatColor.DARK_RED + "Axe",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_axepvp%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_axepvp%", p);
-        addQueueItem(gui, 19, Material.FISHING_ROD, "Combo",
+        addQueueItem(gui, 20, Material.FISHING_ROD, "Combo",
                 ChatColor.DARK_GREEN + "Combo",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_combo%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_combo%", p);
-        addQueueItem(gui, 20, Material.GOLDEN_APPLE, "Gapple",
+        addQueueItem(gui, 21, Material.GOLDEN_APPLE, "Gapple",
                 ChatColor.DARK_GREEN + "Gapple",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_gapple%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_gapple%", p);
-        addQueueItem(gui, 21, Material.BED, "BedFight",
+        addQueueItem(gui, 22, Material.BED, "BedFight",
                 ChatColor.DARK_GREEN + "BedFight",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_bedfight%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_bedfight%", p);
-        addQueueItem(gui, 22, Material.FIREBALL, "Fireball Fight",
+        addQueueItem(gui, 23, Material.FIREBALL, "Fireball Fight",
                 ChatColor.DARK_GREEN + "Fireball Fight",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_fireballfight%", p);
