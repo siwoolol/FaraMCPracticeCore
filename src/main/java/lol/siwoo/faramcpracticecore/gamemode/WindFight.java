@@ -117,8 +117,8 @@ public class WindFight implements Listener {
                 Vector push = entityLoc.toVector().subtract(center.toVector());
 
                 if (push.length() > 0) {
-                    push.normalize().multiply(3.0);
-                    push.setY(1.2);
+                    push.normalize().multiply(1.5);
+                    push.setY(1.05);
                     entity.setVelocity(push);
 
                     world.playEffect(entityLoc, Effect.EXPLOSION_LARGE, 0);
