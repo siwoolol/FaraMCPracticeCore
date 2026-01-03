@@ -184,9 +184,12 @@ public class UnrankedGUI implements CommandExecutor, Listener {
                 ChatColor.GREEN + "Click to join!"
         ));
 
-        if (item.getType() == Material.POTION) {
-            meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-        }
+        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
+        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 
         item.setItemMeta(meta);
         gui.setItem(slot, item);
