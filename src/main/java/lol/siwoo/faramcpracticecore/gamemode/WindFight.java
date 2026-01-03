@@ -121,7 +121,7 @@ public class WindFight implements Listener {
                     push.setY(1.2);
                     entity.setVelocity(push);
 
-                    world.playEffect(center, Effect.CLOUD, 0);
+                    world.playEffect(entityLoc, Effect.EXPLOSION_LARGE, 0);
                 }
             }
         });
