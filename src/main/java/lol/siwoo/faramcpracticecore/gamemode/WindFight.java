@@ -3,6 +3,7 @@ package lol.siwoo.faramcpracticecore.gamemode;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
+import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -78,9 +79,9 @@ public class WindFight implements Listener {
     public void onClick(PlayerInteractEvent e) {
         Player p = e.getPlayer();
 
-        if (e.getItem().getItemMeta().getDisplayName().equals("Launch")) {
+        if (e.getItem().getItemMeta().getDisplayName().equals(ChatColor.AQUA.toString() + ChatColor.BOLD + "Launch " + ChatColor.RESET.toString() + ChatColor.GRAY + "(Right-Click)")) {
             launchPlayer(p);
-        } else if (e.getItem().getItemMeta().getDisplayName().equals("Push")) {
+        } else if (e.getItem().getItemMeta().getDisplayName().equals(ChatColor.AQUA.toString() + ChatColor.BOLD + "Push " + ChatColor.RESET.toString() + ChatColor.GRAY + "(Right-Click)")) {
             pushEntity(p);
         }
     }
