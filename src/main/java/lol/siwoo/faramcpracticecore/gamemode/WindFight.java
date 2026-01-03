@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -77,9 +78,11 @@ public class WindFight implements Listener {
     public void onClick(PlayerInteractEvent e) {
         Player p = e.getPlayer();
 
-        if (e.getItem().getItemMeta().getDisplayName().equals(ChatColor.AQUA.toString() + ChatColor.BOLD + "Launch " + ChatColor.RESET.toString() + ChatColor.GRAY + "(Right-Click)")) {
+        String itemName = e.getItem().getItemMeta().getDisplayName();
+
+        if (itemName.contains("Launch ")) {
             launchPlayer(p);
-        } else if (e.getItem().getItemMeta().getDisplayName().equals(ChatColor.AQUA.toString() + ChatColor.BOLD + "Push " + ChatColor.RESET.toString() + ChatColor.GRAY + "(Right-Click)")) {
+        } else if (itemName.equals("Push ")) {
             pushEntity(p);
         }
     }
@@ -89,7 +92,7 @@ public class WindFight implements Listener {
         Location center = p.getLocation();
         Vector direction = p.getLocation().getDirection().normalize();
 
-        p.setVelocity(direction.multiply(6));
+        p.setVelocity(direction.multiply(3));
         world.playEffect(center, Effect.EXPLOSION_HUGE, 0);
     }
 
