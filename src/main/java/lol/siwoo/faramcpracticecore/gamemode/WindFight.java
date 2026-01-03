@@ -3,10 +3,7 @@ package lol.siwoo.faramcpracticecore.gamemode;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
-import org.bukkit.ChatColor;
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -45,6 +42,7 @@ public class WindFight implements Listener {
                 e.getFight().getPlayersInFight().forEach(p -> {
                     UUID playerId = p.getUniqueId();
                     fightIds.put(playerId.toString(), fightId);
+                    p.setGameMode(GameMode.ADVENTURE);
                 });
             }
         }.runTaskLater(plugin, 2L);
