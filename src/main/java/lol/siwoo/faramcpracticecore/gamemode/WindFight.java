@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,10 +82,9 @@ public class WindFight implements Listener {
     public void onClick(PlayerInteractEvent e) {
         Player p = e.getPlayer();
 
-        String itemName = e.getItem().getItemMeta().getDisplayName();
-
+        @NotNull String itemName = e.getItem().getItemMeta().getDisplayName();
         if (itemName == null) {
-            return;
+            itemName = "nigger";
         }
 
         if (itemName.contains("Launch ")) {
