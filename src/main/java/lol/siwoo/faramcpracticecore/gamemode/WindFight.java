@@ -82,6 +82,10 @@ public class WindFight implements Listener {
     public void onClick(PlayerInteractEvent e) {
         Player p = e.getPlayer();
 
+        if (!fightIds.containsKey(p.getUniqueId().toString())) {
+            return;
+        }
+
         @NotNull String itemName = e.getItem().getItemMeta().getDisplayName();
         if (itemName == null) {
             itemName = "nigger";
