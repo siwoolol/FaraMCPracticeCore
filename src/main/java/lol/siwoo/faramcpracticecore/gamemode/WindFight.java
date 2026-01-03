@@ -93,7 +93,7 @@ public class WindFight implements Listener {
 
         if (itemName.contains("Launch ")) {
             launchPlayer(p);
-        } else if (itemName.equals("Push ")) {
+        } else if (itemName.contains("Push ")) {
             pushEntity(p);
         }
     }
@@ -113,18 +113,16 @@ public class WindFight implements Listener {
 
         world.getNearbyEntities(center, 10, 10, 10).forEach(entity -> {
             if (entity != p) {
-                return;
-            }
+                Location entityLoc = entity.getLocation();
+                Vector push = entityLoc.toVector().subtract(center.toVector());
 
-            Location entityLoc = entity.getLocation();
-            Vector push = entityLoc.toVector().subtract(center.toVector());
+                if (push.length() > 0) {
+                    push.normalize().multiply(3.0);
+                    push.setY(1.2);
+                    entity.setVelocity(push);
 
-            if (push.length() > 0) {
-                push.normalize().multiply(3.0);
-                push.setY(1.2);
-                entity.setVelocity(push);
-
-                world.playEffect(center, Effect.CLOUD, 0);
+                    world.playEffect(center, Effect.CLOUD, 0);
+                }
             }
         });
     }
