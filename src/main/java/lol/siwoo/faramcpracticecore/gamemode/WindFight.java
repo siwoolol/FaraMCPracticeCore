@@ -1,5 +1,7 @@
 package lol.siwoo.faramcpracticecore.gamemode;
 
+import ga.strikepractice.StrikePractice;
+import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class WindFight implements Listener {
 
     private final FaraMCPracticeCore plugin;
+    private final StrikePracticeAPI api = StrikePractice.getAPI();
     private final Map<String, String> fightIds;
     private int fightCounter = 0;
 
@@ -84,6 +87,16 @@ public class WindFight implements Listener {
             launchPlayer(p);
         } else if (itemName.equals("Push ")) {
             pushEntity(p);
+        }
+    }
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent e) {
+        Player p = e.getPlayer();
+        Location l = p.getLocation();
+
+        if (l.getY() >= api.getFight(p).getArena().getCenter().getY() + 20) {
+            e.setCancelled(true);
         }
     }
 
