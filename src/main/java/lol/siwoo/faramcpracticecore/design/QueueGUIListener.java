@@ -52,6 +52,9 @@ public class QueueGUIListener implements Listener {
         if (clickedItem.getType().equals(Material.REDSTONE_BLOCK)) {
             Bukkit.dispatchCommand(player, "queue leave");
             newafterActivities(event);
+        } else if (itemName.contains("Wind Fight")) {
+            api.joinQueue(player, BattleKit.getKit("windfight"));
+            afterActivities(event);
         } else if (itemName.contains("Boxing")) {
             api.joinQueue(player, BattleKit.getKit("boxing"));
             afterActivities(event);
