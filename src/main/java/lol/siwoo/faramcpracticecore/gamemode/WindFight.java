@@ -106,16 +106,18 @@ public class WindFight implements Listener {
 
         world.getNearbyEntities(center, 10, 10, 10).forEach(entity -> {
             if (entity != p) {
-                Location entityLoc = entity.getLocation();
-                Vector push = entityLoc.toVector().subtract(center.toVector());
+                return;
+            }
 
-                if (push.length() > 0) {
-                    push.normalize().multiply(3.0);
-                    push.setY(1.2);
-                    entity.setVelocity(push);
+            Location entityLoc = entity.getLocation();
+            Vector push = entityLoc.toVector().subtract(center.toVector());
 
-                    world.playEffect(center, Effect.CLOUD, 0);
-                }
+            if (push.length() > 0) {
+                push.normalize().multiply(3.0);
+                push.setY(1.2);
+                entity.setVelocity(push);
+
+                world.playEffect(center, Effect.CLOUD, 0);
             }
         });
     }
