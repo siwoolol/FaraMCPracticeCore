@@ -91,16 +91,6 @@ public class WindFight implements Listener {
         }
     }
 
-    @EventHandler
-    public void onMove(PlayerMoveEvent e) {
-        Player p = e.getPlayer();
-        Location l = p.getLocation();
-
-        if (l.getY() >= api.getFight(p).getArena().getCenter().getY() + 20) {
-            e.setCancelled(true);
-        }
-    }
-
     public void launchPlayer(Player p) {
         World world = p.getWorld();
         Location center = p.getLocation();
