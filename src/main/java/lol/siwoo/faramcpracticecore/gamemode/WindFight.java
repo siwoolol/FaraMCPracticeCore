@@ -82,7 +82,10 @@ public class WindFight implements Listener {
         Player p = e.getPlayer();
 
         String itemName = e.getItem().getItemMeta().getDisplayName();
-        assert itemName != null;
+
+        if (itemName == null) {
+            return;
+        }
 
         if (itemName.contains("Launch ")) {
             launchPlayer(p);
