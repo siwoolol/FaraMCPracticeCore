@@ -32,11 +32,11 @@ public class WindFight implements Listener {
 
     @EventHandler
     public void onFightStart(FightStartEvent e) {
-        if (!e.getFight().getKit().getName().equalsIgnoreCase("airforce")) {
+        if (!e.getFight().getKit().getName().equalsIgnoreCase("windfight")) {
             return;
         }
 
-        String fightId = "airforce_" + (++fightCounter) + "_" + System.currentTimeMillis();
+        String fightId = "windfight_" + (++fightCounter) + "_" + System.currentTimeMillis();
 
         new BukkitRunnable() {
             @Override
@@ -51,7 +51,7 @@ public class WindFight implements Listener {
 
     @EventHandler
     public void onFightEnd(FightEndEvent e) {
-        if (!e.getFight().getKit().getName().equalsIgnoreCase("airforce")) {
+        if (!e.getFight().getKit().getName().equalsIgnoreCase("windfight")) {
             return;
         }
 
