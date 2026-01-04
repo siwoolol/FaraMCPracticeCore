@@ -18,7 +18,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -72,15 +71,15 @@ public class UnrankedGUI implements CommandExecutor, Listener {
                 ChatColor.YELLOW + "BuildUHC",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_builduhc%", p);
-        addQueueItem(gui, 14, Material.LEASH, "Sumo",
+        addQueueItem(gui, 14, Material.LEAD, "Sumo",
                 ChatColor.GOLD + "Sumo",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumo%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumo%", p);
-        addQueueItem(gui, 15, Material.LEASH, "Sumo (Best of 3)",
+        addQueueItem(gui, 15, Material.LEAD, "Sumo (Best of 3)",
                 ChatColor.GOLD + "Sumo " + ChatColor.YELLOW + "(Best of 3)",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumobestof3%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumobestof3%", p);
-        addQueueItem(gui, 16, Material.MUSHROOM_SOUP, "Soup",
+        addQueueItem(gui, 16, Material.BEETROOT_SOUP, "Soup",
                 ChatColor.YELLOW + "Soup",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_soup%", p);
@@ -96,11 +95,11 @@ public class UnrankedGUI implements CommandExecutor, Listener {
                 ChatColor.GOLD + "Gapple",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_gapple%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_gapple%", p);
-        addQueueItem(gui, 22, Material.BED, "BedFight",
+        addQueueItem(gui, 22, Material.RED_BED, "BedFight",
                 ChatColor.RED + "BedFight",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_bedfight%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_bedfight%", p);
-        addQueueItem(gui, 23, Material.FIREBALL, "Fireball Fight",
+        addQueueItem(gui, 23, Material.FIRE_CHARGE, "Fireball Fight",
                 ChatColor.RED + "Fireball Fight",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_fireballfight%", p);
@@ -123,7 +122,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (!p.isOnline() || !(Objects.equals(p.getOpenInventory().getTopInventory().getTitle(), ChatColor.YELLOW.toString() + ChatColor.BOLD + "Unranked Queue"))) {
+                if (!p.isOnline() || !(Objects.equals(p.getOpenInventory().getTitle(), ChatColor.YELLOW.toString() + ChatColor.BOLD + "Unranked Queue"))) {
                     this.cancel();
                     return;
                 }
@@ -135,7 +134,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
     }
 
     private static void fillBackground(Inventory gui) {
-        ItemStack glass = new ItemStack(Material.THIN_GLASS, 1, (short) 7);
+        ItemStack glass = new ItemStack(Material.GLASS_PANE, 1, (short) 7);
         ItemMeta glassMeta = glass.getItemMeta();
         glassMeta.setDisplayName(" ");
         glass.setItemMeta(glassMeta);
@@ -184,12 +183,14 @@ public class UnrankedGUI implements CommandExecutor, Listener {
                 ChatColor.GREEN + "Click to join!"
         ));
 
-        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
         meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
+        meta.addItemFlags(ItemFlag.HIDE_DYE);
+        meta.addItemFlags(ItemFlag.HIDE_STORED_ENCHANTS);
 
         item.setItemMeta(meta);
         gui.setItem(slot, item);

@@ -31,23 +31,23 @@ public class JoinMessage implements Listener {
             return;
         }
 
-        p.playSound(p.getLocation(), Sound.NOTE_PLING, 2, 5);
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 2, 5);
         new BukkitRunnable() {
             @Override
             public void run() {
-                p.playSound(p.getLocation(), Sound.NOTE_PLING, 2, 5);
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 2, 5);
             }
         }.runTaskLater(plugin, 8L);
         new BukkitRunnable() {
             @Override
             public void run() {
-                p.playSound(p.getLocation(), Sound.NOTE_PLING, 2, 1);
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 2, 1);
             }
         }.runTaskLater(plugin, 16L);
         new BukkitRunnable() {
             @Override
             public void run() {
-                p.playSound(p.getLocation(), Sound.NOTE_PLING, 2, 5);
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 2, 5);
             }
         }.runTaskLater(plugin, 24L);
 

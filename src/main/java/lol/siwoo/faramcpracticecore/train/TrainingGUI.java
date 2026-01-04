@@ -42,7 +42,7 @@ public class TrainingGUI {
         inventory.setItem(12, aimItem);
 
         // CPS Tester
-        ItemStack cpsItem = new ItemStack(Material.REDSTONE_COMPARATOR);
+        ItemStack cpsItem = new ItemStack(Material.COMPARATOR);
         ItemMeta cpsMeta = cpsItem.getItemMeta();
         cpsMeta.setDisplayName(ChatColor.BLUE + "" + ChatColor.BOLD + "CPS Tester");
         cpsMeta.setLore(Arrays.asList(

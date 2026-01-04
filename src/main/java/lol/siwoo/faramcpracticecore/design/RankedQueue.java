@@ -57,7 +57,7 @@ public class RankedQueue implements CommandExecutor {
     }
 
     private static void fillBackground(Inventory gui) {
-        ItemStack glass = new ItemStack(Material.THIN_GLASS, 1, (short) 7);
+        ItemStack glass = new ItemStack(Material.GLASS_PANE, 1, (short) 7);
         ItemMeta glassMeta = glass.getItemMeta();
         glassMeta.setDisplayName(" ");
         glass.setItemMeta(glassMeta);

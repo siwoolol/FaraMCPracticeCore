@@ -36,7 +36,7 @@ public class QueueGUIListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
 
         Player player = (Player) event.getWhoClicked();
-        String title = event.getInventory().getTitle();
+        String title = event.getView().getTitle();
 
         if (!title.equals(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Unranked Queue")) return;
 
@@ -93,7 +93,7 @@ public class QueueGUIListener implements Listener {
 
     public void afterActivities(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
-        p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
+        p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
 
         ItemStack clickedItem = e.getCurrentItem();
         if (clickedItem == null) return;
@@ -163,7 +163,7 @@ public class QueueGUIListener implements Listener {
 
     public void newafterActivities(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
-        p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
+        p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
         p.openInventory(UnrankedGUI.createQueueGUI(p, 0, "n word"));
     }
 

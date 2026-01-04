@@ -123,7 +123,7 @@ public class WindFight implements Listener {
         Vector direction = p.getLocation().getDirection().normalize();
 
         p.setVelocity(direction.multiply(3));
-        world.playEffect(center, Effect.EXPLOSION_HUGE, 0);
+        world.spawnParticle(Particle.EXPLOSION, center, 10, 0.2, 0.2, 0.2, 0.05);
     }
 
     public void pushEntity(Player p) {
@@ -140,7 +140,7 @@ public class WindFight implements Listener {
                     push.setY(1.05);
                     entity.setVelocity(push);
 
-                    world.playEffect(entityLoc, Effect.EXPLOSION_LARGE, 0);
+                    world.spawnParticle(Particle.EXPLOSION, entityLoc, 10, 0.2, 0.2, 0.2, 0.05);
                 }
             }
         });
