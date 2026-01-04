@@ -20,6 +20,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -404,36 +405,23 @@ public class BedFight implements Listener {
     }
 
     public String compareCoords(int x, int y, int z, int x1, int y1, int z1, int x2, int y2, int z2) {
-        String selected = "";
-
         int diffx1 = x1 - x;
         int diffy1 = y1 - y;
         int diffz1 = z1 - z;
-        int diff1 = makenonMinus(diffx1) + makenonMinus(diffy1) + makenonMinus(diffz1);
+        int diff1 = Math.abs(diffx1) + Math.abs(diffy1) + Math.abs(diffz1);
 
         int diffx2 = x2 - x;
         int diffy2 = y2 - y;
         int diffz2 = z2 - z;
-        int diff2 = makenonMinus(diffx2) + makenonMinus(diffy2) + makenonMinus(diffz2);
+        int diff2 = Math.abs(diffx2) + Math.abs(diffy2) + Math.abs(diffz2);
 
         if (diff1 < diff2) {
-            selected = "1";
+            return "1";
         } else if (diff1 > diff2) {
-            selected = "2";
+            return "2";
         } else {
-            selected = "0";
+            return "0";
         }
-
-        return selected;
-    }
-
-    public int makenonMinus(int i) {
-        if (i < 0) {
-            i = -i;
-        } else {
-            i = i;
-        }
-        return i;
     }
 
     @EventHandler
@@ -470,7 +458,7 @@ public class BedFight implements Listener {
             e.setCancelled(true);
 
             p.getInventory().clear();
-            p.getInventory().setArmorContents(null);
+            p.getInventory().setArmorContents(new ItemStack[4]);
             p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 100, 1, false, false));
             p.setAllowFlight(true);
             p.setFlying(true);
