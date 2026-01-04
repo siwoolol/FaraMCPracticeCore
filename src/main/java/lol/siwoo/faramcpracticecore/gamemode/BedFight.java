@@ -7,8 +7,16 @@ import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import ga.strikepractice.events.PlayerStartSpectatingEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
-import org.bukkit.*;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
@@ -156,10 +164,10 @@ public class BedFight implements Listener {
 
         for (BedBreakData bedData : bedBreaks) {
             // Restore head block
-            bedData.headLocation.getBlock().setBlockData(bedData.headBlockData);
+            bedData.headLocation.getBlock().setBlockData(bedData.headBlockData, false);
 
             // Restore foot block
-            bedData.footLocation.getBlock().setBlockData(bedData.footBlockData);
+            bedData.footLocation.getBlock().setBlockData(bedData.footBlockData, false);
 
             plugin.getLogger().info("Restored bed at head: " + bedData.headLocation + ", foot: " + bedData.footLocation);
         }
@@ -197,7 +205,7 @@ public class BedFight implements Listener {
                 && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
                 && !Boolean.TRUE.equals(isDead.get(playerId))) {
 
-            Location oldlocation = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ());
+            Location oldlocation = p.getLocation().clone();
             Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -80, p.getLocation().getZ());
 
             isDead.put(playerId, true);
@@ -247,7 +255,6 @@ public class BedFight implements Listener {
             if (p.getHealth() - e.getFinalDamage() <= 1f) {
                 p.damage(69420.0);
                 isbedBroken.remove(playerId);
-                return;
             }
         }
     }
@@ -388,8 +395,10 @@ public class BedFight implements Listener {
 
                 if (!sameTeam) {
                     isbedBroken.put(player.getUniqueId(), true);
-                    player.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "Bed Destroyed",
-                            ChatColor.WHITE + "You can no longer respawn");
+                    player.showTitle(Title.title(
+                        Component.text("Bed Destroyed", NamedTextColor.RED, TextDecoration.BOLD),
+                        Component.text("You can no longer respawn", NamedTextColor.WHITE)
+                    ));
                     player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
                 }
             });
@@ -437,7 +446,7 @@ public class BedFight implements Listener {
         }
 
         if (p.getHealth() - e.getFinalDamage() <= 0.0f) {
-            Bukkit.getServer().getLogger().info("check 1");
+            plugin.getLogger().info("check 1");
             if (Boolean.TRUE.equals(isInBedfight.get(p.getUniqueId()))) {
                 isDead.put(p.getUniqueId(), true);
             }
@@ -464,15 +473,17 @@ public class BedFight implements Listener {
             p.setFlying(true);
 
             api.getFight(p).getPlayersInFight().forEach(player -> {
-                player.sendMessage(ChatColor.GRAY + p.getName() + " died");
+                player.sendMessage(Component.text(p.getName() + " died", NamedTextColor.GRAY));
             });
 
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
-                    p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "You died!"
-                            , ChatColor.WHITE + "You will respawn in 3 seconds");
+                    p.showTitle(Title.title(
+                        Component.text("You died!", NamedTextColor.RED, TextDecoration.BOLD),
+                        Component.text("You will respawn in 3 seconds", NamedTextColor.WHITE)
+                    ));
                 }
             }.runTaskLater(plugin, 20L);
 
@@ -480,8 +491,10 @@ public class BedFight implements Listener {
                 @Override
                 public void run() {
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
-                    p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "You died!"
-                            , ChatColor.WHITE + "You will respawn in 2 seconds");
+                    p.showTitle(Title.title(
+                        Component.text("You died!", NamedTextColor.RED, TextDecoration.BOLD),
+                        Component.text("You will respawn in 2 seconds", NamedTextColor.WHITE)
+                    ));
                 }
             }.runTaskLater(plugin, 40L);
 
@@ -489,8 +502,10 @@ public class BedFight implements Listener {
                 @Override
                 public void run() {
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
-                    p.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "You died!"
-                            , ChatColor.WHITE + "You will respawn in 1 seconds");
+                    p.showTitle(Title.title(
+                        Component.text("You died!", NamedTextColor.RED, TextDecoration.BOLD),
+                        Component.text("You will respawn in 1 seconds", NamedTextColor.WHITE)
+                    ));
                 }
             }.runTaskLater(plugin, 60L);
 
@@ -500,7 +515,10 @@ public class BedFight implements Listener {
                     Location spawnLocation = startPositions.get(pid);
 
                     p.playSound(spawnLocation, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-                    p.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "Respawned!", "");
+                    p.showTitle(Title.title(
+                        Component.text("Respawned!", NamedTextColor.GREEN, TextDecoration.BOLD),
+                        Component.empty()
+                    ));
 
                     p.teleport(spawnLocation);
 
