@@ -134,7 +134,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
     }
 
     private static void fillBackground(Inventory gui) {
-        ItemStack glass = new ItemStack(Material.GLASS_PANE, 1, (short) 7);
+        ItemStack glass = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1, (short) 7);
         ItemMeta glassMeta = glass.getItemMeta();
         glassMeta.setDisplayName(" ");
         glass.setItemMeta(glassMeta);
@@ -158,6 +158,16 @@ public class UnrankedGUI implements CommandExecutor, Listener {
         meta.setDisplayName(displayName);
         queued = PlaceholderAPI.setPlaceholders(p, queued);
         playing = PlaceholderAPI.setPlaceholders(p, playing);
+
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
+        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
+        meta.addItemFlags(ItemFlag.HIDE_DYE);
+        meta.addItemFlags(ItemFlag.HIDE_STORED_ENCHANTS);
+
         meta.setLore(Arrays.asList(
                 queued,
                 playing,
@@ -176,12 +186,6 @@ public class UnrankedGUI implements CommandExecutor, Listener {
         meta.setDisplayName(displayName);
         queued = PlaceholderAPI.setPlaceholders(p, queued);
         playing = PlaceholderAPI.setPlaceholders(p, playing);
-        meta.setLore(Arrays.asList(
-                queued,
-                playing,
-                "",
-                ChatColor.GREEN + "Click to join!"
-        ));
 
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
@@ -191,6 +195,13 @@ public class UnrankedGUI implements CommandExecutor, Listener {
         meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
         meta.addItemFlags(ItemFlag.HIDE_DYE);
         meta.addItemFlags(ItemFlag.HIDE_STORED_ENCHANTS);
+
+        meta.setLore(Arrays.asList(
+                queued,
+                playing,
+                "",
+                ChatColor.GREEN + "Click to join!"
+        ));
 
         item.setItemMeta(meta);
         gui.setItem(slot, item);
