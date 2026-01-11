@@ -19,7 +19,7 @@ import lol.siwoo.faramcpracticecore.design.*;
 import lol.siwoo.faramcpracticecore.fix.PotThrowMech;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
 import lol.siwoo.faramcpracticecore.gamemode.Boxing;
-import lol.siwoo.faramcpracticecore.gamemode.FireballFight;
+//import lol.siwoo.faramcpracticecore.gamemode.FireballFight;
 import lol.siwoo.faramcpracticecore.gamemode.WindFight;
 import lol.siwoo.faramcpracticecore.lobby.Flight;
 import lol.siwoo.faramcpracticecore.lobby.FlightListener;
@@ -150,7 +150,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new SuggestPartyOwnerListener(), this);
         pm.registerEvents(new Boxing(this), this);
         pm.registerEvents(new BedFight(this), this);
-        pm.registerEvents(new FireballFight(this), this);
+//        pm.registerEvents(new FireballFight(this), this);
         pm.registerEvents(new WindFight(this), this);
 //        pm.registerEvents(new AICoachListener(aiCoach, strikePracticeAPI), this);
 
@@ -163,6 +163,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("queue").setExecutor(new UnrankedGUI(this));
         getCommand("ranked").setExecutor(new RankedQueue());
         getCommand("botduel").setExecutor(new PvpBotQueue());
+        getCommand("queuelastgame").setExecutor(new QueueLastGame());
 //        getCommand("train").setExecutor(new TrainingCommand(this, trainingManager));
 
         getCommand("fly").setExecutor(new Flight());
