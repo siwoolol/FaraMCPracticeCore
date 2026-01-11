@@ -6,6 +6,7 @@ import ga.strikepractice.battlekit.BattleKit;
 import ga.strikepractice.events.KitSelectEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -28,20 +29,29 @@ public class QueueLastGame implements CommandExecutor, Listener {
         Player p = (Player) sender;
         UUID u = p.getUniqueId();
 
-        if (lastKitData.get(u).isEmpty()) {
-            Bukkit.dispatchCommand(sender, "/unranked");
+        if (!lastKitData.containsKey(u)) {
+            Bukkit.dispatchCommand(sender, "unranked");
             return true;
         } else {
-            api.joinQueue(p, Objects.requireNonNull(BattleKit.getKit(lastKitData.get(u))));
+            if (BattleKit.getKit(lastKitData.get(u)) == null) {
+                Bukkit.dispatchCommand(sender, "unranked");
+                return true;
+            }
+
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+            api.joinQueue(p, BattleKit.getKit(lastKitData.get(u)));
             return true;
         }
     }
 
     @EventHandler
     public void onGameQueue(KitSelectEvent e) {
+        Bukkit.getLogger().info("e");
         Player p = e.getPlayer();
+        UUID u = p.getUniqueId();
 
         String kitName = e.getKit().getName();
-        lastKitData.put(p.getUniqueId(), kitName);
+        lastKitData.remove(u);
+        lastKitData.put(u, kitName);
     }
 }

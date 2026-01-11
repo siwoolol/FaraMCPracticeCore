@@ -44,6 +44,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.Queue;
 
 public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     private StrikePracticeAPI strikePracticeAPI;
@@ -157,6 +158,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         DataLogger dataLogger = new DataLogger(this);
         pm.registerEvents(dataLogger, this);
         pm.registerEvents(new JoinMessage(), this);
+        pm.registerEvents(new QueueLastGame(), this);
 
         getCommand("unrankedgui").setExecutor(new UnrankedGUI(this));
         getCommand("unranked").setExecutor(new UnrankedGUI(this));
