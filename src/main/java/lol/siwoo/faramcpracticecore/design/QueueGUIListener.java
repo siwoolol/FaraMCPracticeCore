@@ -76,9 +76,6 @@ public class QueueGUIListener implements Listener {
         } else if (itemName.contains("Axe")) {
             api.joinQueue(player, BattleKit.getKit("axepvp"));
             afterActivities(event);
-        } else if (itemName.contains("Combo")) {
-            api.joinQueue(player, BattleKit.getKit("combo"));
-            afterActivities(event);
         } else if (itemName.contains("Gapple")) {
             api.joinQueue(player, BattleKit.getKit("gapple"));
             afterActivities(event);
@@ -87,6 +84,30 @@ public class QueueGUIListener implements Listener {
             afterActivities(event);
         } else if (itemName.contains("Fireball Fight")) {
             api.joinQueue(player, BattleKit.getKit("fireballfight"));
+            afterActivities(event);
+        } else if (itemName.contains("SkyWars")) {
+            api.joinQueue(player, BattleKit.getKit("skywars"));
+            afterActivities(event);
+        } else if (itemName.contains("Archer")) {
+            api.joinQueue(player, BattleKit.getKit("archer"));
+            afterActivities(event);
+        } else if (itemName.contains("No Enchant")) {
+            api.joinQueue(player, BattleKit.getKit("noenchant"));
+            afterActivities(event);
+        } else if (itemName.contains("Spleef")) {
+            api.joinQueue(player, BattleKit.getKit("spleef"));
+            afterActivities(event);
+        } else if (itemName.contains("SG")) {
+            api.joinQueue(player, BattleKit.getKit("sg"));
+            afterActivities(event);
+        } else if (itemName.contains("Sword")) {
+            api.joinQueue(player, BattleKit.getKit("sword"));
+            afterActivities(event);
+        } else if (itemName.contains("Combo Tag")) {
+            api.joinQueue(player, BattleKit.getKit("combotag"));
+            afterActivities(event);
+        } else if (itemName.contains("Combo")) {
+            api.joinQueue(player, BattleKit.getKit("combo"));
             afterActivities(event);
         }
     }
