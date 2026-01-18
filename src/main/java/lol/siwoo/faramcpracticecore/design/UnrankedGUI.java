@@ -18,6 +18,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -171,7 +173,15 @@ public class UnrankedGUI implements CommandExecutor, Listener {
     }
 
     public static ItemStack createNodebuffPotion() {
-        return new ItemStack(Material.POTION, 1, (short) 16421);
+        ItemStack potion = new ItemStack(Material.SPLASH_POTION, 1);
+        PotionMeta meta = (PotionMeta) potion.getItemMeta();
+
+        if (meta != null) {
+            meta.setBasePotionType(PotionType.REGENERATION);
+            potion.setItemMeta(meta);
+        }
+
+        return potion;
     }
 
     private static void addQueueItem(Inventory gui, int slot, Material material, String gameMode,
