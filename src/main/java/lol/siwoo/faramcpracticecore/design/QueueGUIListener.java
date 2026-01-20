@@ -22,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class QueueGUIListener implements Listener {
 
@@ -50,86 +51,38 @@ public class QueueGUIListener implements Listener {
         plugin.getLogger().info("DEBUG: Clicked " + itemName + " (" + clickedItem.getType() + ")");
 
         // Execute queue commands based on clicked item
-        switch (itemName) {
-            case String s when clickedItem.getType() == Material.REDSTONE_BLOCK -> {
-                Bukkit.dispatchCommand(player, "queue leave");
-                newafterActivities(event);
-            }
-            case String s when s.contains("WindFight") -> join(player, "windfight", event);
-            case String s when s.contains("Boxing"):
-                api.joinQueue(player, BattleKit.getKit("windfight"));
-                afterActivities(event);
-            default:
-                Bukkit.dispatchCommand(player, "queue leave");
-                newafterActivities(event);
-        }
-
         if (clickedItem.getType().equals(Material.REDSTONE_BLOCK)) {
             Bukkit.dispatchCommand(player, "queue leave");
             newafterActivities(event);
-        } else if (itemName.contains("WindFight")) {
-            api.joinQueue(player, BattleKit.getKit("windfight"));
-            afterActivities(event);
-        } else if (itemName.contains("Boxing")) {
-            api.joinQueue(player, BattleKit.getKit("boxing"));
-            afterActivities(event);
-        } else if (itemName.contains("Nodebuff")) {
-            api.joinQueue(player, BattleKit.getKit("nodebuff"));
-            afterActivities(event);
-        } else if (itemName.contains("BuildUHC")) {
-            api.joinQueue(player, BattleKit.getKit("builduhc"));
-            afterActivities(event);
-        } else if (itemName.contains("Sumo (Best of 3)")) {
-            api.joinQueue(player, BattleKit.getKit("sumobestof3"));
-            afterActivities(event);
-        } else if (itemName.contains("Sumo")) {
-            api.joinQueue(player, BattleKit.getKit("sumo"));
-            afterActivities(event);
-        } else if (itemName.contains("Soup")) {
-            api.joinQueue(player, BattleKit.getKit("soup"));
-            afterActivities(event);
-        } else if (itemName.contains("Axe")) {
-            api.joinQueue(player, BattleKit.getKit("axepvp"));
-            afterActivities(event);
-        } else if (itemName.contains("Gapple")) {
-            api.joinQueue(player, BattleKit.getKit("gapple"));
-            afterActivities(event);
-        } else if (itemName.contains("BedFight")) {
-            api.joinQueue(player, BattleKit.getKit("bedfight"));
-            afterActivities(event);
-        } else if (itemName.contains("Fireball Fight")) {
-            api.joinQueue(player, BattleKit.getKit("fireballfight"));
-            afterActivities(event);
-        } else if (itemName.contains("SkyWars")) {
-            api.joinQueue(player, BattleKit.getKit("skywars"));
-            afterActivities(event);
-        } else if (itemName.contains("Archer")) {
-            api.joinQueue(player, BattleKit.getKit("archer"));
-            afterActivities(event);
-        } else if (itemName.contains("No Enchant")) {
-            api.joinQueue(player, BattleKit.getKit("noenchant"));
-            afterActivities(event);
-        } else if (itemName.contains("Spleef")) {
-            api.joinQueue(player, BattleKit.getKit("spleef"));
-            afterActivities(event);
-        } else if (itemName.contains("SG")) {
-            api.joinQueue(player, BattleKit.getKit("sg"));
-            afterActivities(event);
-        } else if (itemName.contains("Sword")) {
-            api.joinQueue(player, BattleKit.getKit("sword"));
-            afterActivities(event);
-        } else if (itemName.contains("Combo Tag")) {
-            api.joinQueue(player, BattleKit.getKit("combotag"));
-            afterActivities(event);
-        } else if (itemName.contains("Combo")) {
-            api.joinQueue(player, BattleKit.getKit("combo"));
+        }
+
+        String kitId = switch (itemName) {
+            case String s when s.contains("WindFight") -> "windfight";
+            case String s when s.contains("Sword") -> "sword";
+            case String s when s.contains("Axe") -> "axepvp";
+            case String s when s.contains("Boxing") -> "boxing";
+            case String s when s.contains("Nodebuff") -> "nodebuff";
+            case String s when s.contains("BuildUHC") -> "builduhc";
+            case String s when s.contains("Sumo") -> "sumo";
+            case String s when s.contains("Combo") -> "combo";
+            case String s when s.contains("Gapple") -> "gapple";
+            case String s when s.contains("BedFight") -> "bedfight";
+            case String s when s.contains("Fireball Fight") -> "fireballfight";
+            case String s when s.contains("SkyWars") -> "skywars";
+            case String s when s.contains("Archer") -> "archer";
+            case String s when s.contains("No Enchant") -> "noenchant";
+            case String s when s.contains("Spleef") -> "spleef";
+            case String s when s.contains("SG") -> "sg";
+            case String s when s.contains("Soup") -> "soup";
+            case String s when s.contains("Combo Tag") -> "combotag";
+
+            default -> null;
+        };
+
+        if (kitId != null) {
+            api.joinQueue(player, Objects.requireNonNull(BattleKit.getKit(kitId)));
             afterActivities(event);
         }
-    }
-
-    private void join(Player player, String kitId, InventoryClickEvent event) {
-        api.joinQueue(player, BattleKit.getKit(kitId));
-        afterActivities(event);
     }
 
     public void afterActivities(InventoryClickEvent e) {
