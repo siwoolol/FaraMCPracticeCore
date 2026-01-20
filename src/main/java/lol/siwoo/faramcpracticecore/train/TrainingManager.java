@@ -1,13 +1,10 @@
 package lol.siwoo.faramcpracticecore.train;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.*;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import lol.siwoo.faramcpracticecore.train.npcs.TrainingNPC;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;

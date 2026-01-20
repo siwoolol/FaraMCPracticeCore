@@ -1,7 +1,6 @@
 package lol.siwoo.faramcpracticecore.bot;
 
 import ga.strikepractice.events.BotDuelEndEvent;
-import ga.strikepractice.events.DuelEndEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

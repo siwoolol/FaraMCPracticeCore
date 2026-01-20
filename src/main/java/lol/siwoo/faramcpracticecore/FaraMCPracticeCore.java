@@ -12,9 +12,6 @@ import lol.siwoo.faramcpracticecore.aa.terms.JoinMessage;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aa.aicoach.AICoach;
 import lol.siwoo.faramcpracticecore.bot.BotFightEnd;
-import lol.siwoo.faramcpracticecore.bot.BotHitDelayFix;
-import lol.siwoo.faramcpracticecore.bot.CitizensListener;
-import lol.siwoo.faramcpracticecore.bot.MovementController;
 import lol.siwoo.faramcpracticecore.design.*;
 import lol.siwoo.faramcpracticecore.fix.PotThrowMech;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
@@ -27,13 +24,9 @@ import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwnerListener;
 import lol.siwoo.faramcpracticecore.lobby.KitEditor;
-import lol.siwoo.faramcpracticecore.train.TrainingCommand;
-import lol.siwoo.faramcpracticecore.train.TrainingGUIListener;
 import lol.siwoo.faramcpracticecore.train.TrainingManager;
 import lol.siwoo.faramcpracticecore.util.WebhookMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -44,7 +37,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.Queue;
 
 public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     private StrikePracticeAPI strikePracticeAPI;
