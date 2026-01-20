@@ -51,7 +51,6 @@ public class QueueLastGame implements CommandExecutor, Listener {
 
     @EventHandler
     public void onGameQueue(KitSelectEvent e) {
-        Bukkit.getLogger().info("e");
         Player p = e.getPlayer();
         UUID u = p.getUniqueId();
 
