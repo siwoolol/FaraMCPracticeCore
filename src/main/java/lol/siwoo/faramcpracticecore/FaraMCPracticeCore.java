@@ -144,8 +144,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new WindFight(this), this);
 //        pm.registerEvents(new AICoachListener(aiCoach, strikePracticeAPI), this);
 
-        DataLogger dataLogger = new DataLogger(this);
-        pm.registerEvents(dataLogger, this);
+//        DataLogger dataLogger = new DataLogger(this);
+//        pm.registerEvents(dataLogger, this);
         pm.registerEvents(new JoinMessage(), this);
         pm.registerEvents(new QueueLastGame(), this);
 
