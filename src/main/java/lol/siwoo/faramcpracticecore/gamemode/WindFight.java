@@ -6,6 +6,8 @@ import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -104,7 +106,8 @@ public class WindFight implements Listener {
             Long lastLaunchTime = lastLaunch.get(p.getUniqueId().toString());
             if (lastLaunchTime != null && (System.currentTimeMillis() - lastLaunchTime) < 2000) {
                 p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_SCREAM, 1.0f, 1.0f);
-                p.sendActionBar(Component.text("Launch is available after " + (2000 - (System.currentTimeMillis() - lastLaunchTime)) / 1000 + "s"));
+                p.sendActionBar(Component.text("Launch is available after " + (2000 - (System.currentTimeMillis() - lastLaunchTime)) / 1000 + "s")
+                        .color(NamedTextColor.GRAY));
                 return;
             }
 
@@ -114,7 +117,8 @@ public class WindFight implements Listener {
             Long lastPushTime = lastPush.get(p.getUniqueId().toString());
             if (lastPushTime != null && (System.currentTimeMillis() - lastPushTime) < 2000) {
                 p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_SCREAM, 1.0f, 1.0f);
-                p.sendActionBar(Component.text("Push is available after " + (2000 - (System.currentTimeMillis() - lastPushTime)) / 1000 + "s"));
+                p.sendActionBar(Component.text("Push is available after " + (2000 - (System.currentTimeMillis() - lastPushTime)) / 1000 + "s")
+                        .color(NamedTextColor.GRAY));
                 return;
             }
 
