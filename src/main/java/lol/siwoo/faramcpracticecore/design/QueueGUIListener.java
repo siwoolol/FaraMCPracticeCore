@@ -135,18 +135,60 @@ public class QueueGUIListener implements Listener {
     }
 
     public static void updateInventory(Player p, Inventory i) {
-        updateQueueItem(p, i, 10, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_windfight%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_windfight%");
-        updateQueueItem(p, i, 11, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_boxing%");
-        updateQueueItem(p, i, 12, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_nodebuff%");
-        updateQueueItem(p, i, 13, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_builduhc%");
-        updateQueueItem(p, i, 14, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumo%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumo%");
-        updateQueueItem(p, i, 15, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumobestof3%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumobestof3%");
-        updateQueueItem(p, i, 16, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_soup%");
-        updateQueueItem(p, i, 19, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_axepvp%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_axepvp%");
-        updateQueueItem(p, i, 20, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_combo%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_combo%");
-        updateQueueItem(p, i, 21, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_gapple%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_gapple%");
-        updateQueueItem(p, i, 22, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_bedfight%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_bedfight%");
-        updateQueueItem(p, i, 23, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_fireballfight%");
+        updateQueueItem(p, i, 10,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_windfight%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_windfight%");
+        updateQueueItem(p, i, 11,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sword%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sword%");
+        updateQueueItem(p, i, 12,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_axe%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_axe%");
+        updateQueueItem(p, i, 13,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%");
+        updateQueueItem(p, i, 14,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%");
+        updateQueueItem(p, i, 15,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%");
+        updateQueueItem(p, i, 16,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumo%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_sumo%");
+        updateQueueItem(p, i, 19,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_combo%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_combo%");
+        updateQueueItem(p, i, 20,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_gapple%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_gapple%");
+        updateQueueItem(p, i, 21,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_bedfight%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_bedfight%");
+        updateQueueItem(p, i, 22,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%");
+        updateQueueItem(p, i, 23,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_skywars%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_skywars%");
+        updateQueueItem(p, i, 24,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_archer%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_archer%");
+        updateQueueItem(p, i, 25,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_noenchant%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_noenchant%");
+        updateQueueItem(p, i, 28,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_spleef%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_spleef%");
+        updateQueueItem(p, i, 29,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sg%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_sg%");
+        updateQueueItem(p, i, 30,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%");
+        updateQueueItem(p, i, 31,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_combotag%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_combotag%");
     }
 
     public static void updateQueueItem(Player p, Inventory gui, int slot, String queued, String playing) {
