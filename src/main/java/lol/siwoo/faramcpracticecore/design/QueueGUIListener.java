@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -209,6 +210,16 @@ public class QueueGUIListener implements Listener {
                                 "",
                                 ChatColor.RED + "Click Again to Leave the Queue!"
                         ));
+
+                        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                        meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
+                        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                        meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
+                        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+                        meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
+                        meta.addItemFlags(ItemFlag.HIDE_DYE);
+                        meta.addItemFlags(ItemFlag.HIDE_STORED_ENCHANTS);
+
                         item.setItemMeta(meta);
                     }
                 } else {
@@ -218,6 +229,16 @@ public class QueueGUIListener implements Listener {
                             "",
                             ChatColor.GREEN + "Click to join!"
                     ));
+
+                    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                    meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
+                    meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                    meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
+                    meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+                    meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
+                    meta.addItemFlags(ItemFlag.HIDE_DYE);
+                    meta.addItemFlags(ItemFlag.HIDE_STORED_ENCHANTS);
+
                     item.setItemMeta(meta);
                 }
             }
