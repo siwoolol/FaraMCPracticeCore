@@ -50,6 +50,20 @@ public class QueueGUIListener implements Listener {
         plugin.getLogger().info("DEBUG: Clicked " + itemName + " (" + clickedItem.getType() + ")");
 
         // Execute queue commands based on clicked item
+        switch (itemName) {
+            case String s when clickedItem.getType() == Material.REDSTONE_BLOCK -> {
+                Bukkit.dispatchCommand(player, "queue leave");
+                newafterActivities(event);
+            }
+            case String s when s.contains("WindFight") -> join(player, "windfight", event);
+            case String s when s.contains("Boxing"):
+                api.joinQueue(player, BattleKit.getKit("windfight"));
+                afterActivities(event);
+            default:
+                Bukkit.dispatchCommand(player, "queue leave");
+                newafterActivities(event);
+        }
+
         if (clickedItem.getType().equals(Material.REDSTONE_BLOCK)) {
             Bukkit.dispatchCommand(player, "queue leave");
             newafterActivities(event);
@@ -111,6 +125,11 @@ public class QueueGUIListener implements Listener {
             api.joinQueue(player, BattleKit.getKit("combo"));
             afterActivities(event);
         }
+    }
+
+    private void join(Player player, String kitId, InventoryClickEvent event) {
+        api.joinQueue(player, BattleKit.getKit(kitId));
+        afterActivities(event);
     }
 
     public void afterActivities(InventoryClickEvent e) {
