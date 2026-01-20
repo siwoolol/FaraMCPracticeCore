@@ -125,11 +125,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 //        aiCoach = new AICoach(this, strikePracticeAPI);
 //        trainingManager = new TrainingManager(this);
 
-        // Fixes (disabled due to implementation on sprac itself)
-//        pm.registerEvents(new CitizensListener(), this);
-//        pm.registerEvents(new MovementController(this), this);
-//        pm.registerEvents(new BotHitDelayFix(), this);
-        pm.registerEvents(new BotFightEnd(), this);
+        // Fixes
         pm.registerEvents(new PotThrowMech(), this);
 
         pm.registerEvents(this, this);
@@ -139,6 +135,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new WarningMessage(), this);
         pm.registerEvents(new UnrankedGUI(this), this);
         pm.registerEvents(new FightEnd(), this);
+        pm.registerEvents(new BotFightEnd(), this);
         pm.registerEvents(new FlightListener(), this);
         pm.registerEvents(new SuggestPartyOwnerListener(), this);
         pm.registerEvents(new Boxing(this), this);
