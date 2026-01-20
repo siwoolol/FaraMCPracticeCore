@@ -7,10 +7,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-/**
- * Modifies the velocity of thrown splash potions to mimic the mechanics of servers like Minemen.club.
- * This results in a faster and flatter potion trajectory.
- */
 public class PotThrowMech implements Listener {
 
     @EventHandler

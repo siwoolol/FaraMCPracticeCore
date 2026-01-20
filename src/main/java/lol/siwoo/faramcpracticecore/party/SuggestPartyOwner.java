@@ -15,8 +15,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 
-import static org.bukkit.Bukkit.getPlayer;
-
 public class SuggestPartyOwner implements CommandExecutor {
 
     public static final String GUI_TITLE = ChatColor.DARK_AQUA + "Select Kit to Suggest";

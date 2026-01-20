@@ -10,11 +10,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Timer;
 
 public class Agree implements CommandExecutor {
 

@@ -6,7 +6,7 @@
 
     <groupId>lol.siwoo</groupId>
     <artifactId>faramcpracticecore</artifactId>
-    <version>1.5.2-AEBD</version>
+    <version>1.5.6</version>
     <packaging>jar</packaging>
 
     <name>FaraMCPracticeCore</name>
@@ -25,8 +25,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -80,10 +80,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.8.8-R0.1-SNAPSHOT</version>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-api</artifactId>
+            <version>4.26.1</version>
         </dependency>
         <dependency>
             <groupId>ga.strikepractice</groupId>
@@ -113,6 +118,11 @@
             <artifactId>ProtocolLib</artifactId>
             <version>5.3.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>net.citizensnpcs</groupId>

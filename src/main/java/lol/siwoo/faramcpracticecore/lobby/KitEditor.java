@@ -4,7 +4,6 @@ import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.DuelStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
-import lol.siwoo.faramcpracticecore.design.PvpBotQueue;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

@@ -16,11 +16,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class QueueGUIListener implements Listener {
 
@@ -36,7 +37,7 @@ public class QueueGUIListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
 
         Player player = (Player) event.getWhoClicked();
-        String title = event.getInventory().getTitle();
+        String title = event.getView().getTitle();
 
         if (!title.equals(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Unranked Queue")) return;
 
@@ -52,45 +53,40 @@ public class QueueGUIListener implements Listener {
         if (clickedItem.getType().equals(Material.REDSTONE_BLOCK)) {
             Bukkit.dispatchCommand(player, "queue leave");
             newafterActivities(event);
-        } else if (itemName.contains("Boxing")) {
-            api.joinQueue(player, BattleKit.getKit("boxing"));
-            afterActivities(event);
-        } else if (itemName.contains("Nodebuff")) {
-            api.joinQueue(player, BattleKit.getKit("nodebuff"));
-            afterActivities(event);
-        } else if (itemName.contains("BuildUHC")) {
-            api.joinQueue(player, BattleKit.getKit("builduhc"));
-            afterActivities(event);
-        } else if (itemName.contains("Sumo (Best of 3)")) {
-            api.joinQueue(player, BattleKit.getKit("sumobestof3"));
-            afterActivities(event);
-        } else if (itemName.contains("Sumo")) {
-            api.joinQueue(player, BattleKit.getKit("sumo"));
-            afterActivities(event);
-        } else if (itemName.contains("Soup")) {
-            api.joinQueue(player, BattleKit.getKit("soup"));
-            afterActivities(event);
-        } else if (itemName.contains("Axe")) {
-            api.joinQueue(player, BattleKit.getKit("axepvp"));
-            afterActivities(event);
-        } else if (itemName.contains("Combo")) {
-            api.joinQueue(player, BattleKit.getKit("combo"));
-            afterActivities(event);
-        } else if (itemName.contains("Gapple")) {
-            api.joinQueue(player, BattleKit.getKit("gapple"));
-            afterActivities(event);
-        } else if (itemName.contains("BedFight")) {
-            api.joinQueue(player, BattleKit.getKit("bedfight"));
-            afterActivities(event);
-        } else if (itemName.contains("Fireball Fight")) {
-            api.joinQueue(player, BattleKit.getKit("fireballfight"));
+        }
+
+        String kitId = switch (itemName) {
+            case String s when s.contains("WindFight") -> "windfight";
+            case String s when s.contains("Sword") -> "sword";
+            case String s when s.contains("Axe") -> "axepvp";
+            case String s when s.contains("Boxing") -> "boxing";
+            case String s when s.contains("Nodebuff") -> "nodebuff";
+            case String s when s.contains("BuildUHC") -> "builduhc";
+            case String s when s.contains("Sumo") -> "sumo";
+            case String s when s.contains("Combo") -> "combo";
+            case String s when s.contains("Gapple") -> "gapple";
+            case String s when s.contains("BedFight") -> "bedfight";
+            case String s when s.contains("Fireball Fight") -> "fireballfight";
+            case String s when s.contains("SkyWars") -> "skywars";
+            case String s when s.contains("Archer") -> "archer";
+            case String s when s.contains("No Enchant") -> "noenchant";
+            case String s when s.contains("Spleef") -> "spleef";
+            case String s when s.contains("SG") -> "sg";
+            case String s when s.contains("Soup") -> "soup";
+            case String s when s.contains("Combo Tag") -> "combotag";
+
+            default -> null;
+        };
+
+        if (kitId != null) {
+            api.joinQueue(player, Objects.requireNonNull(BattleKit.getKit(kitId)));
             afterActivities(event);
         }
     }
 
     public void afterActivities(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
-        p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
+        p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
 
         ItemStack clickedItem = e.getCurrentItem();
         if (clickedItem == null) return;
@@ -111,17 +107,60 @@ public class QueueGUIListener implements Listener {
     }
 
     public static void updateInventory(Player p, Inventory i) {
-        updateQueueItem(p, i, 10, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_boxing%");
-        updateQueueItem(p, i, 11, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_nodebuff%");
-        updateQueueItem(p, i, 12, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_builduhc%");
-        updateQueueItem(p, i, 13, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumo%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumo%");
-        updateQueueItem(p, i, 14, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumobestof3%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumobestof3%");
-        updateQueueItem(p, i, 15, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_soup%");
-        updateQueueItem(p, i, 16, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_axepvp%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_axepvp%");
-        updateQueueItem(p, i, 19, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_combo%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_combo%");
-        updateQueueItem(p, i, 20, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_gapple%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_gapple%");
-        updateQueueItem(p, i, 21, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_bedfight%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_bedfight%");
-        updateQueueItem(p, i, 22, ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%", ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_fireballfight%");
+        updateQueueItem(p, i, 10,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_windfight%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_windfight%");
+        updateQueueItem(p, i, 11,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sword%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sword%");
+        updateQueueItem(p, i, 12,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_axe%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_axe%");
+        updateQueueItem(p, i, 13,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%");
+        updateQueueItem(p, i, 14,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%");
+        updateQueueItem(p, i, 15,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%");
+        updateQueueItem(p, i, 16,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumo%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_sumo%");
+        updateQueueItem(p, i, 19,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_combo%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_combo%");
+        updateQueueItem(p, i, 20,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_gapple%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_gapple%");
+        updateQueueItem(p, i, 21,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_bedfight%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_bedfight%");
+        updateQueueItem(p, i, 22,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%");
+        updateQueueItem(p, i, 23,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_skywars%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_skywars%");
+        updateQueueItem(p, i, 24,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_archer%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_archer%");
+        updateQueueItem(p, i, 25,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_noenchant%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_noenchant%");
+        updateQueueItem(p, i, 28,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_spleef%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_spleef%");
+        updateQueueItem(p, i, 29,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sg%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_sg%");
+        updateQueueItem(p, i, 30,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%");
+        updateQueueItem(p, i, 31,
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_combotag%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_combotag%");
     }
 
     public static void updateQueueItem(Player p, Inventory gui, int slot, String queued, String playing) {
@@ -142,6 +181,16 @@ public class QueueGUIListener implements Listener {
                                 "",
                                 ChatColor.RED + "Click Again to Leave the Queue!"
                         ));
+
+                        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                        meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
+                        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                        meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
+                        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+                        meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
+                        meta.addItemFlags(ItemFlag.HIDE_DYE);
+                        meta.addItemFlags(ItemFlag.HIDE_STORED_ENCHANTS);
+
                         item.setItemMeta(meta);
                     }
                 } else {
@@ -151,6 +200,16 @@ public class QueueGUIListener implements Listener {
                             "",
                             ChatColor.GREEN + "Click to join!"
                     ));
+
+                    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                    meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
+                    meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                    meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
+                    meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+                    meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
+                    meta.addItemFlags(ItemFlag.HIDE_DYE);
+                    meta.addItemFlags(ItemFlag.HIDE_STORED_ENCHANTS);
+
                     item.setItemMeta(meta);
                 }
             }
@@ -159,7 +218,7 @@ public class QueueGUIListener implements Listener {
 
     public void newafterActivities(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
-        p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
+        p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
         p.openInventory(UnrankedGUI.createQueueGUI(p, 0, "n word"));
     }
 

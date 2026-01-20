@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class GetPlayerHead {
     public static ItemStack getPlayerHead(String playerName) {
-        ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        ItemStack head = new ItemStack(Material.SKELETON_SKULL, 1, (short) 3);
         SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
         if (skullMeta != null) {
             skullMeta.setOwner(playerName);
@@ -18,7 +18,7 @@ public class GetPlayerHead {
     }
 
     public static ItemStack getPlayerHead(UUID uuid) {
-        ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        ItemStack head = new ItemStack(Material.SKELETON_SKULL, 1, (short) 3);
         SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
         if (skullMeta != null) {
             skullMeta.setOwner(Bukkit.getOfflinePlayer(uuid).getName());

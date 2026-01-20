@@ -1,7 +1,6 @@
 package lol.siwoo.faramcpracticecore.bot;
 
 import ga.strikepractice.events.BotDuelEndEvent;
-import ga.strikepractice.events.DuelEndEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -49,15 +48,15 @@ public class BotFightEnd implements Listener {
     }
 
     public void randomSound() {
-        randomSound.add(Sound.ANVIL_USE);
-        randomSound.add(Sound.WITHER_SPAWN);
-        randomSound.add(Sound.ENDERDRAGON_DEATH);
-        randomSound.add(Sound.FIREWORK_BLAST2);
-        randomSound.add(Sound.FIREWORK_LARGE_BLAST);
-        randomSound.add(Sound.FIREWORK_TWINKLE);
-        randomSound.add(Sound.LEVEL_UP);
-        randomSound.add(Sound.ZOMBIE_DEATH);
-        randomSound.add(Sound.SKELETON_DEATH);
+        randomSound.add(Sound.BLOCK_ANVIL_USE);
+        randomSound.add(Sound.ENTITY_WITHER_SPAWN);
+        randomSound.add(Sound.ENTITY_ENDER_DRAGON_DEATH);
+        randomSound.add(Sound.ENTITY_FIREWORK_ROCKET_BLAST);
+        randomSound.add(Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST);
+        randomSound.add(Sound.ENTITY_FIREWORK_ROCKET_TWINKLE);
+        randomSound.add(Sound.ENTITY_PLAYER_LEVELUP);
+        randomSound.add(Sound.ENTITY_ZOMBIE_DEATH);
+        randomSound.add(Sound.ENTITY_SKELETON_DEATH);
     }
 
     @EventHandler

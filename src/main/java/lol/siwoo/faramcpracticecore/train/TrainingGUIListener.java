@@ -43,7 +43,7 @@ public class TrainingGUIListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
 
         Player player = (Player) event.getWhoClicked();
-        String title = event.getInventory().getTitle();
+        String title = event.getView().getTitle();
 
         if (!title.equals(ChatColor.GOLD + "" + ChatColor.BOLD + "Training Modes")) return;
 
@@ -53,7 +53,7 @@ public class TrainingGUIListener implements Listener {
         if (clickedItem == null || !clickedItem.hasItemMeta()) return;
 
         String itemName = clickedItem.getItemMeta().getDisplayName();
-        player.playSound(player.getLocation(), Sound.WOOD_CLICK, 1, 1);
+        player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
 
         if (itemName.contains("Strafe Training")) {
             player.closeInventory();

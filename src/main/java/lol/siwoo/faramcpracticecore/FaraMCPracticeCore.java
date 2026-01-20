@@ -12,31 +12,25 @@ import lol.siwoo.faramcpracticecore.aa.terms.JoinMessage;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aa.aicoach.AICoach;
 import lol.siwoo.faramcpracticecore.bot.BotFightEnd;
-import lol.siwoo.faramcpracticecore.bot.BotHitDelayFix;
-import lol.siwoo.faramcpracticecore.bot.CitizensListener;
-import lol.siwoo.faramcpracticecore.bot.MovementController;
 import lol.siwoo.faramcpracticecore.design.*;
 import lol.siwoo.faramcpracticecore.fix.PotThrowMech;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
 import lol.siwoo.faramcpracticecore.gamemode.Boxing;
-import lol.siwoo.faramcpracticecore.gamemode.FireballFight;
+//import lol.siwoo.faramcpracticecore.gamemode.FireballFight;
+import lol.siwoo.faramcpracticecore.gamemode.WindFight;
 import lol.siwoo.faramcpracticecore.lobby.Flight;
 import lol.siwoo.faramcpracticecore.lobby.FlightListener;
 import lol.siwoo.faramcpracticecore.party.HurryUpPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwner;
 import lol.siwoo.faramcpracticecore.party.SuggestPartyOwnerListener;
 import lol.siwoo.faramcpracticecore.lobby.KitEditor;
-import lol.siwoo.faramcpracticecore.train.TrainingCommand;
-import lol.siwoo.faramcpracticecore.train.TrainingGUIListener;
 import lol.siwoo.faramcpracticecore.train.TrainingManager;
 import lol.siwoo.faramcpracticecore.util.WebhookMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerAchievementAwardedEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginManager;
@@ -62,19 +56,21 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     }
 
     public void apiCheck() {
+        // StrikePractice check
         if (getServer().getPluginManager().getPlugin("StrikePractice") == null) {
             getLogger().severe("StrikePractice not found! Make sure StrikePractice is installed.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
-        // Make sure PlaceHolderAPI is loaded first
+        // PlaceHolderAPI check
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
             getLogger().severe("PlaceholderAPI not found! Make sure PlaceholderAPI is installed.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
+        // ProtocolLib check
         if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
             getLogger().severe("ProtocolLib is required for training features!\n");
             getServer().getPluginManager().disablePlugin(this);
@@ -103,7 +99,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        e.setJoinMessage(null);
+        e.joinMessage(null);
 
         Player p = e.getPlayer();
         JoinMessage.sendJoinMessage(p);
@@ -115,8 +111,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onPlayerAdvancement(PlayerAchievementAwardedEvent e) {
-        e.setCancelled(true);
+    public void onPlayerAdvancement(PlayerAdvancementDoneEvent e) {
+        e.message(null);
     }
 
     private void registerEvents() {
@@ -130,10 +126,6 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 //        trainingManager = new TrainingManager(this);
 
         // Fixes
-//        pm.registerEvents(new CitizensListener(), this);
-//        pm.registerEvents(new MovementController(this), this);
-//        pm.registerEvents(new BotHitDelayFix(), this);
-        pm.registerEvents(new BotFightEnd(), this);
         pm.registerEvents(new PotThrowMech(), this);
 
         pm.registerEvents(this, this);
@@ -143,22 +135,26 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new WarningMessage(), this);
         pm.registerEvents(new UnrankedGUI(this), this);
         pm.registerEvents(new FightEnd(), this);
+        pm.registerEvents(new BotFightEnd(), this);
         pm.registerEvents(new FlightListener(), this);
         pm.registerEvents(new SuggestPartyOwnerListener(), this);
         pm.registerEvents(new Boxing(this), this);
         pm.registerEvents(new BedFight(this), this);
-        pm.registerEvents(new FireballFight(this), this);
+//        pm.registerEvents(new FireballFight(this), this);
+        pm.registerEvents(new WindFight(this), this);
 //        pm.registerEvents(new AICoachListener(aiCoach, strikePracticeAPI), this);
 
-        DataLogger dataLogger = new DataLogger(this);
-        pm.registerEvents(dataLogger, this);
-        pm.registerEvents(new JoinMessage(), this);
+//        DataLogger dataLogger = new DataLogger(this);
+//        pm.registerEvents(dataLogger, this);
+//        pm.registerEvents(new JoinMessage(), this);
+        pm.registerEvents(new QueueLastGame(), this);
 
         getCommand("unrankedgui").setExecutor(new UnrankedGUI(this));
         getCommand("unranked").setExecutor(new UnrankedGUI(this));
         getCommand("queue").setExecutor(new UnrankedGUI(this));
         getCommand("ranked").setExecutor(new RankedQueue());
         getCommand("botduel").setExecutor(new PvpBotQueue());
+        getCommand("queuelastgame").setExecutor(new QueueLastGame());
 //        getCommand("train").setExecutor(new TrainingCommand(this, trainingManager));
 
         getCommand("fly").setExecutor(new Flight());
@@ -171,8 +167,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("gmsp").setExecutor(new GMSP());
         getCommand("gma").setExecutor(new GMA());
         getCommand("sudo").setExecutor(new Sudo());
-        getCommand("terms_agree").setExecutor(new Agree(this));
-        getCommand("terms_disagree").setExecutor(new Disagree());
+//        getCommand("terms_agree").setExecutor(new Agree(this));
+//        getCommand("terms_disagree").setExecutor(new Disagree());
     }
 
     public void emergencyShutDown() {

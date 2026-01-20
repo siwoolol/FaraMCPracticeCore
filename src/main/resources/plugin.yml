@@ -72,3 +72,6 @@ commands:
   train:
     usage: "/train [mode]"
     description: "Access training modes"
+  queuelastgame:
+    usage: "/queuelastgame"
+    description: "Queue the last game that the player has played"
