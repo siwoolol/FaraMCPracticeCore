@@ -93,10 +93,11 @@ public class WindFight implements Listener {
             return;
         }
 
-        @NotNull String itemName = e.getItem().getItemMeta().getDisplayName();
-        if (itemName == null) {
-            itemName = "nigger";
+        if (e.getItem() == null || !e.getItem().hasItemMeta() || e.getItem().getItemMeta().getDisplayName() == null) {
+            return;
         }
+
+        String itemName = e.getItem().getItemMeta().getDisplayName();
 
         if (itemName.contains("Launch ")) {
             Long lastLaunchTime = lastLaunch.get(p.getUniqueId().toString());
