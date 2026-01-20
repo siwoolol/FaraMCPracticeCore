@@ -5,6 +5,7 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.FightEndEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
+import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -101,7 +102,9 @@ public class WindFight implements Listener {
 
         if (itemName.contains("Launch ")) {
             Long lastLaunchTime = lastLaunch.get(p.getUniqueId().toString());
-            if (lastLaunchTime != null && (System.currentTimeMillis() - lastLaunchTime) < 1000) {
+            if (lastLaunchTime != null && (System.currentTimeMillis() - lastLaunchTime) < 2000) {
+                p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_SCREAM, 1.0f, 1.0f);
+                p.sendActionBar(Component.text("Launch is available after " + (2000 - (System.currentTimeMillis() - lastLaunchTime)) / 1000 + "s"));
                 return;
             }
 
@@ -109,7 +112,9 @@ public class WindFight implements Listener {
             launchPlayer(p);
         } else if (itemName.contains("Push ")) {
             Long lastPushTime = lastPush.get(p.getUniqueId().toString());
-            if (lastPushTime != null && (System.currentTimeMillis() - lastPushTime) < 1000) {
+            if (lastPushTime != null && (System.currentTimeMillis() - lastPushTime) < 2000) {
+                p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_SCREAM, 1.0f, 1.0f);
+                p.sendActionBar(Component.text("Push is available after " + (2000 - (System.currentTimeMillis() - lastPushTime)) / 1000 + "s"));
                 return;
             }
 
