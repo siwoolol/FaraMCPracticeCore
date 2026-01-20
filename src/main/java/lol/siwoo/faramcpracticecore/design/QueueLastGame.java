@@ -26,6 +26,8 @@ public class QueueLastGame implements CommandExecutor, Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String [] args) {
+        assert sender instanceof Player;
+
         Player p = (Player) sender;
         UUID u = p.getUniqueId();
 
