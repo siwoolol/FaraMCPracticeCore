@@ -104,7 +104,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
                 ChatColor.BLUE + "SkyWars",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_skywars%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_skywars%", p);
-        addQueueItem(gui, 24, Material.BOW, "archer",
+        addQueueItem(gui, 24, Material.BOW, "Archer",
                 ChatColor.YELLOW + "Archer",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_archer%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_archer%", p);
