@@ -16,6 +16,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class RBWFFA implements Listener {
@@ -60,8 +61,9 @@ public class RBWFFA implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-        ItemStack block = (ItemStack) e.getBlockPlaced();
+        ItemStack block = p.getItemInHand();
         if (api.getFight(p).getArena().getName().equals("rbwffa")) {
+            if (block == null) return;
             new BukkitRunnable() {
                 @Override
                 public void run() {
