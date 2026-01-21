@@ -30,7 +30,7 @@ public class RBWFFA implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-        if (api.isInFight(p) && api.getFight(p).getArena().equals("rbwffa")) {
+        if (api.isInFight(p) && api.getFight(p).getArena().getName().equals("rbwffa")) {
             if (p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 60) {
                 p.damage(69420.0);
                 for (Player player : p.getWorld().getPlayers()) {
@@ -46,7 +46,7 @@ public class RBWFFA implements Listener {
         Player p = (Player) e.getEntity();
         Player v = (Player) e.getDamager();
 
-        if (api.isInFight(p) && api.getFight(p).getArena().equals("rbwffa")) {
+        if (api.isInFight(p) && api.getFight(p).getArena().getName().equals("rbwffa")) {
             if (p.getY() > api.getFight(p).getArena().getCenter().getY() - 10) {
                 e.setCancelled(true);
             } else if (p.getHealth() - e.getFinalDamage() <= 1f) {
@@ -61,7 +61,7 @@ public class RBWFFA implements Listener {
     public void onBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
         ItemStack block = (ItemStack) e.getBlockPlaced();
-        if (api.getFight(p).getArena().equals("rbwffa")) {
+        if (api.getFight(p).getArena().getName().equals("rbwffa")) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -77,7 +77,7 @@ public class RBWFFA implements Listener {
         Player p = e.getPlayer();
         Block placedBlock = e.getBlock();
 
-        if (api.getFight(p).getArena().equals("rbwffa")) {
+        if (api.getFight(p).getArena().getName().equals("rbwffa")) {
             e.setCancelled(true);
             placedBlock.setType(Material.AIR);
             p.give((ItemStack) placedBlock);
