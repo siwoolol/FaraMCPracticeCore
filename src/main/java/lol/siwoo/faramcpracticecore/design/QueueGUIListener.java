@@ -115,8 +115,8 @@ public class QueueGUIListener implements Listener {
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sword%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sword%");
         updateQueueItem(p, i, 12,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_axe%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_axe%");
+                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_axepvp%",
+                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_axepvp%");
         updateQueueItem(p, i, 13,
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%");
