@@ -49,7 +49,6 @@ public class QueueGUIListener implements Listener {
         String itemName = clickedItem.getItemMeta().getDisplayName();
         plugin.getLogger().info("DEBUG: Clicked " + itemName + " (" + clickedItem.getType() + ")");
 
-        // Execute queue commands based on clicked item
         if (clickedItem.getType().equals(Material.REDSTONE_BLOCK)) {
             Bukkit.dispatchCommand(player, "queue leave");
             newafterActivities(event);
@@ -78,9 +77,12 @@ public class QueueGUIListener implements Listener {
             default -> null;
         };
 
-        if (kitId != null) {
+        if (kitId != null && BattleKit.getKit(kitId) != null) {
             api.joinQueue(player, Objects.requireNonNull(BattleKit.getKit(kitId)));
             afterActivities(event);
+        } else {
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+            player.sendMessage( ChatColor.RED + "This Kit is not available right now. Sorry!");
         }
     }
 
