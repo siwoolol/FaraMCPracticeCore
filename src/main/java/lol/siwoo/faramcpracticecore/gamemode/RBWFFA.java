@@ -47,7 +47,9 @@ public class RBWFFA implements Listener {
         Player v = (Player) e.getDamager();
 
         if (api.isInFight(p) && api.getFight(p).getArena().equals("rbwffa")) {
-            if (p.getHealth() - e.getFinalDamage() <= 1f) {
+            if (p.getY() > api.getFight(p).getArena().getCenter().getY() - 10) {
+                e.setCancelled(true);
+            } else if (p.getHealth() - e.getFinalDamage() <= 1f) {
                 for (Player player : p.getWorld().getPlayers()) {
                     player.sendMessage(Component.text(p.getName() + " was killed by " + v.getName()).color(NamedTextColor.GRAY));
                 }
