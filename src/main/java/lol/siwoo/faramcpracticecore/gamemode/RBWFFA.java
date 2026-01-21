@@ -5,10 +5,12 @@ import ga.strikepractice.api.StrikePracticeAPI;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -27,7 +29,7 @@ public class RBWFFA implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-        if (api.getFight(p).getArena().equals("rbwffa")) {
+        if (api.isInFight(p) && api.getFight(p).getArena().equals("rbwffa")) {
             if (p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 60) {
                 p.damage(69420.0);
                 for (Player player : p.getWorld().getPlayers()) {
@@ -41,7 +43,7 @@ public class RBWFFA implements Listener {
     public void onDamage(EntityDamageEvent e) {
         if (!(e.getEntity() instanceof Player)) return;
         Player p = (Player) e.getEntity();
-        if (api.getFight(p).getArena().equals("rbwffa")) {
+        if (api.isInFight(p) && api.getFight(p).getArena().equals("rbwffa")) {
             if (p.getHealth() - e.getFinalDamage() <= 1f) {
                 for (Player player : p.getWorld().getPlayers()) {
                     player.sendMessage(Component.text(p.getName() + " died").color(NamedTextColor.GRAY));
