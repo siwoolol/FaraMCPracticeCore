@@ -65,4 +65,17 @@ public class RBWFFA implements Listener {
             }.runTaskLater(plugin, 100L);
         }
     }
+
+
+    @EventHandler
+    public void onBlockDestroy(BlockBreakEvent e) {
+        Player p = e.getPlayer();
+        Block placedBlock = e.getBlock();
+
+        if (api.getFight(p).getArena().equals("rbwffa")) {
+            e.setCancelled(true);
+            placedBlock.setType(Material.AIR);
+            p.give((ItemStack) placedBlock);
+        }
+    }
 }
