@@ -47,7 +47,6 @@ public class QueueGUIListener implements Listener {
         if (clickedItem == null || !clickedItem.hasItemMeta()) return;
 
         String itemName = clickedItem.getItemMeta().getDisplayName();
-        plugin.getLogger().info("DEBUG: Clicked " + itemName + " (" + clickedItem.getType() + ")");
 
         if (clickedItem.getType().equals(Material.REDSTONE_BLOCK)) {
             Bukkit.dispatchCommand(player, "queue leave");

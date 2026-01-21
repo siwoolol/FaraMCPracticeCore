@@ -444,7 +444,6 @@ public class BedFight implements Listener {
         }
 
         if (p.getHealth() - e.getFinalDamage() <= 0.0f) {
-            plugin.getLogger().info("check 1");
             if (Boolean.TRUE.equals(isInBedfight.get(p.getUniqueId()))) {
                 isDead.put(p.getUniqueId(), true);
             }
