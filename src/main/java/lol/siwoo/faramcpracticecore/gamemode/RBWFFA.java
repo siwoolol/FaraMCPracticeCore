@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
@@ -40,13 +41,15 @@ public class RBWFFA implements Listener {
     }
 
     @EventHandler
-    public void onDamage(EntityDamageEvent e) {
+    public void onPlayerHit(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof Player)) return;
         Player p = (Player) e.getEntity();
+        Player v = (Player) e.getDamager();
+
         if (api.isInFight(p) && api.getFight(p).getArena().equals("rbwffa")) {
             if (p.getHealth() - e.getFinalDamage() <= 1f) {
                 for (Player player : p.getWorld().getPlayers()) {
-                    player.sendMessage(Component.text(p.getName() + " died").color(NamedTextColor.GRAY));
+                    player.sendMessage(Component.text(p.getName() + " was killed by " + v.getName()).color(NamedTextColor.GRAY));
                 }
             }
         }
