@@ -115,7 +115,7 @@ public class WindFight implements Listener {
             }
 
             lastPush.put(p.getUniqueId().toString(), System.currentTimeMillis());
-            pushEntity(p);
+            pushPlayer(p);
         }
     }
 
@@ -128,19 +128,19 @@ public class WindFight implements Listener {
         world.spawnParticle(Particle.EXPLOSION, center, 10, 0.2, 0.2, 0.2, 0.05);
     }
 
-    public void pushEntity(Player p) {
+    public void pushPlayer(Player p) {
         World world = p.getWorld();
         Location center = p.getLocation();
 
-        world.getNearbyEntities(center, 10, 10, 10).forEach(entity -> {
-            if (entity != p) {
-                Location entityLoc = entity.getLocation();
+        world.getNearbyPlayers(center, 10, 10, 10).forEach(nbPlayer -> {
+            if (nbPlayer != p && fightIds.containsKey(nbPlayer.getUniqueId().toString())) {
+                Location entityLoc = nbPlayer.getLocation();
                 Vector push = entityLoc.toVector().subtract(center.toVector());
 
                 if (push.length() > 0) {
                     push.normalize().multiply(1.5);
                     push.setY(1.05);
-                    entity.setVelocity(push);
+                    nbPlayer.setVelocity(push);
 
                     world.spawnParticle(Particle.EXPLOSION, entityLoc, 10, 0.2, 0.2, 0.2, 0.05);
                 }
