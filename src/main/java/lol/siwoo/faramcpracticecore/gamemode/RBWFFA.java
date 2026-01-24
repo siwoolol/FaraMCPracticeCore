@@ -15,6 +15,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -50,7 +51,7 @@ public class RBWFFA implements Listener {
         if (api.isInFight(p) && api.getFight(p).getArena().getName().equals("rbwffa")) {
             if (p.getY() > api.getFight(p).getArena().getCenter().getY() - 10) {
                 e.setCancelled(true);
-            } else if (p.getHealth() - e.getFinalDamage() <= 1f) {
+            } else if (p.getHealth() - e.getFinalDamage() <= 0f) {
                 for (Player player : p.getWorld().getPlayers()) {
                     player.sendMessage(Component.text(p.getName() + " was killed by " + v.getName()).color(NamedTextColor.GRAY));
                 }
@@ -61,13 +62,18 @@ public class RBWFFA implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-        ItemStack block = p.getItemInHand();
+        ItemStack block = p.getInventory().getItemInMainHand();
+        if (e.getHand() == EquipmentSlot.OFF_HAND) {
+            block = p.getInventory().getItemInOffHand();
+        }
+
         if (api.getFight(p).getArena().getName().equals("rbwffa")) {
-            if (block == null) return;
+            if (block == null || block.equals(ItemStack.of(Material.AIR))) return;
+            ItemStack finalBlock = block;
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    block.add(1);
+                    finalBlock.add(1);
                 }
             }.runTaskLater(plugin, 100L);
         }
@@ -79,10 +85,9 @@ public class RBWFFA implements Listener {
         Player p = e.getPlayer();
         Block placedBlock = e.getBlock();
 
-        if (api.getFight(p).getArena().getName().equals("rbwffa")) {
+        if (api.getFight(p).getArena().getName().equals("rbwffa") && placedBlock.equals(Material.WHITE_WOOL)) {
             e.setCancelled(true);
             placedBlock.setType(Material.AIR);
-            p.give((ItemStack) placedBlock);
         }
     }
 }
