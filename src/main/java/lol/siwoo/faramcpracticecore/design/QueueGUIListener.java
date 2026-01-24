@@ -2,11 +2,14 @@ package lol.siwoo.faramcpracticecore.design;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
+import ga.strikepractice.arena.Arena;
 import ga.strikepractice.battlekit.BattleKit;
 import ga.strikepractice.events.DuelStartEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -61,6 +64,7 @@ public class QueueGUIListener implements Listener {
             case String s when s.contains("Nodebuff") -> "nodebuff";
             case String s when s.contains("BuildUHC") -> "builduhc";
             case String s when s.contains("Sumo") -> "sumo";
+            case String s when s.contains("Combo Tag") -> "combotag";
             case String s when s.contains("Combo") -> "combo";
             case String s when s.contains("Gapple") -> "gapple";
             case String s when s.contains("BedFight") -> "bedfight";
@@ -71,17 +75,17 @@ public class QueueGUIListener implements Listener {
             case String s when s.contains("Spleef") -> "spleef";
             case String s when s.contains("SG") -> "sg";
             case String s when s.contains("Soup") -> "soup";
-            case String s when s.contains("Combo Tag") -> "combotag";
 
             default -> null;
         };
 
-        if (kitId != null && BattleKit.getKit(kitId) != null) {
+        if (kitId != null && BattleKit.getKit(kitId) != null
+                && api.getArenas().stream().filter(arena -> arena.getKits().contains(kitId)) != null) {
             api.joinQueue(player, Objects.requireNonNull(BattleKit.getKit(kitId)));
             afterActivities(event);
         } else {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
-            player.sendMessage( ChatColor.RED + "This Kit is not available right now. Sorry!");
+            player.sendActionBar(Component.text("This kit is not available right now. Try again Later.").color(NamedTextColor.RED));
         }
     }
 
