@@ -244,7 +244,7 @@ public class BedFight implements Listener {
     }
 
     @EventHandler
-    public void onPlayerDamage(EntityDamageByEntityEvent e) {
+    public void onPlayerDamageByEntity(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof Player)) return;
         Player p = (Player) e.getEntity();
         UUID playerId = p.getUniqueId();
