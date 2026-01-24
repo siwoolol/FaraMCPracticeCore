@@ -103,7 +103,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         e.joinMessage(null);
 
         Player p = e.getPlayer();
-        JoinMessage.sendJoinMessage(p);
+//        JoinMessage.sendJoinMessage(p);
     }
 
     @EventHandler
