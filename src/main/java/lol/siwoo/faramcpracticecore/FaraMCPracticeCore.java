@@ -51,7 +51,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         apiCheck();
         registerEvents();
 
-        JoinMessage.initialize(this);
+//        JoinMessage.initialize(this);
 
         WebhookMessage.statusMessage("Back Up");
     }
