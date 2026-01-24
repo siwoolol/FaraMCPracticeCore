@@ -62,13 +62,12 @@ public class RBWFFA implements Listener {
     public void onBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
         ItemStack block = p.getItemInHand();
-        block.setAmount(1);
         if (api.getFight(p).getArena().getName().equals("rbwffa")) {
             if (block == null) return;
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    p.give(block);
+                    block.add(1);
                 }
             }.runTaskLater(plugin, 100L);
         }
