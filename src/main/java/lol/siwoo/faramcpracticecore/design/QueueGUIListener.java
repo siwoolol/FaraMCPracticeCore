@@ -80,7 +80,7 @@ public class QueueGUIListener implements Listener {
         };
 
         if (kitId != null && BattleKit.getKit(kitId) != null
-                && api.getArenas().stream().filter(arena -> arena.getKits().contains(kitId)) != null) {
+                && api.getArenas().stream().anyMatch(arena -> arena.getKits().contains(kitId))) {
             api.joinQueue(player, Objects.requireNonNull(BattleKit.getKit(kitId)));
             afterActivities(event);
         } else {
