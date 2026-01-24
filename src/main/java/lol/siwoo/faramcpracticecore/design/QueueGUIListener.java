@@ -2,7 +2,6 @@ package lol.siwoo.faramcpracticecore.design;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
-import ga.strikepractice.arena.Arena;
 import ga.strikepractice.battlekit.BattleKit;
 import ga.strikepractice.events.DuelStartEvent;
 import ga.strikepractice.events.FightStartEvent;
