@@ -32,13 +32,13 @@ public class QueueLastGame implements CommandExecutor, Listener {
         UUID u = p.getUniqueId();
 
         if (!lastKitData.containsKey(u)) {
-            Bukkit.dispatchCommand(sender, "unranked");
+            Bukkit.dispatchCommand(sender, "unrankedgui");
             return true;
         } else {
             String kitId = lastKitData.get(u);
             BattleKit kit = (kitId == null) ? null : BattleKit.getKit(kitId);
             if (kit == null) {
-                Bukkit.dispatchCommand(sender, "unranked");
+                Bukkit.dispatchCommand(sender, "unrankedgui");
                 return true;
             }
 
