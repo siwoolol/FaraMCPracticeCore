@@ -85,6 +85,10 @@ public class RBWFFA implements Listener {
         Player p = e.getPlayer();
         Block placedBlock = e.getBlock();
 
+        if (api.getFight(p) == null) {
+            return;
+        }
+
         if (api.getFight(p).getArena().getName().equals("rbwffa") && placedBlock.equals(Material.WHITE_WOOL)) {
             e.setCancelled(true);
             placedBlock.setType(Material.AIR);
