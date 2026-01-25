@@ -101,7 +101,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_fireballfight%", p);
         addQueueItem(gui, 23, Material.ENDER_EYE, "SkyWars",
-                ChatColor.BLUE + "SkyWars",
+                ChatColor.AQUA + "SkyWars",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_skywars%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_skywars%", p);
         addQueueItem(gui, 24, Material.BOW, "Archer",
@@ -120,7 +120,7 @@ public class UnrankedGUI implements CommandExecutor, Listener {
                 ChatColor.RED + "SG",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sg%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sg%", p);
-        addQueueItem(gui, 30, Material.BEETROOT_SOUP, "Soup",
+        addQueueItem(gui, 30, Material.MUSHROOM_STEW, "Soup",
                 ChatColor.YELLOW + "Soup",
                 ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%",
                 ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_soup%", p);
