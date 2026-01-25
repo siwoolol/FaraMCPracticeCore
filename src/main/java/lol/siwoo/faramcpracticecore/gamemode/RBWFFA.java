@@ -62,6 +62,10 @@ public class RBWFFA implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
+        if (api.getFight(p) == null) {
+            return;
+        }
+
         ItemStack block = p.getInventory().getItemInMainHand();
         if (e.getHand() == EquipmentSlot.OFF_HAND) {
             block = p.getInventory().getItemInOffHand();
