@@ -54,6 +54,11 @@ public class QueueLastGame implements CommandExecutor, Listener {
         UUID u = p.getUniqueId();
 
         String kitName = e.getKit().getName();
+
+        if (kitName.toLowerCase().contains("ffa")) {
+            return;
+        }
+
         String kitId = kitName == null ? null : kitName.toLowerCase(java.util.Locale.ROOT);
         lastKitData.put(u, kitId);
     }
