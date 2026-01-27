@@ -9,17 +9,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class ArenaSelectorGUI {
-    public static final String TITLE = ChatColor.GOLD + "Select Arena";
-
     public static void open(Player player, ArenaManager manager) {
-        Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        for (String mapName : manager.getMaps()) {
+        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.DARK_GRAY + "Select Arena");
+        manager.getArenas().values().forEach(config -> {
             ItemStack item = new ItemStack(Material.PAPER);
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(ChatColor.YELLOW + mapName);
+            meta.setDisplayName(ChatColor.YELLOW + config.getName());
             item.setItemMeta(meta);
             inv.addItem(item);
-        }
+        });
         player.openInventory(inv);
     }
 }

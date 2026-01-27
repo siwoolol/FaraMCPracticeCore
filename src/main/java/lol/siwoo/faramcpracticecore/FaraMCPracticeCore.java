@@ -11,6 +11,8 @@ import lol.siwoo.faramcpracticecore.aa.terms.Disagree;
 import lol.siwoo.faramcpracticecore.aa.terms.JoinMessage;
 import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aa.aicoach.AICoach;
+import lol.siwoo.faramcpracticecore.arena.ArenaManager;
+import lol.siwoo.faramcpracticecore.arena.ArenaSelectionListener;
 import lol.siwoo.faramcpracticecore.bot.BotFightEnd;
 import lol.siwoo.faramcpracticecore.design.*;
 import lol.siwoo.faramcpracticecore.fix.PotThrowMech;
@@ -41,14 +43,16 @@ import java.io.File;
 
 public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
     private StrikePracticeAPI strikePracticeAPI;
-    private TrainingManager trainingManager;
-    private AICoach aiCoach;
+    private ArenaManager arenaManager;
+//    private TrainingManager trainingManager;
+//    private AICoach aiCoach;
 
     @Override
     public void onEnable() {
         StatusChecker statusChecker = new StatusChecker(this);
         statusChecker.check();
         apiCheck();
+        this.arenaManager = new ArenaManager(this);
         registerEvents();
 
 //        JoinMessage.initialize(this);
@@ -123,6 +127,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new preventServerStop(), this);
         pm.registerEvents(new CommandBlocker(), this);
 
+        pm.registerEvents(new ArenaSelectionListener(this, arenaManager), this);
+
 //        aiCoach = new AICoach(this, strikePracticeAPI);
 //        trainingManager = new TrainingManager(this);
 
@@ -193,6 +199,10 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
             getLogger().severe("400: Something went wrong. Please try again later.");
             Bukkit.getServer().shutdown();
         }
+    }
+
+    public ArenaManager getArenaManager() {
+        return arenaManager;
     }
 
 // Basic permission check example
