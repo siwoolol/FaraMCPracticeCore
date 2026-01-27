@@ -32,6 +32,10 @@ public class RBWFFA implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
         Player p = e.getPlayer();
+        if (api.getFight(p) == null) {
+            return;
+        }
+
         if (api.isInFight(p) && api.getFight(p).getArena().getName().equals("rbwffa")) {
             if (p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 60) {
                 p.damage(69420.0);
@@ -47,6 +51,10 @@ public class RBWFFA implements Listener {
         if (!(e.getEntity() instanceof Player)) return;
         Player p = (Player) e.getEntity();
         Player v = (Player) e.getDamager();
+
+        if (api.getFight(p) == null) {
+            return;
+        }
 
         if (api.isInFight(p) && api.getFight(p).getArena().getName().equals("rbwffa")) {
             if (p.getY() > api.getFight(p).getArena().getCenter().getY() - 10) {
