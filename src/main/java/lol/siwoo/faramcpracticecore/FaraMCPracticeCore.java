@@ -50,37 +50,62 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        getLogger().info("Starting FaraMCPracticeCore...");
+        
         StatusChecker statusChecker = new StatusChecker(this);
         statusChecker.check();
-        apiCheck();
-        this.arenaManager = new ArenaManager(this);
+        
+        if (!apiCheck()) {
+            return; // Plugin disabled due to missing dependencies
+        }
+        
+        // Initialize Arena Manager
+        try {
+            this.arenaManager = new ArenaManager(this);
+            getLogger().info("Arena system initialized successfully!");
+        } catch (Exception e) {
+            getLogger().severe("Failed to initialize Arena Manager: " + e.getMessage());
+            e.printStackTrace();
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        
         registerEvents();
+        registerCommands();
 
 //        JoinMessage.initialize(this);
 
         WebhookMessage.statusMessage("Back Up");
+        getLogger().info("FaraMCPracticeCore enabled successfully!");
     }
 
-    public void apiCheck() {
+    public boolean apiCheck() {
         // StrikePractice check
         if (getServer().getPluginManager().getPlugin("StrikePractice") == null) {
             getLogger().severe("StrikePractice not found! Make sure StrikePractice is installed.");
             getServer().getPluginManager().disablePlugin(this);
-            return;
+            return false;
         }
 
         // PlaceHolderAPI check
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
             getLogger().severe("PlaceholderAPI not found! Make sure PlaceholderAPI is installed.");
             getServer().getPluginManager().disablePlugin(this);
-            return;
+            return false;
         }
 
         // ProtocolLib check
         if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-            getLogger().severe("ProtocolLib is required for training features!\n");
+            getLogger().severe("ProtocolLib is required for training features!");
             getServer().getPluginManager().disablePlugin(this);
-            return;
+            return false;
+        }
+
+        // WorldEdit check for arena system
+        if (getServer().getPluginManager().getPlugin("WorldEdit") == null) {
+            getLogger().severe("WorldEdit is required for the arena system!");
+            getServer().getPluginManager().disablePlugin(this);
+            return false;
         }
 
         try {
@@ -90,17 +115,29 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
             if (strikePracticeAPI == null) {
                 getLogger().severe("Failed to get StrikePractice API! Make sure StrikePractice is installed and loaded.");
                 getServer().getPluginManager().disablePlugin(this);
-                return;
+                return false;
             }
+            
+            getLogger().info("All required dependencies found and loaded!");
+            return true;
+            
         } catch (Exception e) {
             getLogger().severe("Error while getting StrikePractice API: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
-            return;
+            return false;
         }
     }
+    
     @Override
     public void onDisable() {
+        getLogger().info("Shutting down FaraMCPracticeCore...");
+        
+        if (arenaManager != null) {
+            arenaManager.shutdown();
+        }
+        
         WebhookMessage.statusMessage("Down");
+        getLogger().info("FaraMCPracticeCore disabled successfully!");
     }
 
     @EventHandler
@@ -128,6 +165,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new preventServerStop(), this);
         pm.registerEvents(new CommandBlocker(), this);
 
+        // Arena System - Core integration
         ArenaSelectionListener selectionListener = new ArenaSelectionListener(this, arenaManager);
         pm.registerEvents(selectionListener, this);
         pm.registerEvents(new ArenaSelectorGUI(arenaManager, selectionListener), this);
@@ -161,15 +199,25 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         QueueLastGame queueLastGame = new QueueLastGame();
         pm.registerEvents(queueLastGame, this);
 
+        getLogger().info("All event listeners registered successfully!");
+    }
+
+    private void registerCommands() {
+        // Queue/GUI Commands
         getCommand("unrankedgui").setExecutor(new UnrankedGUI(this));
         getCommand("unranked").setExecutor(new UnrankedGUI(this));
         getCommand("queue").setExecutor(new UnrankedGUI(this));
         getCommand("ranked").setExecutor(new RankedQueue());
         getCommand("botduel").setExecutor(new PvpBotQueue());
+        
+        QueueLastGame queueLastGame = new QueueLastGame();
         getCommand("queuelastgame").setExecutor(queueLastGame);
 //        getCommand("train").setExecutor(new TrainingCommand(this, trainingManager));
 
+        // Lobby Commands
         getCommand("fly").setExecutor(new Flight());
+        
+        // Admin Commands
 //        getCommand("ai").setExecutor(aiCoach);
         getCommand("forcewin").setExecutor(new ForceWin());
         getCommand("hurryuppartyowner").setExecutor(new HurryUpPartyOwner());
@@ -181,6 +229,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("sudo").setExecutor(new Sudo());
 //        getCommand("terms_agree").setExecutor(new Agree(this));
 //        getCommand("terms_disagree").setExecutor(new Disagree());
+        
+        getLogger().info("All commands registered successfully!");
     }
 
     public void emergencyShutDown() {
