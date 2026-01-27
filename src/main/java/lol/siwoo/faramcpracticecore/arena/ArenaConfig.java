@@ -17,11 +17,12 @@ public class ArenaConfig {
     private final Vector center;
     private final List<String> kits;
 
+    // Constructor for file-based configs
     public ArenaConfig(File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         
         this.name = config.getString("name", file.getName().replace(".yml", ""));
-        this.schematicName = config.getString("schematic", "default_generated");
+        this.schematicName = config.getString("schematic", "generated_" + this.name.toLowerCase().replaceAll("\\s+", "_"));
         
         // Player spawn positions (relative to center)
         this.pos1 = config.getVector("pos1", new Vector(10, 5, 0));
@@ -44,19 +45,11 @@ public class ArenaConfig {
         validateConfig();
     }
 
-    // Protected constructor for subclasses (emergency arena)
-    protected ArenaConfig() {
-        this.name = null;
-        this.schematicName = null;
-        this.pos1 = null;
-        this.pos2 = null;
-        this.corner1 = null;
-        this.corner2 = null;
-        this.center = null;
-        this.kits = null;
-    }
-
     private void validateConfig() {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Arena has no name specified");
+        }
+        
         if (schematicName == null || schematicName.isEmpty()) {
             throw new IllegalArgumentException("Arena " + name + " has no schematic file specified");
         }

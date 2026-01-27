@@ -31,7 +31,7 @@ public class QueueGUIListener implements Listener {
     StrikePracticeAPI api = StrikePractice.getAPI();
 
     public QueueGUIListener(FaraMCPracticeCore plugin) {
-        this.plugin = plugin;
+        QueueGUIListener.plugin = plugin;
     }
 
     @EventHandler
@@ -53,6 +53,7 @@ public class QueueGUIListener implements Listener {
         if (clickedItem.getType().equals(Material.REDSTONE_BLOCK)) {
             Bukkit.dispatchCommand(player, "queue leave");
             newafterActivities(event);
+            return;
         }
 
         String kitId = switch (itemName) {
@@ -74,14 +75,35 @@ public class QueueGUIListener implements Listener {
             case String s when s.contains("Spleef") -> "spleef";
             case String s when s.contains("SG") -> "sg";
             case String s when s.contains("Soup") -> "soup";
-
             default -> null;
         };
 
-        if (kitId != null && BattleKit.getKit(kitId) != null
-                && api.getArenas().stream().anyMatch(arena -> arena.getKits().contains(kitId))) {
-            api.joinQueue(player, Objects.requireNonNull(BattleKit.getKit(kitId)));
-            afterActivities(event);
+        if (kitId != null) {
+            BattleKit kit = BattleKit.getKit(kitId);
+            if (kit == null) {
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+                player.sendActionBar(Component.text("This kit is not available right now. Try again Later.").color(NamedTextColor.RED));
+                return;
+            }
+
+            // Check if we have arenas available for this kit
+            boolean hasArenaForKit = plugin.getArenaManager().getRandomArenaForKit(kitId) != null;
+            if (!hasArenaForKit) {
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+                player.sendActionBar(Component.text("No arenas available for this gamemode right now.").color(NamedTextColor.RED));
+                return;
+            }
+
+            // Try to join the queue
+            try {
+                api.joinQueue(player, kit);
+                afterActivities(event);
+                player.sendActionBar(Component.text("Joined " + kitId + " queue!").color(NamedTextColor.GREEN));
+            } catch (Exception e) {
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+                player.sendActionBar(Component.text("Failed to join queue. Try again later.").color(NamedTextColor.RED));
+                plugin.getLogger().warning("Failed to add player " + player.getName() + " to queue for kit " + kitId + ": " + e.getMessage());
+            }
         } else {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
             player.sendActionBar(Component.text("This kit is not available right now. Try again Later.").color(NamedTextColor.RED));
