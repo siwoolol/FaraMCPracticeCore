@@ -13,6 +13,7 @@ import lol.siwoo.faramcpracticecore.admin.*;
 import lol.siwoo.faramcpracticecore.aa.aicoach.AICoach;
 import lol.siwoo.faramcpracticecore.arena.ArenaManager;
 import lol.siwoo.faramcpracticecore.arena.ArenaSelectionListener;
+import lol.siwoo.faramcpracticecore.arena.ArenaSelectorGUI;
 import lol.siwoo.faramcpracticecore.bot.BotFightEnd;
 import lol.siwoo.faramcpracticecore.design.*;
 import lol.siwoo.faramcpracticecore.fix.PotThrowMech;
@@ -127,7 +128,9 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new preventServerStop(), this);
         pm.registerEvents(new CommandBlocker(), this);
 
-        pm.registerEvents(new ArenaSelectionListener(this, arenaManager), this);
+        ArenaSelectionListener selectionListener = new ArenaSelectionListener(this, arenaManager);
+        pm.registerEvents(selectionListener, this);
+        pm.registerEvents(new ArenaSelectorGUI(arenaManager, selectionListener), this);
 
 //        aiCoach = new AICoach(this, strikePracticeAPI);
 //        trainingManager = new TrainingManager(this);
