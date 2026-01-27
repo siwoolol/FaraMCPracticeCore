@@ -82,7 +82,7 @@ public class ArenaManager {
         for (File f : files) {
             if (f.getName().endsWith(".schem") || f.getName().endsWith(".schematic")) {
                 File configFile = new File(folder, f.getName().split("\\.")[0] + ".yml");
-                if (!configFile.exists()) saveDefault(f, configFile); // Auto-generate config
+                if (!configFile.exists()) saveDefaultConfig(f, configFile); // Auto-generate config
 
                 ArenaConfig config = new ArenaConfig(configFile);
                 arenas.put(config.getName().toLowerCase(), config);
@@ -90,16 +90,16 @@ public class ArenaManager {
         }
     }
 
-    private void saveDefault(File schemFile, File configFile) {
+    private void saveDefaultConfig(File schemFile, File configFile) {
         YamlConfiguration yaml = new YamlConfiguration();
         String name = schemFile.getName().split("\\.")[0];
         yaml.set("name", name);
         yaml.set("schematic", schemFile.getName());
-        yaml.set("pos1", new Vector(10, 0, 0));
-        yaml.set("pos2", new Vector(-10, 0, 0));
-        yaml.set("corner1", new Vector(50, 50, 50));
-        yaml.set("corner2", new Vector(-50, -50, -50));
-        yaml.set("center", new Vector(0, 0, 0)); // Save default center
+        yaml.set("pos1", new Vector(5, 0, 0));
+        yaml.set("pos2", new Vector(-5, 0, 0));
+        yaml.set("corner1", new Vector(20, 20, 20));
+        yaml.set("corner2", new Vector(-20, -20, -20));
+        yaml.set("center", new Vector(0, 0, 0)); // Relative center offset
         try {
             yaml.save(configFile);
         } catch (IOException e) {

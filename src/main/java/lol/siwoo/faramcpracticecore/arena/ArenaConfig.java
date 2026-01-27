@@ -3,6 +3,7 @@ package lol.siwoo.faramcpracticecore.arena;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
 import java.io.File;
+import java.util.List;
 
 public class ArenaConfig {
     private final String name;
@@ -11,7 +12,8 @@ public class ArenaConfig {
     private final Vector pos2;
     private final Vector corner1;
     private final Vector corner2;
-    private final Vector center; // Added center vector
+    private final Vector center;
+    private final List<String> kits; // Kits allowed for this map
 
     public ArenaConfig(File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
@@ -21,7 +23,8 @@ public class ArenaConfig {
         this.pos2 = config.getVector("pos2");
         this.corner1 = config.getVector("corner1");
         this.corner2 = config.getVector("corner2");
-        this.center = config.getVector("center", new Vector(0, 0, 0)); // Load center
+        this.center = config.getVector("center", new Vector(0, 0, 0));
+        this.kits = config.getStringList("kits"); // Load kits list
     }
 
     public String getName() { return name; }
@@ -30,5 +33,6 @@ public class ArenaConfig {
     public Vector getPos2() { return pos2; }
     public Vector getCorner1() { return corner1; }
     public Vector getCorner2() { return corner2; }
-    public Vector getCenter() { return center; } // Getter for center
+    public Vector getCenter() { return center; }
+    public List<String> getKits() { return kits; }
 }
