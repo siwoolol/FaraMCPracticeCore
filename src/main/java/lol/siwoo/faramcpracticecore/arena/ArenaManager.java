@@ -1,4 +1,3 @@
-
 package lol.siwoo.faramcpracticecore.arena;
 
 import com.sk89q.worldedit.EditSession;
@@ -23,6 +22,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
+
+import static org.bukkit.GameRules.ADVANCE_TIME;
+import static org.bukkit.GameRules.ADVANCE_WEATHER;
 
 public class ArenaManager {
     private final FaraMCPracticeCore plugin;
@@ -57,6 +59,9 @@ public class ArenaManager {
     }
 
     private void createExampleFiles() {
+        // Create a default arena schematic and config if none exist
+        createDefaultArena();
+        
         // Create example config file to show structure
         File exampleConfig = new File(arenaFolder, "example.yml");
         if (!exampleConfig.exists()) {
@@ -79,6 +84,33 @@ public class ArenaManager {
         }
     }
 
+    private void createDefaultArena() {
+        File defaultConfig = new File(arenaFolder, "default.yml");
+        
+        // Only create if no arena configs exist at all
+        File[] ymlFiles = arenaFolder.listFiles((dir, name) -> name.endsWith(".yml") && !name.equals("example.yml"));
+        if (ymlFiles == null || ymlFiles.length == 0) {
+            plugin.getLogger().info("No arena configs found, creating default arena...");
+            
+            YamlConfiguration yaml = new YamlConfiguration();
+            yaml.set("name", "Default Arena");
+            yaml.set("schematic", "default_generated");
+            yaml.set("pos1", new Vector(15, 5, 0));
+            yaml.set("pos2", new Vector(-15, 5, 0));
+            yaml.set("corner1", new Vector(50, 50, 50));
+            yaml.set("corner2", new Vector(-50, 0, -50));
+            yaml.set("center", new Vector(0, 0, 0));
+            yaml.set("kits", new ArrayList<>()); // Allow all kits
+
+            try {
+                yaml.save(defaultConfig);
+                plugin.getLogger().info("Created default arena config");
+            } catch (IOException e) {
+                plugin.getLogger().warning("Failed to create default config: " + e.getMessage());
+            }
+        }
+    }
+
     private void setupWorlds() {
         String[] worldNames = {"pasteArena1", "pasteArena2", "pasteArena3"};
 
@@ -96,9 +128,8 @@ public class ArenaManager {
             if (world != null) {
                 pasteWorlds.add(world);
                 // Set world properties for arena use
-                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-                world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-                world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+                world.setGameRule(ADVANCE_TIME, false);
+                world.setGameRule(ADVANCE_WEATHER, false);
                 world.setTime(6000); // Noon
                 plugin.getLogger().info("Configured paste world: " + name);
             } else {
@@ -126,12 +157,15 @@ public class ArenaManager {
                 try {
                     ArenaConfig config = new ArenaConfig(file);
 
-                    // Check if schematic file exists
-                    File schematicFile = new File(arenaFolder, config.getSchematicName());
-                    if (!schematicFile.exists()) {
-                        plugin.getLogger().warning("Schematic file not found for arena '" + config.getName() +
-                                "': " + config.getSchematicName());
-                        continue;
+                    // Special handling for generated arenas (don't require schematic file)
+                    if (!config.getSchematicName().equals("default_generated")) {
+                        // Check if schematic file exists for non-generated arenas
+                        File schematicFile = new File(arenaFolder, config.getSchematicName());
+                        if (!schematicFile.exists()) {
+                            plugin.getLogger().warning("Schematic file not found for arena '" + config.getName() +
+                                    "': " + config.getSchematicName() + " (skipping)");
+                            continue;
+                        }
                     }
 
                     arenas.put(config.getName().toLowerCase(), config);
@@ -146,7 +180,44 @@ public class ArenaManager {
         }
 
         plugin.getLogger().info("Loaded " + loadedCount + " arenas successfully");
+        
+        // If still no arenas loaded, something is wrong
+        if (arenas.isEmpty()) {
+            plugin.getLogger().warning("No arenas could be loaded! Creating emergency fallback arena...");
+            createEmergencyArena();
+        }
     }
+
+    private void createEmergencyArena() {
+        // Create a simple in-memory arena config as absolute fallback
+        try {
+            ArenaConfig emergencyConfig = new ArenaConfig() {
+                @Override
+                public String getName() { return "Emergency Arena"; }
+                @Override
+                public String getSchematicName() { return "emergency_generated"; }
+                @Override
+                public Vector getPos1() { return new Vector(10, 5, 0); }
+                @Override
+                public Vector getPos2() { return new Vector(-10, 5, 0); }
+                @Override
+                public Vector getCorner1() { return new Vector(30, 30, 30); }
+                @Override
+                public Vector getCorner2() { return new Vector(-30, 0, -30); }
+                @Override
+                public Vector getCenter() { return new Vector(0, 0, 0); }
+                @Override
+                public List<String> getKits() { return new ArrayList<>(); }
+                @Override
+                public boolean isKitAllowed(String kitName) { return true; }
+            };
+        
+        arenas.put("emergency arena", emergencyConfig);
+        plugin.getLogger().info("Created emergency fallback arena");
+    } catch (Exception e) {
+        plugin.getLogger().severe("Failed to create emergency arena: " + e.getMessage());
+    }
+}
 
     public FightSession createSession(Fight fight, ArenaConfig config) {
         if (pasteWorlds.isEmpty()) {
@@ -184,42 +255,82 @@ public class ArenaManager {
     }
 
     private void pasteArena(ArenaConfig config, Location center) {
-        File schematicFile = new File(arenaFolder, config.getSchematicName());
+    // Handle generated arenas (create simple platform)
+    if (config.getSchematicName().equals("default_generated") || config.getSchematicName().equals("emergency_generated")) {
+        createSimplePlatform(center, config.getName());
+        return;
+    }
+    
+    File schematicFile = new File(arenaFolder, config.getSchematicName());
 
-        if (!schematicFile.exists()) {
-            plugin.getLogger().severe("Schematic file not found: " + schematicFile.getAbsolutePath());
-            return;
+    if (!schematicFile.exists()) {
+        plugin.getLogger().severe("Schematic file not found: " + schematicFile.getAbsolutePath());
+        plugin.getLogger().info("Creating simple platform instead...");
+        createSimplePlatform(center, config.getName());
+        return;
+    }
+
+    ClipboardFormat format = ClipboardFormats.findByFile(schematicFile);
+    if (format == null) {
+        plugin.getLogger().severe("Unsupported schematic format: " + schematicFile.getName());
+        plugin.getLogger().info("Creating simple platform instead...");
+        createSimplePlatform(center, config.getName());
+        return;
+    }
+
+    try (ClipboardReader reader = format.getReader(new FileInputStream(schematicFile))) {
+        Clipboard clipboard = reader.read();
+
+        try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
+            editSession.setFastMode(true); // Speed up pasting
+
+            Operation operation = new ClipboardHolder(clipboard)
+                    .createPaste(editSession)
+                    .to(BlockVector3.at(center.getX(), center.getY(), center.getZ()))
+                    .ignoreAirBlocks(false)
+                    .build();
+
+            Operations.complete(operation);
+            plugin.getLogger().info("Successfully pasted arena: " + config.getName());
+
+        } catch (WorldEditException e) {
+            plugin.getLogger().severe("WorldEdit error while pasting arena: " + e.getMessage());
+            plugin.getLogger().info("Creating simple platform instead...");
+            createSimplePlatform(center, config.getName());
         }
 
-        ClipboardFormat format = ClipboardFormats.findByFile(schematicFile);
-        if (format == null) {
-            plugin.getLogger().severe("Unsupported schematic format: " + schematicFile.getName());
-            return;
-        }
+    } catch (IOException e) {
+        plugin.getLogger().severe("Failed to read schematic file " + schematicFile.getName() + ": " + e.getMessage());
+        plugin.getLogger().info("Creating simple platform instead...");
+        createSimplePlatform(center, config.getName());
+    }
+}
 
-        try (ClipboardReader reader = format.getReader(new FileInputStream(schematicFile))) {
-            Clipboard clipboard = reader.read();
-
-            try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
-                editSession.setFastMode(true); // Speed up pasting
-
-                Operation operation = new ClipboardHolder(clipboard)
-                        .createPaste(editSession)
-                        .to(BlockVector3.at(center.getX(), center.getY(), center.getZ()))
-                        .ignoreAirBlocks(false)
-                        .build();
-
-                Operations.complete(operation);
-                plugin.getLogger().info("Successfully pasted arena: " + config.getName());
-
-            } catch (WorldEditException e) {
-                plugin.getLogger().severe("WorldEdit error while pasting arena: " + e.getMessage());
+private void createSimplePlatform(Location center, String arenaName) {
+    World world = center.getWorld();
+    int centerX = center.getBlockX();
+    int centerY = center.getBlockY();
+    int centerZ = center.getBlockZ();
+    
+    // Create a simple 30x30 stone platform
+    for (int x = centerX - 15; x <= centerX + 15; x++) {
+        for (int z = centerZ - 15; z <= centerZ + 15; z++) {
+            world.getBlockAt(x, centerY - 1, z).setType(Material.STONE);
+            
+            // Add some barriers around the edge for safety
+            if (x == centerX - 15 || x == centerX + 15 || z == centerZ - 15 || z == centerZ + 15) {
+                world.getBlockAt(x, centerY, z).setType(Material.BARRIER);
+                world.getBlockAt(x, centerY + 1, z).setType(Material.BARRIER);
             }
-
-        } catch (IOException e) {
-            plugin.getLogger().severe("Failed to read schematic file " + schematicFile.getName() + ": " + e.getMessage());
         }
     }
+    
+    // Add spawn platforms
+    world.getBlockAt(centerX + 10, centerY, centerZ).setType(Material.EMERALD_BLOCK);
+    world.getBlockAt(centerX - 10, centerY, centerZ).setType(Material.REDSTONE_BLOCK);
+    
+    plugin.getLogger().info("Created simple platform for arena: " + arenaName);
+}
 
     private void clearArena(ArenaConfig config, Location center) {
         if (config.getCorner1() == null || config.getCorner2() == null) {
