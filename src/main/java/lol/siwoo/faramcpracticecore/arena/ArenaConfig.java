@@ -7,10 +7,11 @@ import java.io.File;
 public class ArenaConfig {
     private final String name;
     private final String schematicName;
-    private final Vector pos1; // StrikePractice Boundary 1
-    private final Vector pos2; // StrikePractice Boundary 2
-    private final Vector corner1; // Physical Cleanup Corner 1
-    private final Vector corner2; // Physical Cleanup Corner 2
+    private final Vector pos1;
+    private final Vector pos2;
+    private final Vector corner1;
+    private final Vector corner2;
+    private final Vector center; // Added center vector
 
     public ArenaConfig(File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
@@ -20,6 +21,7 @@ public class ArenaConfig {
         this.pos2 = config.getVector("pos2");
         this.corner1 = config.getVector("corner1");
         this.corner2 = config.getVector("corner2");
+        this.center = config.getVector("center", new Vector(0, 0, 0)); // Load center
     }
 
     public String getName() { return name; }
@@ -28,4 +30,5 @@ public class ArenaConfig {
     public Vector getPos2() { return pos2; }
     public Vector getCorner1() { return corner1; }
     public Vector getCorner2() { return corner2; }
+    public Vector getCenter() { return center; } // Getter for center
 }
