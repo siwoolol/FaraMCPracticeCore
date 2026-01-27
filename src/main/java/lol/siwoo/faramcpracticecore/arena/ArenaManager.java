@@ -12,25 +12,71 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import ga.strikepractice.fights.Fight;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ArenaManager {
     private final FaraMCPracticeCore plugin;
     private final Map<String, ArenaConfig> arenas = new HashMap<>();
+    private final Map<Fight, FightSession> activeSessions = new HashMap<>();
+    private final List<World> pasteWorlds = new ArrayList<>();
     private final File folder;
+
+    private int nextXOffset = 0;
+    private int currentWorldIndex = 0;
 
     public ArenaManager(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
         this.folder = new File(plugin.getDataFolder(), "arena");
         if (!folder.exists()) folder.mkdirs();
+
+        setupWorlds();
         load();
+    }
+
+    private void setupWorlds() {
+        String[] worldNames = {"pasteArena1", "pasteArena2", "pasteArena3"};
+        for (String name : worldNames) {
+            World world = Bukkit.getWorld(name);
+            if (world == null) {
+                WorldCreator creator = new WorldCreator(name);
+                creator.type(WorldType.FLAT);
+                creator.generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}");
+                creator.generateStructures(false);
+                world = creator.createWorld();
+            }
+            if (world != null) pasteWorlds.add(world);
+        }
+    }
+
+    public FightSession createSession(Fight fight, ArenaConfig config) {
+        // Cycle through the 3 worlds and move 3000 blocks each time to ensure isolation
+        World world = pasteWorlds.get(currentWorldIndex);
+        Location center = new Location(world, nextXOffset, 100, 0);
+
+        // Increment logic for next session
+        currentWorldIndex = (currentWorldIndex + 1) % pasteWorlds.size();
+        if (currentWorldIndex == 0) {
+            nextXOffset += 3000;
+        }
+
+        FightSession session = new FightSession(fight, config, center);
+        activeSessions.put(fight, session);
+
+        paste(config, center);
+        return session;
+    }
+
+    public void endSession(Fight fight) {
+        FightSession session = activeSessions.remove(fight);
+        if (session != null) {
+            clear(session.getConfig(), session.getCenter());
+        }
     }
 
     public void load() {

@@ -22,29 +22,34 @@ public class ArenaSelectionListener implements Listener {
 
     @EventHandler
     public void onFightStart(FightStartEvent event) {
-        Player p = event.getFight().getPlayersInFight().get(0);
         List<ArenaConfig> configs = new ArrayList<>(manager.getArenas().values());
         if (configs.isEmpty()) return;
 
         ArenaConfig selected = configs.get(new Random().nextInt(configs.size()));
 
-        // Example: Paste at a high Y-level or specific match world
-        Location pasteLoc = new Location(p.getWorld(), 2000, 100, 2000);
+        // Create a dedicated session in one of the void worlds
+        FightSession session = manager.createSession(event.getFight(), selected);
+        Location pasteLoc = session.getCenter();
 
-        manager.paste(selected, pasteLoc);
-
-        // Update StrikePractice boundaries for this specific match
+        // Update StrikePractice boundaries for this specific isolated match
         event.getFight().getArena().setLoc1(pasteLoc.clone().add(selected.getPos1()));
         event.getFight().getArena().setLoc2(pasteLoc.clone().add(selected.getPos2()));
 
-        // Teleport players to their respective dynamic spawns
-        event.getFight().getPlayersInFight().get(0).teleport(pasteLoc.clone().add(selected.getPos1()));
-        event.getFight().getPlayersInFight().get(1).teleport(pasteLoc.clone().add(selected.getPos2()));
+        // Teleport players to their respective dynamic spawns in the void world
+        for (int i = 0; i < event.getFight().getPlayersInFight().size(); i++) {
+            Player p = event.getFight().getPlayersInFight().get(i);
+            // Cycle spawns based on config
+            if (i % 2 == 0) {
+                p.teleport(pasteLoc.clone().add(selected.getPos1()));
+            } else {
+                p.teleport(pasteLoc.clone().add(selected.getPos2()));
+            }
+        }
     }
 
     @EventHandler
     public void onFightEnd(FightEndEvent event) {
-        // Logic to clear the physical area goes here
-        // You would typically store the 'selected' config and 'pasteLoc' in a Map keyed by the Fight ID
+        // Clear the physical arena and release the session slot
+        manager.endSession(event.getFight());
     }
 }
