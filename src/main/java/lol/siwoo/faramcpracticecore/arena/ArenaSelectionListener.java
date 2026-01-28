@@ -48,19 +48,15 @@ public class ArenaSelectionListener implements Listener {
         FightSession session = manager.createSession(fight, config);
         if (session == null) return;
 
-        // MATH: Match Origin (World Offset + Arena Center Offset)
         Location origin = session.getCenter().clone().add(config.getCenter());
 
         Location s1 = origin.clone().add(config.getPos1());
         Location s2 = origin.clone().add(config.getPos2());
 
-        // AUTO-FACE LOGIC: Calculate direction vectors
-        // Player 1 looks at Player 2
-        Vector dir1 = s2.toVector().subtract(s1.toVector()).setY(0); // Lock pitch to 0
+        Vector dir1 = s2.toVector().subtract(s1.toVector()).setY(0);
         s1.setDirection(dir1);
 
-        // Player 2 looks at Player 1
-        Vector dir2 = s1.toVector().subtract(s2.toVector()).setY(0); // Lock pitch to 0
+        Vector dir2 = s1.toVector().subtract(s2.toVector()).setY(0);
         s2.setDirection(dir2);
 
         // Update StrikePractice internal locations
