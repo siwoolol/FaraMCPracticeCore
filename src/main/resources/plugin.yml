@@ -24,6 +24,10 @@ permissions:
     description: "Allows You To Fly in the Lobby"
 
 commands:
+  faraarena:
+    usage: "/faraarena <pos1|pos2|corner1|corner2|center> <mapName>"
+    description: "Configurator for dynamic arenas (Admin Only)"
+    permission: faramcpracticecore.admin
   unrankedgui:
     usage: "/unrankedgui"
     description: "Open the Unranked Queue GUI"
