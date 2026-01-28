@@ -88,6 +88,21 @@ public class ArenaManager {
         YamlConfiguration yaml = new YamlConfiguration();
         String name = schemFile.getName().split("\\.")[0];
 
+        int width = 1000, height = 1000, length = 1000;
+
+        ClipboardFormat format = ClipboardFormats.findByFile(schemFile);
+        if (format != null) {
+            try (ClipboardReader reader = format.getReader(new FileInputStream(schemFile))) {
+                Clipboard clipboard = reader.read();
+                BlockVector3 dimensions = clipboard.getDimensions();
+                width = dimensions.x();
+                height = dimensions.y();
+                length = dimensions.z();
+            } catch (Exception e) {
+                plugin.getLogger().warning("Could not read dimensions for schematic: " + schemFile.getName() + ". Using defaults.");
+            }
+        }
+
         yaml.set("name", name);
         yaml.set("schematic", schemFile.getName());
         yaml.set("pos1", new Vector(10, 5, 0));
