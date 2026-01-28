@@ -99,8 +99,10 @@ public class QueueGUIListener implements Listener {
                 player.sendActionBar(Component.text("Joined " + kitId + " queue!").color(NamedTextColor.GREEN));
 
                 // SYSTEM INTEGRATION: Open Map Selector for admins immediately after queuing
-                if (player.hasPermission("faramcpracticecore.admin.selectarena")) {
-                    ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId);
+                if (player.hasPermission("faramcpracticecore.selectarena")) {
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId);
+                    }, 1L);
                 }
             } catch (Exception e) {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
