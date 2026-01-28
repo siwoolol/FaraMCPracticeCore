@@ -24,8 +24,8 @@ public class ArenaSelectionListener implements Listener {
     @EventHandler
     public void onKitSelect(KitSelectEvent event) {
         Player player = event.getPlayer();
+        // Guard: Only open for admins if they are actually in a queue
         if (player.hasPermission("faramcpracticecore.admin.selectarena")) {
-            // Guard: Only open if the player is actually joining the queue
             if (StrikePractice.getAPI().isInQueue(player)) {
                 ArenaSelectorGUI.open(player, manager, event.getKit().getName());
             }
@@ -35,6 +35,7 @@ public class ArenaSelectionListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onFightStart(FightStartEvent event) {
         Fight fight = event.getFight();
+        // TRICK: Release the arena using setUsing(false)
         if (fight.getArena().getName().toLowerCase().contains("dynamic")) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> fight.getArena().setUsing(false), 2L);
         }
@@ -49,6 +50,7 @@ public class ArenaSelectionListener implements Listener {
     public void startMatch(Fight fight, ArenaConfig config) {
         FightSession session = manager.createSession(fight, config);
         if (session == null) return;
+
         Location matchCenter = session.getCenter().clone().add(config.getCenter());
         Location s1 = matchCenter.clone().add(config.getPos1()), s2 = matchCenter.clone().add(config.getPos2());
 
@@ -61,5 +63,7 @@ public class ArenaSelectionListener implements Listener {
     }
 
     @EventHandler
-    public void onFightEnd(FightEndEvent event) { manager.endSession(event.getFight()); }
+    public void onFightEnd(FightEndEvent event) {
+        manager.endSession(event.getFight());
+    }
 }

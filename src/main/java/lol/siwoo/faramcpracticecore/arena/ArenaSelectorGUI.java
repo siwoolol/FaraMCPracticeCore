@@ -35,12 +35,14 @@ public class ArenaSelectorGUI implements Listener {
         if (!e.getView().getTitle().contains("Select Arena for")) return;
         e.setCancelled(true);
         Player p = (Player) e.getWhoClicked();
-        if (e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR) return;
-        String name = ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName());
+        ItemStack item = e.getCurrentItem();
+        if (item == null || item.getType() == Material.AIR) return;
+
+        String name = ChatColor.stripColor(item.getItemMeta().getDisplayName());
         ArenaConfig cfg = manager.getArenas().get(name.toLowerCase());
         if (cfg != null) {
             queuedSelections.put(p.getUniqueId(), cfg);
-            p.sendMessage(ChatColor.GREEN + "Arena choice saved!");
+            p.sendMessage(ChatColor.GREEN + "Selection saved for your queue!");
             p.closeInventory();
         }
     }
