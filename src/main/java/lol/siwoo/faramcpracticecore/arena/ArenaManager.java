@@ -19,57 +19,61 @@ public class ArenaManager {
     private final FaraMCPracticeCore plugin;
     private final Map<String, ArenaConfig> arenas = new HashMap<>();
     private final Map<Fight, FightSession> activeSessions = new ConcurrentHashMap<>();
-    private final List<World> pasteWorlds = new ArrayList<>();
-    private final File arenaFolder;
-    private int nextXOffset = 0, currentWorldIndex = 0;
+    private final List<World> worlds = new ArrayList<>();
+    private final File folder;
+    private int nextX = 0, worldIdx = 0;
 
     public ArenaManager(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
-        this.arenaFolder = new File(plugin.getDataFolder(), "arena");
+        this.folder = new File(plugin.getDataFolder(), "arena");
+        if (!folder.exists()) folder.mkdirs();
         setupWorlds();
         loadArenas();
     }
 
     private void setupWorlds() {
         String[] names = {"pasteArena1", "pasteArena2", "pasteArena3"};
-        for (String name : names) {
-            World world = Bukkit.getWorld(name);
-            if (world == null) {
-                world = new WorldCreator(name).type(WorldType.FLAT).generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}").generateStructures(false).createWorld();
-            }
-            if (world != null) pasteWorlds.add(world);
+        for (String n : names) {
+            World w = Bukkit.getWorld(n);
+            if (w == null) w = new WorldCreator(n).type(WorldType.FLAT).generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}").generateStructures(false).createWorld();
+            if (w != null) worlds.add(w);
         }
     }
 
     public void loadArenas() {
         arenas.clear();
-        File[] files = arenaFolder.listFiles((dir, name) -> name.endsWith(".yml"));
-        if (files != null) {
-            for (File f : files) arenas.put(f.getName().replace(".yml", "").toLowerCase(), new ArenaConfig(f));
-        }
+        File[] files = folder.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (files != null) for (File f : files) arenas.put(f.getName().replace(".yml", "").toLowerCase(), new ArenaConfig(f));
     }
 
     public FightSession createSession(Fight fight, ArenaConfig config) {
-        if (pasteWorlds.isEmpty()) return null;
-        World world = pasteWorlds.get(currentWorldIndex);
-        Location center = new Location(world, nextXOffset, 100, 0);
-
-        currentWorldIndex = (currentWorldIndex + 1) % pasteWorlds.size();
-        if (currentWorldIndex == 0) nextXOffset += 5000;
+        if (worlds.isEmpty()) return null;
+        World w = worlds.get(worldIdx);
+        Location center = new Location(w, nextX, 100, 0);
+        worldIdx = (worldIdx + 1) % worlds.size();
+        if (worldIdx == 0) nextX += 5000;
 
         FightSession session = new FightSession(fight, config, center);
-        activeSessions.put(fight, session); // Keyed by Fight instance
+        activeSessions.put(fight, session);
         pasteArena(config, center);
         return session;
     }
 
     private void pasteArena(ArenaConfig config, Location center) {
-        File file = new File(arenaFolder, config.getSchematicName());
-        if (!file.exists()) return;
+        File file = new File(folder, config.getSchematicName());
+
+        // Log a warning if the schematic is missing so you know why players see void/nothing
+        if (!file.exists()) {
+            plugin.getLogger().warning("Schematic file not found: " + file.getName());
+            return;
+        }
+
         try (ClipboardReader reader = ClipboardFormats.findByFile(file).getReader(new FileInputStream(file))) {
             Clipboard cb = reader.read();
             try (EditSession session = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
-                Operations.complete(new ClipboardHolder(cb).createPaste(session).to(BlockVector3.at(center.getX(), center.getY(), center.getZ())).ignoreAirBlocks(false).build());
+                Operations.complete(new ClipboardHolder(cb).createPaste(session)
+                        .to(BlockVector3.at(center.getX(), center.getY(), center.getZ()))
+                        .ignoreAirBlocks(false).build());
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
@@ -95,7 +99,6 @@ public class ArenaManager {
         return valid.isEmpty() ? null : valid.get(new Random().nextInt(valid.size()));
     }
 
-    public Map<String, ArenaConfig> getArenas() { return new HashMap<>(arenas); }
-    public FightSession getSession(Fight fight) { return activeSessions.get(fight); }
+    public Map<String, ArenaConfig> getArenas() { return arenas; }
     public void shutdown() { activeSessions.keySet().forEach(this::endSession); }
 }
