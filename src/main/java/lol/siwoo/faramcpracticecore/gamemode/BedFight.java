@@ -191,6 +191,10 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
+        if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
+            return;
+        }
+
         if (Boolean.TRUE.equals(isbedBroken.get(playerId))
                 && p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
                 && !Boolean.TRUE.equals(isDead.get(playerId))) {
@@ -249,6 +253,10 @@ public class BedFight implements Listener {
         Player p = (Player) e.getEntity();
         UUID playerId = p.getUniqueId();
 
+        if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
+            return;
+        }
+
         if (Boolean.TRUE.equals(isbedBroken.get(playerId))) {
             if (p.getHealth() - e.getFinalDamage() <= 1f) {
                 p.damage(69420.0);
@@ -261,6 +269,10 @@ public class BedFight implements Listener {
     public void onPlayerBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
+
+        if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
+            return;
+        }
         
         if (Boolean.TRUE.equals(isInBedfight.get(playerId))) {
             if (e.getBlock().getY() > api.getFight(p).getArena().getLoc1().getY() + 8
@@ -276,7 +288,8 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
-        if (!Boolean.TRUE.equals(isInBedfight.get(playerId))) {
+        if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")
+            || !Boolean.TRUE.equals(isInBedfight.get(playerId))) {
             return;
         }
         
@@ -439,6 +452,10 @@ public class BedFight implements Listener {
 
         Player p = (Player) e.getEntity();
 
+        if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
+            return;
+        }
+
         if (isInBedfight.get(p.getUniqueId()) == null) {
             return;
         }
@@ -454,6 +471,10 @@ public class BedFight implements Listener {
     public void onStartSpectate(PlayerStartSpectatingEvent e) {
         Player p = e.getPlayer();
         UUID pid = p.getUniqueId();
+
+        if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
+            return;
+        }
 
         if (!isInBedfight.containsKey(pid) || !isInBedfight.get(pid) || !isDead.containsKey(pid)) {
             return;
