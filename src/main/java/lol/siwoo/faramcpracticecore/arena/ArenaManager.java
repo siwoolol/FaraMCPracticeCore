@@ -11,6 +11,9 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import ga.strikepractice.fights.Fight;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.*;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.util.Vector;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,39 +22,85 @@ public class ArenaManager {
     private final FaraMCPracticeCore plugin;
     private final Map<String, ArenaConfig> arenas = new HashMap<>();
     private final Map<Fight, FightSession> activeSessions = new ConcurrentHashMap<>();
-    private final List<World> worlds = new ArrayList<>();
-    private final File folder;
-    private int nextX = 0, worldIdx = 0;
+    private final List<World> pasteWorlds = new ArrayList<>();
+    private final File arenaFolder;
+    private int nextXOffset = 0, currentWorldIndex = 0;
 
     public ArenaManager(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
-        this.folder = new File(plugin.getDataFolder(), "arena");
-        if (!folder.exists()) folder.mkdirs();
+        this.arenaFolder = new File(plugin.getDataFolder(), "arena");
+        if (!arenaFolder.exists()) arenaFolder.mkdirs(); // Ensure folder exists
         setupWorlds();
         loadArenas();
     }
 
     private void setupWorlds() {
         String[] names = {"pasteArena1", "pasteArena2", "pasteArena3"};
-        for (String n : names) {
-            World w = Bukkit.getWorld(n);
-            if (w == null) w = new WorldCreator(n).type(WorldType.FLAT).generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}").generateStructures(false).createWorld();
-            if (w != null) worlds.add(w);
+        for (String name : names) {
+            World world = Bukkit.getWorld(name);
+            if (world == null) {
+                world = new WorldCreator(name).type(WorldType.FLAT).generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}").generateStructures(false).createWorld();
+            }
+            if (world != null) pasteWorlds.add(world);
         }
     }
 
     public void loadArenas() {
         arenas.clear();
-        File[] files = folder.listFiles((dir, name) -> name.endsWith(".yml"));
-        if (files != null) for (File f : files) arenas.put(f.getName().replace(".yml", "").toLowerCase(), new ArenaConfig(f));
+        File[] files = arenaFolder.listFiles();
+        if (files == null) return;
+
+        // Iterate through all files to find schematics first
+        for (File f : files) {
+            String fileName = f.getName().toLowerCase();
+            if (fileName.endsWith(".schem") || fileName.endsWith(".schematic")) {
+                String baseName = f.getName().split("\\.")[0];
+                File configFile = new File(arenaFolder, baseName + ".yml");
+
+                // If the config doesn't exist, create the default one
+                if (!configFile.exists()) {
+                    saveDefault(f, configFile);
+                }
+            }
+        }
+
+        // Now load all YAML files into the arenas map
+        File[] configFiles = arenaFolder.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (configFiles != null) {
+            for (File f : configFiles) {
+                arenas.put(f.getName().replace(".yml", "").toLowerCase(), new ArenaConfig(f));
+            }
+        }
+    }
+
+    private void saveDefault(File schemFile, File configFile) {
+        YamlConfiguration yaml = new YamlConfiguration();
+        String name = schemFile.getName().split("\\.")[0];
+
+        yaml.set("name", name);
+        yaml.set("schematic", schemFile.getName());
+        yaml.set("pos1", new Vector(10, 5, 0));
+        yaml.set("pos2", new Vector(-10, 5, 0));
+        yaml.set("corner1", new Vector(30, 30, 30));
+        yaml.set("corner2", new Vector(-30, 0, -30));
+        yaml.set("center", new Vector(0, 0, 0));
+        yaml.set("kits", Collections.singletonList("sword"));
+
+        try {
+            yaml.save(configFile);
+            plugin.getLogger().info("Generated default config for: " + schemFile.getName());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public FightSession createSession(Fight fight, ArenaConfig config) {
-        if (worlds.isEmpty()) return null;
-        World w = worlds.get(worldIdx);
-        Location center = new Location(w, nextX, 100, 0);
-        worldIdx = (worldIdx + 1) % worlds.size();
-        if (worldIdx == 0) nextX += 5000;
+        if (pasteWorlds.isEmpty()) return null;
+        World world = pasteWorlds.get(currentWorldIndex);
+        Location center = new Location(world, nextXOffset, 100, 0);
+
+        currentWorldIndex = (currentWorldIndex + 1) % pasteWorlds.size();
+        if (currentWorldIndex == 0) nextXOffset += 5000;
 
         FightSession session = new FightSession(fight, config, center);
         activeSessions.put(fight, session);
@@ -60,20 +109,12 @@ public class ArenaManager {
     }
 
     private void pasteArena(ArenaConfig config, Location center) {
-        File file = new File(folder, config.getSchematicName());
-
-        // Log a warning if the schematic is missing so you know why players see void/nothing
-        if (!file.exists()) {
-            plugin.getLogger().warning("Schematic file not found: " + file.getName());
-            return;
-        }
-
+        File file = new File(arenaFolder, config.getSchematicName());
+        if (!file.exists()) return;
         try (ClipboardReader reader = ClipboardFormats.findByFile(file).getReader(new FileInputStream(file))) {
             Clipboard cb = reader.read();
             try (EditSession session = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
-                Operations.complete(new ClipboardHolder(cb).createPaste(session)
-                        .to(BlockVector3.at(center.getX(), center.getY(), center.getZ()))
-                        .ignoreAirBlocks(false).build());
+                Operations.complete(new ClipboardHolder(cb).createPaste(session).to(BlockVector3.at(center.getX(), center.getY(), center.getZ())).ignoreAirBlocks(false).build());
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
@@ -100,5 +141,6 @@ public class ArenaManager {
     }
 
     public Map<String, ArenaConfig> getArenas() { return arenas; }
+    public FightSession getSession(Fight fight) { return activeSessions.get(fight); }
     public void shutdown() { activeSessions.keySet().forEach(this::endSession); }
 }
