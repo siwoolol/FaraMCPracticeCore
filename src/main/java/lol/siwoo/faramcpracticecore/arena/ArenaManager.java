@@ -70,7 +70,11 @@ public class ArenaManager {
 
         FightSession session = new FightSession(fight, config, center);
         activeSessions.put(fight, session);
-        pasteArena(config, center);
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            pasteArena(config, center);
+        });
+
         return session;
     }
 
