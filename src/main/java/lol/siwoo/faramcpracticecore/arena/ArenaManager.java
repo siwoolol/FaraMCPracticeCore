@@ -8,6 +8,7 @@ import com.sk89q.worldedit.extent.clipboard.io.*;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import com.sk89q.worldedit.util.SideEffectSet;
 import ga.strikepractice.fights.Fight;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.*;
@@ -71,10 +72,7 @@ public class ArenaManager {
         FightSession session = new FightSession(fight, config, center);
         activeSessions.put(fight, session);
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            pasteArena(config, center);
-        });
-
+        pasteArena(config, center);
         return session;
     }
 
@@ -82,22 +80,31 @@ public class ArenaManager {
         File file = new File(arenaFolder, config.getSchematicName());
         if (!file.exists()) return;
 
-        // Calculate paste location including the center offset
-        Vector offset = config.getCenter();
-        BlockVector3 pastePos = BlockVector3.at(
-                center.getX() + offset.getX(),
-                center.getY() + offset.getY(),
-                center.getZ() + offset.getZ()
-        );
+        // Step 1: Read the file off-thread
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try (ClipboardReader reader = ClipboardFormats.findByFile(file).getReader(new FileInputStream(file))) {
+                Clipboard cb = reader.read();
 
-        try (ClipboardReader reader = ClipboardFormats.findByFile(file).getReader(new FileInputStream(file))) {
-            Clipboard cb = reader.read();
-            try (EditSession session = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
-                Operations.complete(new ClipboardHolder(cb).createPaste(session)
-                        .to(pastePos)
-                        .ignoreAirBlocks(false).build());
-            }
-        } catch (Exception e) { e.printStackTrace(); }
+                // Step 2: Perform the actual block placement on the main thread
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    try (EditSession session = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
+                        // CRITICAL: Disable side-effects to prevent the "Async block onPlace" error and speed up paste
+                        session.setSideEffectApplier(SideEffectSet.none());
+
+                        Vector offset = config.getCenter();
+                        BlockVector3 pastePos = BlockVector3.at(
+                                center.getX() + offset.getX(),
+                                center.getY() + offset.getY(),
+                                center.getZ() + offset.getZ()
+                        );
+
+                        Operations.complete(new ClipboardHolder(cb).createPaste(session)
+                                .to(pastePos)
+                                .ignoreAirBlocks(false).build());
+                    } catch (Exception e) { e.printStackTrace(); }
+                });
+            } catch (Exception e) { e.printStackTrace(); }
+        });
     }
 
     public void endSession(Fight fight) {
