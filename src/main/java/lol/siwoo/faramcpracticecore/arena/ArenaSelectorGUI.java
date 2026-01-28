@@ -19,7 +19,7 @@ public class ArenaSelectorGUI implements Listener {
     public ArenaSelectorGUI(ArenaManager manager) { this.manager = manager; }
 
     public static void open(Player p, ArenaManager m, String kit) {
-        Inventory gui = Bukkit.createInventory(null, 36, ChatColor.DARK_GREEN + "Select Arena for " + kit);
+        Inventory gui = Bukkit.createInventory(null, 27, ChatColor.DARK_GREEN + "Select Arena for " + kit);
         m.getArenas().values().stream().filter(c -> c.isKitAllowed(kit)).forEach(c -> {
             ItemStack i = new ItemStack(Material.GRASS_BLOCK);
             ItemMeta meta = i.getItemMeta();
@@ -42,7 +42,7 @@ public class ArenaSelectorGUI implements Listener {
         ArenaConfig cfg = manager.getArenas().get(name.toLowerCase());
         if (cfg != null) {
             queuedSelections.put(p.getUniqueId(), cfg);
-            p.sendMessage(ChatColor.GREEN + "Selection saved for your queue!");
+            p.sendMessage(ChatColor.GREEN + "Selected map " + name + " for your queue!");
             p.closeInventory();
         }
     }

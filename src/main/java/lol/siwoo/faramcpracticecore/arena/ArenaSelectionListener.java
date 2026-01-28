@@ -34,6 +34,8 @@ public class ArenaSelectionListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onFightStart(FightStartEvent event) {
         Fight fight = event.getFight();
+
+        // Use setUsing(false) to release placeholder
         if (fight.getArena().getName().toLowerCase().contains("dynamic")) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> fight.getArena().setUsing(false), 2L);
         }
@@ -49,17 +51,22 @@ public class ArenaSelectionListener implements Listener {
         FightSession session = manager.createSession(fight, config);
         if (session == null) return;
 
-        // Use the center offset from ArenaConfig to find the true origin
+        // MATH: Base World Position + Arena relative Center + Player relative Spawn
         Location matchCenter = session.getCenter().clone().add(config.getCenter());
         Location s1 = matchCenter.clone().add(config.getPos1());
         Location s2 = matchCenter.clone().add(config.getPos2());
 
+        // Update the temporary locs for StrikePractice logic
         fight.getArena().setLoc1(s1);
         fight.getArena().setLoc2(s2);
 
         List<Player> players = fight.getPlayersInFight();
-        if (players.size() >= 1) players.get(0).teleport(s1);
-        if (players.size() >= 2) players.get(1).teleport(s2);
+
+        // FIX: Teleport with a 1-tick delay to override StrikePractice's initial spawn
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (players.size() >= 1) players.get(0).teleport(s1);
+            if (players.size() >= 2) players.get(1).teleport(s2);
+        }, 1L);
     }
 
     @EventHandler

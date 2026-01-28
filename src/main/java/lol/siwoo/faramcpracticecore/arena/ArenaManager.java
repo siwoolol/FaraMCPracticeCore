@@ -11,9 +11,7 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import ga.strikepractice.fights.Fight;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.*;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.Vector;
-
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +27,7 @@ public class ArenaManager {
     public ArenaManager(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
         this.arenaFolder = new File(plugin.getDataFolder(), "arena");
-        if (!arenaFolder.exists()) arenaFolder.mkdirs(); // Ensure folder exists
+        if (!arenaFolder.exists()) arenaFolder.mkdirs();
         setupWorlds();
         loadArenas();
     }
@@ -39,84 +37,23 @@ public class ArenaManager {
         for (String name : names) {
             World world = Bukkit.getWorld(name);
             if (world == null) {
-                WorldCreator creator = new WorldCreator(name);
-                creator.type(WorldType.FLAT);
-                creator.generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}");
-                creator.generateStructures(false);
-                world = creator.createWorld();
+                world = new WorldCreator(name).type(WorldType.FLAT)
+                        .generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}")
+                        .generateStructures(false).createWorld();
             }
-
             if (world != null) {
+                // Persistent loading for Paper 1.21.1+
                 world.addPluginChunkTicket(0, 0, plugin);
-                world.getChunkAt(0, 0).load();
-
                 pasteWorlds.add(world);
-                plugin.getLogger().info("Successfully prepared and loaded world: " + name);
             }
         }
     }
 
     public void loadArenas() {
         arenas.clear();
-        File[] files = arenaFolder.listFiles();
-        if (files == null) return;
-
-        // Iterate through all files to find schematics first
-        for (File f : files) {
-            String fileName = f.getName().toLowerCase();
-            if (fileName.endsWith(".schem") || fileName.endsWith(".schematic")) {
-                String baseName = f.getName().split("\\.")[0];
-                File configFile = new File(arenaFolder, baseName + ".yml");
-
-                // If the config doesn't exist, create the default one
-                if (!configFile.exists()) {
-                    saveDefault(f, configFile);
-                }
-            }
-        }
-
-        // Now load all YAML files into the arenas map
-        File[] configFiles = arenaFolder.listFiles((dir, name) -> name.endsWith(".yml"));
-        if (configFiles != null) {
-            for (File f : configFiles) {
-                arenas.put(f.getName().replace(".yml", "").toLowerCase(), new ArenaConfig(f));
-            }
-        }
-    }
-
-    private void saveDefault(File schemFile, File configFile) {
-        YamlConfiguration yaml = new YamlConfiguration();
-        String name = schemFile.getName().split("\\.")[0];
-
-        int width = 1000, height = 1000, length = 1000;
-
-        ClipboardFormat format = ClipboardFormats.findByFile(schemFile);
-        if (format != null) {
-            try (ClipboardReader reader = format.getReader(new FileInputStream(schemFile))) {
-                Clipboard clipboard = reader.read();
-                BlockVector3 dimensions = clipboard.getDimensions();
-                width = dimensions.x();
-                height = dimensions.y();
-                length = dimensions.z();
-            } catch (Exception e) {
-                plugin.getLogger().warning("Could not read dimensions for schematic: " + schemFile.getName() + ". Using defaults.");
-            }
-        }
-
-        yaml.set("name", name);
-        yaml.set("schematic", schemFile.getName());
-        yaml.set("pos1", new Vector(10, 5, 0));
-        yaml.set("pos2", new Vector(-10, 5, 0));
-        yaml.set("corner1", new Vector(30, 30, 30));
-        yaml.set("corner2", new Vector(-30, 0, -30));
-        yaml.set("center", new Vector(0, 0, 0));
-        yaml.set("kits", Collections.singletonList("sword"));
-
-        try {
-            yaml.save(configFile);
-            plugin.getLogger().info("Generated default config for: " + schemFile.getName());
-        } catch (IOException e) {
-            e.printStackTrace();
+        File[] files = arenaFolder.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (files != null) {
+            for (File f : files) arenas.put(f.getName().replace(".yml", "").toLowerCase(), new ArenaConfig(f));
         }
     }
 
@@ -125,14 +62,8 @@ public class ArenaManager {
         World world = pasteWorlds.get(currentWorldIndex);
         Location center = new Location(world, nextXOffset, 100, 0);
 
-        int chunkX = center.getBlockX() >> 4;
-        int chunkZ = center.getBlockZ() >> 4;
-
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
-                world.addPluginChunkTicket(chunkX + x, chunkZ + z, plugin);
-            }
-        }
+        // Track chunk for this match to keep it loaded
+        world.addPluginChunkTicket(center.getBlockX() >> 4, center.getBlockZ() >> 4, plugin);
 
         currentWorldIndex = (currentWorldIndex + 1) % pasteWorlds.size();
         if (currentWorldIndex == 0) nextXOffset += 5000;
@@ -146,17 +77,32 @@ public class ArenaManager {
     private void pasteArena(ArenaConfig config, Location center) {
         File file = new File(arenaFolder, config.getSchematicName());
         if (!file.exists()) return;
+
+        // Calculate paste location including the center offset
+        Vector offset = config.getCenter();
+        BlockVector3 pastePos = BlockVector3.at(
+                center.getX() + offset.getX(),
+                center.getY() + offset.getY(),
+                center.getZ() + offset.getZ()
+        );
+
         try (ClipboardReader reader = ClipboardFormats.findByFile(file).getReader(new FileInputStream(file))) {
             Clipboard cb = reader.read();
             try (EditSession session = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
-                Operations.complete(new ClipboardHolder(cb).createPaste(session).to(BlockVector3.at(center.getX(), center.getY(), center.getZ())).ignoreAirBlocks(false).build());
+                Operations.complete(new ClipboardHolder(cb).createPaste(session)
+                        .to(pastePos)
+                        .ignoreAirBlocks(false).build());
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
 
     public void endSession(Fight fight) {
         FightSession s = activeSessions.remove(fight);
-        if (s != null) clearArena(s.getConfig(), s.getCenter());
+        if (s != null) {
+            clearArena(s.getConfig(), s.getCenter());
+            // Cleanup chunk ticket
+            s.getCenter().getWorld().removePluginChunkTicket(s.getCenter().getBlockX() >> 4, s.getCenter().getBlockZ() >> 4, plugin);
+        }
     }
 
     private void clearArena(ArenaConfig config, Location center) {
@@ -175,7 +121,6 @@ public class ArenaManager {
         return valid.isEmpty() ? null : valid.get(new Random().nextInt(valid.size()));
     }
 
-    public Map<String, ArenaConfig> getArenas() { return arenas; }
-    public FightSession getSession(Fight fight) { return activeSessions.get(fight); }
+    public Map<String, ArenaConfig> getArenas() { return new HashMap<>(arenas); }
     public void shutdown() { activeSessions.keySet().forEach(this::endSession); }
 }
