@@ -6,6 +6,7 @@ import ga.strikepractice.battlekit.BattleKit;
 import ga.strikepractice.events.DuelStartEvent;
 import ga.strikepractice.events.FightStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
+import lol.siwoo.faramcpracticecore.arena.ArenaSelectorGUI; // Added import
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -23,15 +24,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class QueueGUIListener implements Listener {
 
-    private static FaraMCPracticeCore plugin;
-    StrikePracticeAPI api = StrikePractice.getAPI();
+    private final FaraMCPracticeCore plugin; // Changed to instance variable
+    private final StrikePracticeAPI api = StrikePractice.getAPI();
 
     public QueueGUIListener(FaraMCPracticeCore plugin) {
-        QueueGUIListener.plugin = plugin;
+        this.plugin = plugin;
     }
 
     @EventHandler
@@ -86,19 +86,22 @@ public class QueueGUIListener implements Listener {
                 return;
             }
 
-            // Check if we have arenas available for this kit
-            boolean hasArenaForKit = plugin.getArenaManager().getRandomArenaForKit(kitId) != null;
-            if (!hasArenaForKit) {
+            // FIXED: Proper null check for ArenaManager and kit selection
+            if (plugin.getArenaManager().getRandomArenaForKit(kitId) == null) {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
                 player.sendActionBar(Component.text("No arenas available for this gamemode right now.").color(NamedTextColor.RED));
                 return;
             }
 
-            // Try to join the queue
             try {
                 api.joinQueue(player, kit);
                 afterActivities(event);
                 player.sendActionBar(Component.text("Joined " + kitId + " queue!").color(NamedTextColor.GREEN));
+
+                // SYSTEM INTEGRATION: Open Map Selector for admins immediately after queuing
+                if (player.hasPermission("faramcpracticecore.admin.selectarena")) {
+                    ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId);
+                }
             } catch (Exception e) {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
                 player.sendActionBar(Component.text("Failed to join queue. Try again later.").color(NamedTextColor.RED));
@@ -117,7 +120,6 @@ public class QueueGUIListener implements Listener {
         ItemStack clickedItem = e.getCurrentItem();
         if (clickedItem == null) return;
 
-        // Change the clicked item to "leave queue" item
         ItemStack leaveItem = new ItemStack(Material.REDSTONE_BLOCK);
         ItemMeta leaveMeta = leaveItem.getItemMeta();
         String originalName = clickedItem.getItemMeta().getDisplayName();
@@ -133,113 +135,47 @@ public class QueueGUIListener implements Listener {
     }
 
     public static void updateInventory(Player p, Inventory i) {
-        updateQueueItem(p, i, 10,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_windfight%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_windfight%");
-        updateQueueItem(p, i, 11,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sword%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sword%");
-        updateQueueItem(p, i, 12,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_axepvp%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_axepvp%");
-        updateQueueItem(p, i, 13,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_boxing%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_boxing%");
-        updateQueueItem(p, i, 14,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_nodebuff%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_nodebuff%");
-        updateQueueItem(p, i, 15,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_builduhc%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_builduhc%");
-        updateQueueItem(p, i, 16,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sumo%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumo%");
-        updateQueueItem(p, i, 19,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_combo%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_combo%");
-        updateQueueItem(p, i, 20,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_gapple%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_gapple%");
-        updateQueueItem(p, i, 21,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_bedfight%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_bedfight%");
-        updateQueueItem(p, i, 22,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_fireballfight%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_fireballfight%");
-        updateQueueItem(p, i, 23,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_skywars%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_skywars%");
-        updateQueueItem(p, i, 24,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_archer%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_archer%");
-        updateQueueItem(p, i, 25,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_noenchant%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_noenchant%");
-        updateQueueItem(p, i, 28,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_spleef%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_spleef%");
-        updateQueueItem(p, i, 29,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_sg%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sg%");
-        updateQueueItem(p, i, 30,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_soup%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_soup%");
-        updateQueueItem(p, i, 31,
-                ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_combotag%",
-                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_combotag%");
+        String[] kits = {"windfight", "sword", "axepvp", "boxing", "nodebuff", "builduhc", "sumo", "combo", "gapple", "bedfight", "fireballfight", "skywars", "archer", "noenchant", "spleef", "sg", "soup", "combotag"};
+        int[] slots = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31};
+
+        for (int k = 0; k < kits.length; k++) {
+            updateQueueItem(p, i, slots[k],
+                    ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_" + kits[k] + "%",
+                    ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_" + kits[k] + "%");
+        }
     }
 
     public static void updateQueueItem(Player p, Inventory gui, int slot, String queued, String playing) {
         ItemStack item = gui.getItem(slot);
-        if (item != null) {
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                if (item.getType() == Material.REDSTONE_BLOCK) {
-                    String displayName = meta.getDisplayName();
-                    int forIndex = displayName.indexOf(" for ");
-                    if (forIndex != -1) {
-                        String originalNameWithColor = displayName.substring(forIndex + 5);
-                        meta.setLore(Arrays.asList(
-                                ChatColor.GRAY + "You are currently Queued for the " + originalNameWithColor + " Queue",
-                                "",
-                                PlaceholderAPI.setPlaceholders(p, queued),
-                                PlaceholderAPI.setPlaceholders(p, playing),
-                                "",
-                                ChatColor.RED + "Click Again to Leave the Queue!"
-                        ));
+        if (item == null) return;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
 
-                        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                        meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
-                        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-                        meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
-                        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-                        meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
-                        meta.addItemFlags(ItemFlag.HIDE_DYE);
-                        meta.addItemFlags(ItemFlag.HIDE_STORED_ENCHANTS);
-
-                        item.setItemMeta(meta);
-                    }
-                } else {
-                    meta.setLore(Arrays.asList(
-                            PlaceholderAPI.setPlaceholders(p, queued),
-                            PlaceholderAPI.setPlaceholders(p, playing),
-                            "",
-                            ChatColor.GREEN + "Click to join!"
-                    ));
-
-                    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                    meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
-                    meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-                    meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
-                    meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-                    meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
-                    meta.addItemFlags(ItemFlag.HIDE_DYE);
-                    meta.addItemFlags(ItemFlag.HIDE_STORED_ENCHANTS);
-
-                    item.setItemMeta(meta);
-                }
+        if (item.getType() == Material.REDSTONE_BLOCK) {
+            String displayName = meta.getDisplayName();
+            int forIndex = displayName.indexOf(" for ");
+            if (forIndex != -1) {
+                String name = displayName.substring(forIndex + 5);
+                meta.setLore(Arrays.asList(
+                        ChatColor.GRAY + "You are currently Queued for the " + name + " Queue",
+                        "",
+                        PlaceholderAPI.setPlaceholders(p, queued),
+                        PlaceholderAPI.setPlaceholders(p, playing),
+                        "",
+                        ChatColor.RED + "Click Again to Leave the Queue!"
+                ));
             }
+        } else {
+            meta.setLore(Arrays.asList(
+                    PlaceholderAPI.setPlaceholders(p, queued),
+                    PlaceholderAPI.setPlaceholders(p, playing),
+                    "",
+                    ChatColor.GREEN + "Click to join!"
+            ));
         }
+
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_PLACED_ON, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ARMOR_TRIM, ItemFlag.HIDE_DYE, ItemFlag.HIDE_STORED_ENCHANTS);
+        item.setItemMeta(meta);
     }
 
     public void newafterActivities(InventoryClickEvent e) {
@@ -250,15 +186,11 @@ public class QueueGUIListener implements Listener {
 
     @EventHandler
     public void onFightStart(FightStartEvent e) {
-        e.getFight().getPlayersInFight().forEach(p -> {
-            p.closeInventory();
-        });
+        e.getFight().getPlayersInFight().forEach(Player::closeInventory);
     }
 
     @EventHandler
     public void onDuelStart(DuelStartEvent e) {
-        e.getFight().getPlayersInFight().forEach(p -> {
-            p.closeInventory();
-        });
+        e.getFight().getPlayersInFight().forEach(Player::closeInventory);
     }
 }

@@ -181,6 +181,10 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
 //        getCommand("terms_disagree").setExecutor(new Disagree());
     }
 
+    public ArenaManager getArenaManager() {
+        return arenaManager;
+    }
+
     public void emergencyShutDown() {
         getLogger().severe("800: Something went wrong. Please try again later.");
 
