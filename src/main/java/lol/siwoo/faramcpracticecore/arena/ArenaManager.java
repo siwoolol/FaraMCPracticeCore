@@ -12,17 +12,11 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
-import ga.strikepractice.StrikePractice;
-import ga.strikepractice.api.StrikePracticeAPI;
-import ga.strikepractice.arena.Arena;
 import ga.strikepractice.fights.Fight;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,14 +32,12 @@ public class ArenaManager {
     private final Map<Fight, FightSession> activeSessions = new HashMap<>();
     private final List<World> pasteWorlds = new ArrayList<>();
     private final File arenaFolder;
-    private final StrikePracticeAPI api;
 
     private int nextXOffset = 0;
     private int currentWorldIndex = 0;
 
     public ArenaManager(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
-        this.api = StrikePractice.getAPI();
         this.arenaFolder = new File(plugin.getDataFolder(), "arena");
 
         plugin.getLogger().info("Initializing Arena Manager...");
@@ -234,274 +226,13 @@ public class ArenaManager {
     }
 
     private void registerArenasWithStrikePractice() {
-        plugin.getLogger().info("Registering arenas with StrikePractice...");
-
-        try {
-            // Create dummy BattleArenas for each kit to satisfy StrikePractice's requirements
-            String[] kits = {"windfight", "sword", "axepvp", "boxing", "nodebuff", "builduhc", "sumo",
-                    "combo", "gapple", "bedfight", "fireballfight", "skywars", "archer",
-                    "noenchant", "spleef", "sg", "soup", "combotag"};
-
-            for (String kitId : kits) {
-                // Create a dummy arena for each kit
-                Location dummyLoc1 = new Location(Bukkit.getWorlds().get(0), 0, 100, 10);
-                Location dummyLoc2 = new Location(Bukkit.getWorlds().get(0), 0, 100, -10);
-
-                // We are creating an anonymous subclass of Arena.
-                // The error indicated we need to implement saveForStrikePractice() AND removeFromStrikePractice().
-                // I will add both methods.
-                
-                Arena dummyArena = new Arena("dummy_" + kitId, dummyLoc1, dummyLoc2, Collections.singletonList(kitId)) {
-                    @Override
-                    public @NotNull Map<String, Object> serialize() {
-                        return Map.of();
-                    }
-
-                    @Override
-                    public void saveForStrikePractice() {
-                        // Do nothing
-                    }
-                    
-                    // Adding this method as requested by the error log
-                    // The error said incompatible return type, so it might be boolean.
-                    // Let's try boolean.
-                    @Override
-                    public boolean removeFromStrikePractice() {
-                        // Do nothing
-                        return true;
-                    }
-                    
-                    // Also adding canRollback() as requested by the error log
-                    @Override
-                    public boolean canRollback() {
-                        return false;
-                    }
-
-                    // Adding rollbackArena(Fight) as requested by the error log
-                    @Override
-                    public void rollbackArena(Fight fight) {
-                        // Do nothing
-                    }
-
-                    // Adding quickRollback() as requested by the error log
-                    @Override
-                    public void quickRollback() {
-                        // Do nothing
-                    }
-
-                    // Adding setUsing(boolean, Fight) as requested by the error log
-                    @Override
-                    public void setUsing(boolean using, Fight fight) {
-                        // Do nothing
-                    }
-
-                    // Adding isUsing() as requested by the error log
-                    @Override
-                    public boolean isUsing() {
-                        return false;
-                    }
-
-                    // Adding isBuild() as requested by the error log
-                    @Override
-                    public boolean isBuild() {
-                        return false;
-                    }
-
-                    // Adding isFFA() as requested by the error log
-                    @Override
-                    public boolean isFFA() {
-                        return false;
-                    }
-
-                    // Adding isEventArena() as requested by the error log
-                    @Override
-                    public boolean isEventArena() {
-                        return false;
-                    }
-
-                    // Adding setFFA(boolean) as requested by the error log
-                    @Override
-                    public void setFFA(boolean ffa) {
-                        // Do nothing
-                    }
-
-                    // Adding needsRollback() as requested by the error log
-                    @Override
-                    public boolean needsRollback() {
-                        return false;
-                    }
-
-                    // Adding setBuild(boolean) as requested by the error log
-                    @Override
-                    public void setBuild(boolean build) {
-                        // Do nothing
-                    }
-
-                    // Adding getLoc1() as requested by the error log
-                    @Override
-                    public Location getLoc1() {
-                        return dummyLoc1;
-                    }
-
-                    // Adding getLoc2() as requested by the error log
-                    @Override
-                    public Location getLoc2() {
-                        return dummyLoc2;
-                    }
-
-                    // Adding getCenter() as requested by the error log
-                    @Override
-                    public Location getCenter() {
-                        return dummyLoc1; // Just returning something
-                    }
-
-                    // Adding hasWall() as requested by the error log
-                    @Override
-                    public boolean hasWall() {
-                        return false;
-                    }
-
-                    // Adding getKits() as requested by the error log
-                    @Override
-                    public List<String> getKits() {
-                        return Collections.singletonList(kitId);
-                    }
-
-                    // Adding setUsing(boolean) as requested by the error log
-                    @Override
-                    public void setUsing(boolean using) {
-                        // Do nothing
-                    }
-
-                    @Override
-                    public void setKits(List<String> list) {
-
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "";
-                    }
-
-                    @Override
-                    public String getOriginalName() {
-                        return "";
-                    }
-
-                    @Override
-                    public String getDisplayName() {
-                        return "";
-                    }
-
-                    @Override
-                    public void setDisplayName(String s) {
-
-                    }
-
-                    @Override
-                    public void setLoc1(Location location) {
-
-                    }
-
-                    @Override
-                    public void setLoc2(Location location) {
-
-                    }
-
-                    @Override
-                    public void setCorner1(Location location) {
-
-                    }
-
-                    @Override
-                    public void setCorner2(Location location) {
-
-                    }
-
-                    @Override
-                    public Location getCorner1() {
-                        return null;
-                    }
-
-                    @Override
-                    public Location getCorner2() {
-                        return null;
-                    }
-
-                    @Override
-                    public boolean hasCornersSet() {
-                        return false;
-                    }
-
-                    @Override
-                    public void setCurrentFight(Fight fight) {
-
-                    }
-
-                    @Override
-                    public void setCenter(Location location) {
-
-                    }
-
-                    @Override
-                    public Fight getCurrentFight() {
-                        return null;
-                    }
-
-                    @Override
-                    public int getCustomMaxChangesPerTick() {
-                        return 0;
-                    }
-
-                    @Override
-                    public void setCustomMaxChangesPerTick(int i) {
-
-                    }
-
-                    @Override
-                    public void sendPossibleWrongWorldInfo(Player player) {
-
-                    }
-
-                    @Override
-                    public void removeItems() {
-
-                    }
-
-                    @Override
-                    public ItemStack getIcon() {
-                        return null;
-                    }
-
-                    @Override
-                    public void setIcon(ItemStack itemStack) {
-
-                    }
-                };
-
-                // Since we cannot resolve registerArena, and we don't want to break the build,
-                // we will comment out the registration and log a warning.
-                // If the user wants to fix this properly, they need to provide the correct API method.
-                // api.registerArena(dummyArena);
-                
-                // However, looking at the imports, maybe we can use StrikePractice.getArenaManager().addArena(dummyArena)?
-                // But I cannot verify if getArenaManager exists.
-                
-                plugin.getLogger().warning("Skipping StrikePractice arena registration: registerArena method not found or API mismatch.");
-                plugin.getLogger().info("Registered dummy arena for kit: " + kitId);
-            }
-
-            plugin.getLogger().info("Successfully registered all arenas with StrikePractice!");
-
-        } catch (Exception e) {
-            plugin.getLogger().warning("Could not register arenas with StrikePractice: " + e.getMessage());
-            // Continue anyway - our system will work without this
-        }
+        plugin.getLogger().info("Registering arenas with StrikePractice... (Skipped)");
     }
 
     public FightSession createSession(Fight fight, ArenaConfig config) {
         if (pasteWorlds.isEmpty()) {
             plugin.getLogger().severe("No paste worlds available for arena session!");
+            fight.getPlayersInFight().forEach(player -> player.sendMessage(ChatColor.RED + "Failed to create arena session! No paste worlds available."));
             return null;
         }
 
