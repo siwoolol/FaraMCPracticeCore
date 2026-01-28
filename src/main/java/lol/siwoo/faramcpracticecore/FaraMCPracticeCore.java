@@ -127,6 +127,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new preventServerStop(), this);
         pm.registerEvents(new CommandBlocker(), this);
 
+        this.arenaManager = new ArenaManager(this);
         pm.registerEvents(new ArenaSelectionListener(this, arenaManager), this);
         pm.registerEvents(new ArenaSelectorGUI(arenaManager), this);
 
