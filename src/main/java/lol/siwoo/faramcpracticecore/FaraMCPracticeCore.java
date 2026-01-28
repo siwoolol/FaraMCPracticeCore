@@ -166,9 +166,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new CommandBlocker(), this);
 
         // Arena System - Core integration
-        ArenaSelectionListener selectionListener = new ArenaSelectionListener(this, arenaManager);
-        pm.registerEvents(selectionListener, this);
-        pm.registerEvents(new ArenaSelectorGUI(arenaManager, selectionListener), this);
+        pm.registerEvents(new ArenaSelectionListener(this, arenaManager), this);
+        pm.registerEvents(new ArenaSelectorGUI(arenaManager), this);
 
 //        aiCoach = new AICoach(this, strikePracticeAPI);
 //        trainingManager = new TrainingManager(this);
