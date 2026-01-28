@@ -39,9 +39,20 @@ public class ArenaManager {
         for (String name : names) {
             World world = Bukkit.getWorld(name);
             if (world == null) {
-                world = new WorldCreator(name).type(WorldType.FLAT).generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}").generateStructures(false).createWorld();
+                WorldCreator creator = new WorldCreator(name);
+                creator.type(WorldType.FLAT);
+                creator.generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}");
+                creator.generateStructures(false);
+                world = creator.createWorld();
             }
-            if (world != null) pasteWorlds.add(world);
+
+            if (world != null) {
+                world.addPluginChunkTicket(0, 0, plugin);
+                world.getChunkAt(0, 0).load();
+
+                pasteWorlds.add(world);
+                plugin.getLogger().info("Successfully prepared and loaded world: " + name);
+            }
         }
     }
 
@@ -98,6 +109,15 @@ public class ArenaManager {
         if (pasteWorlds.isEmpty()) return null;
         World world = pasteWorlds.get(currentWorldIndex);
         Location center = new Location(world, nextXOffset, 100, 0);
+
+        int chunkX = center.getBlockX() >> 4;
+        int chunkZ = center.getBlockZ() >> 4;
+
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                world.addPluginChunkTicket(chunkX + x, chunkZ + z, plugin);
+            }
+        }
 
         currentWorldIndex = (currentWorldIndex + 1) % pasteWorlds.size();
         if (currentWorldIndex == 0) nextXOffset += 5000;
