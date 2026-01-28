@@ -19,12 +19,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ArenaManager {
     private final FaraMCPracticeCore plugin;
     private final Map<String, ArenaConfig> arenas = new HashMap<>();
-    private final Map<UUID, FightSession> activeSessions = new ConcurrentHashMap<>();
+    private final Map<Fight, FightSession> activeSessions = new ConcurrentHashMap<>();
     private final List<World> pasteWorlds = new ArrayList<>();
     private final File arenaFolder;
-
-    private int nextXOffset = 0;
-    private int currentWorldIndex = 0;
+    private int nextXOffset = 0, worldIndex = 0;
 
     public ArenaManager(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
@@ -35,13 +33,10 @@ public class ArenaManager {
 
     private void setupWorlds() {
         String[] names = {"pasteArena1", "pasteArena2", "pasteArena3"};
-        for (String name : names) {
-            World w = Bukkit.getWorld(name);
+        for (String n : names) {
+            World w = Bukkit.getWorld(n);
             if (w == null) {
-                WorldCreator creator = new WorldCreator(name);
-                creator.type(WorldType.FLAT).generateStructures(false);
-                creator.generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}");
-                w = creator.createWorld();
+                w = new WorldCreator(n).type(WorldType.FLAT).generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}").generateStructures(false).createWorld();
             }
             if (w != null) pasteWorlds.add(w);
         }
@@ -51,71 +46,55 @@ public class ArenaManager {
         arenas.clear();
         File[] files = arenaFolder.listFiles((dir, name) -> name.endsWith(".yml"));
         if (files == null) return;
-        for (File file : files) {
-            ArenaConfig config = new ArenaConfig(file);
-            arenas.put(config.getName().toLowerCase(), config);
-        }
+        for (File f : files) arenas.put(f.getName().replace(".yml", "").toLowerCase(), new ArenaConfig(f));
     }
 
     public FightSession createSession(Fight fight, ArenaConfig config) {
         if (pasteWorlds.isEmpty()) return null;
-
-        World world = pasteWorlds.get(currentWorldIndex);
-        Location center = new Location(world, nextXOffset, 100, 0);
-
-        // Maintain 3000 block distance
-        currentWorldIndex = (currentWorldIndex + 1) % pasteWorlds.size();
-        if (currentWorldIndex == 0) nextXOffset += 3000;
+        World w = pasteWorlds.get(worldIndex);
+        Location center = new Location(w, nextXOffset, 100, 0);
+        worldIndex = (worldIndex + 1) % pasteWorlds.size();
+        if (worldIndex == 0) nextXOffset += 5000;
 
         FightSession session = new FightSession(fight, config, center);
-        activeSessions.put(fight.getUniqueId(), session);
+        activeSessions.put(fight, session); // Safe key usage
         pasteArena(config, center);
         return session;
     }
 
     private void pasteArena(ArenaConfig config, Location center) {
-        File schematicFile = new File(arenaFolder, config.getSchematicName());
-        if (!schematicFile.exists()) return;
-
-        try (ClipboardReader reader = ClipboardFormats.findByFile(schematicFile).getReader(new FileInputStream(schematicFile))) {
+        File file = new File(arenaFolder, config.getSchematicName());
+        if (!file.exists()) return;
+        try (ClipboardReader reader = ClipboardFormats.findByFile(file).getReader(new FileInputStream(file))) {
             Clipboard clipboard = reader.read();
             try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
-                Operations.complete(new ClipboardHolder(clipboard)
-                        .createPaste(editSession)
-                        .to(BlockVector3.at(center.getX(), center.getY(), center.getZ()))
-                        .ignoreAirBlocks(false).build());
+                Operations.complete(new ClipboardHolder(clipboard).createPaste(editSession).to(BlockVector3.at(center.getX(), center.getY(), center.getZ())).ignoreAirBlocks(false).build());
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
 
     public void endSession(Fight fight) {
-        FightSession session = activeSessions.remove(fight.getUniqueId());
-        if (session != null) {
-            clearArena(session.getConfig(), session.getCenter());
-        }
+        FightSession s = activeSessions.remove(fight);
+        if (s != null) clearArena(s.getConfig(), s.getCenter());
     }
 
     private void clearArena(ArenaConfig config, Location center) {
-        Location c1 = center.clone().add(config.getCorner1());
-        Location c2 = center.clone().add(config.getCorner2());
-        int minX = Math.min(c1.getBlockX(), c2.getBlockX()), maxX = Math.max(c1.getBlockX(), c2.getBlockX());
-        int minY = Math.min(c1.getBlockY(), c2.getBlockY()), maxY = Math.max(c1.getBlockY(), c2.getBlockY());
-        int minZ = Math.min(c1.getBlockZ(), c2.getBlockZ()), maxZ = Math.max(c1.getBlockZ(), c2.getBlockZ());
-
-        for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
-                for (int z = minZ; z <= maxZ; z++) {
+        Location c1 = center.clone().add(config.getCorner1()), c2 = center.clone().add(config.getCorner2());
+        for (int x = Math.min(c1.getBlockX(), c2.getBlockX()); x <= Math.max(c1.getBlockX(), c2.getBlockX()); x++) {
+            for (int y = Math.min(c1.getBlockY(), c2.getBlockY()); y <= Math.max(c1.getBlockY(), c2.getBlockY()); y++) {
+                for (int z = Math.min(c1.getBlockZ(), c2.getBlockZ()); z <= Math.max(c1.getBlockZ(), c2.getBlockZ()); z++) {
                     center.getWorld().getBlockAt(x, y, z).setType(Material.AIR, false);
                 }
             }
         }
     }
 
-    public ArenaConfig getRandomArenaForKit(String kitName) {
-        List<ArenaConfig> valid = arenas.values().stream().filter(c -> c.isKitAllowed(kitName)).toList();
+    public ArenaConfig getRandomArenaForKit(String kit) {
+        List<ArenaConfig> valid = arenas.values().stream().filter(c -> c.isKitAllowed(kit)).toList();
         return valid.isEmpty() ? null : valid.get(new Random().nextInt(valid.size()));
     }
 
-    public Map<String, ArenaConfig> getArenas() { return new HashMap<>(arenas); }
-    public FightSession getSession(Fight fight) { return activeSessions.get(fight.getUniqueId()); }
+    public Map<String, ArenaConfig> getArenas() { return arenas; }
+    public FightSession getSession(Fight fight) { return activeSessions.get(fight); }
+    public void shutdown() { activeSessions.keySet().forEach(this::endSession); }
 }

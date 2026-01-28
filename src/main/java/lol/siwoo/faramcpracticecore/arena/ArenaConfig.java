@@ -16,19 +16,14 @@ public class ArenaConfig {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         this.name = config.getString("name", file.getName().replace(".yml", ""));
         this.schematicName = config.getString("schematic", "generated_" + this.name.toLowerCase());
-
-        // Load vectors with safe defaults
         this.pos1 = config.getVector("pos1", new Vector(10, 5, 0));
         this.pos2 = config.getVector("pos2", new Vector(-10, 5, 0));
         this.corner1 = config.getVector("corner1", new Vector(30, 30, 30));
         this.corner2 = config.getVector("corner2", new Vector(-30, 0, -30));
         this.center = config.getVector("center", new Vector(0, 0, 0));
-
         this.kits = new ArrayList<>();
         List<String> configKits = config.getStringList("kits");
-        if (configKits != null) {
-            for (String kit : configKits) this.kits.add(kit.toLowerCase());
-        }
+        if (configKits != null) for (String k : configKits) kits.add(k.toLowerCase());
     }
 
     public String getName() { return name; }
@@ -38,9 +33,5 @@ public class ArenaConfig {
     public Vector getCorner1() { return corner1.clone(); }
     public Vector getCorner2() { return corner2.clone(); }
     public Vector getCenter() { return center.clone(); }
-    public List<String> getKits() { return new ArrayList<>(kits); }
-
-    public boolean isKitAllowed(String kitName) {
-        return kits.isEmpty() || kits.contains(kitName.toLowerCase());
-    }
+    public boolean isKitAllowed(String kitName) { return kits.isEmpty() || kits.contains(kitName.toLowerCase()); }
 }
