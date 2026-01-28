@@ -477,11 +477,6 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID pid = p.getUniqueId();
 
-        if (api.getFight(p) == null) { return; }
-        if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
-            return;
-        }
-
         if (!isInBedfight.containsKey(pid) || !isInBedfight.get(pid) || !isDead.containsKey(pid)) {
             return;
         }
