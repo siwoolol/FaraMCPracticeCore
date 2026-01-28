@@ -191,6 +191,7 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
+        if (api.getFight(p) == null) { return; }
         if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
             return;
         }
@@ -253,6 +254,7 @@ public class BedFight implements Listener {
         Player p = (Player) e.getEntity();
         UUID playerId = p.getUniqueId();
 
+        if (api.getFight(p) == null) { return; }
         if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
             return;
         }
@@ -270,6 +272,7 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
+        if (api.getFight(p) == null) { return; }
         if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
             return;
         }
@@ -288,6 +291,7 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
+        if (api.getFight(p) == null) { return; }
         if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")
             || !Boolean.TRUE.equals(isInBedfight.get(playerId))) {
             return;
@@ -452,6 +456,7 @@ public class BedFight implements Listener {
 
         Player p = (Player) e.getEntity();
 
+        if (api.getFight(p) == null) { return; }
         if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
             return;
         }
@@ -472,6 +477,7 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID pid = p.getUniqueId();
 
+        if (api.getFight(p) == null) { return; }
         if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
             return;
         }
