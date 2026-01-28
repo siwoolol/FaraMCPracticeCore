@@ -1,5 +1,6 @@
 package lol.siwoo.faramcpracticecore.arena;
 
+import ga.strikepractice.StrikePractice;
 import ga.strikepractice.events.*;
 import ga.strikepractice.fights.Fight;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
@@ -21,16 +22,19 @@ public class ArenaSelectionListener implements Listener {
     }
 
     @EventHandler
-    public void onQueueJoin(PlayerQueue event) {
-        if (event.getPlayer().hasPermission("faramcpracticecore.admin.selectarena")) {
-            ArenaSelectorGUI.open(event.getPlayer(), manager, event.getKit().getName());
+    public void onKitSelect(KitSelectEvent event) {
+        Player player = event.getPlayer();
+        if (player.hasPermission("faramcpracticecore.admin.selectarena")) {
+            // Guard: Only open if the player is actually joining the queue
+            if (StrikePractice.getAPI().isInQueue(player)) {
+                ArenaSelectorGUI.open(player, manager, event.getKit().getName());
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onFightStart(FightStartEvent event) {
         Fight fight = event.getFight();
-        // TRICK: Release entry immediately
         if (fight.getArena().getName().toLowerCase().contains("dynamic")) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> fight.getArena().setUsing(false), 2L);
         }

@@ -40,7 +40,7 @@ public class ArenaSelectorGUI implements Listener {
         ArenaConfig cfg = manager.getArenas().get(name.toLowerCase());
         if (cfg != null) {
             queuedSelections.put(p.getUniqueId(), cfg);
-            p.sendMessage(ChatColor.GREEN + "Arena saved!");
+            p.sendMessage(ChatColor.GREEN + "Arena choice saved!");
             p.closeInventory();
         }
     }

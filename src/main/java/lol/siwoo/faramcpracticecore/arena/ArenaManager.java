@@ -11,7 +11,6 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import ga.strikepractice.fights.Fight;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.*;
-import org.bukkit.util.Vector;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,13 +19,13 @@ public class ArenaManager {
     private final FaraMCPracticeCore plugin;
     private final Map<String, ArenaConfig> arenas = new HashMap<>();
     private final Map<Fight, FightSession> activeSessions = new ConcurrentHashMap<>();
-    private final List<World> pasteWorlds = new ArrayList<>();
-    private final File arenaFolder;
-    private int nextXOffset = 0, worldIndex = 0;
+    private final List<World> worlds = new ArrayList<>();
+    private final File folder;
+    private int nextX = 0, worldIdx = 0;
 
     public ArenaManager(FaraMCPracticeCore plugin) {
         this.plugin = plugin;
-        this.arenaFolder = new File(plugin.getDataFolder(), "arena");
+        this.folder = new File(plugin.getDataFolder(), "arena");
         setupWorlds();
         loadArenas();
     }
@@ -35,40 +34,37 @@ public class ArenaManager {
         String[] names = {"pasteArena1", "pasteArena2", "pasteArena3"};
         for (String n : names) {
             World w = Bukkit.getWorld(n);
-            if (w == null) {
-                w = new WorldCreator(n).type(WorldType.FLAT).generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}").generateStructures(false).createWorld();
-            }
-            if (w != null) pasteWorlds.add(w);
+            if (w == null) w = new WorldCreator(n).type(WorldType.FLAT).generatorSettings("{\"layers\": [], \"biome\":\"minecraft:the_void\"}").generateStructures(false).createWorld();
+            if (w != null) worlds.add(w);
         }
     }
 
     public void loadArenas() {
         arenas.clear();
-        File[] files = arenaFolder.listFiles((dir, name) -> name.endsWith(".yml"));
-        if (files == null) return;
-        for (File f : files) arenas.put(f.getName().replace(".yml", "").toLowerCase(), new ArenaConfig(f));
+        File[] files = folder.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (files != null) for (File f : files) arenas.put(f.getName().replace(".yml", "").toLowerCase(), new ArenaConfig(f));
     }
 
     public FightSession createSession(Fight fight, ArenaConfig config) {
-        if (pasteWorlds.isEmpty()) return null;
-        World w = pasteWorlds.get(worldIndex);
-        Location center = new Location(w, nextXOffset, 100, 0);
-        worldIndex = (worldIndex + 1) % pasteWorlds.size();
-        if (worldIndex == 0) nextXOffset += 5000;
+        if (worlds.isEmpty()) return null;
+        World w = worlds.get(worldIdx);
+        Location center = new Location(w, nextX, 100, 0);
+        worldIdx = (worldIdx + 1) % worlds.size();
+        if (worldIdx == 0) nextX += 5000;
 
         FightSession session = new FightSession(fight, config, center);
-        activeSessions.put(fight, session); // Safe key usage
+        activeSessions.put(fight, session);
         pasteArena(config, center);
         return session;
     }
 
     private void pasteArena(ArenaConfig config, Location center) {
-        File file = new File(arenaFolder, config.getSchematicName());
+        File file = new File(folder, config.getSchematicName());
         if (!file.exists()) return;
         try (ClipboardReader reader = ClipboardFormats.findByFile(file).getReader(new FileInputStream(file))) {
-            Clipboard clipboard = reader.read();
-            try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
-                Operations.complete(new ClipboardHolder(clipboard).createPaste(editSession).to(BlockVector3.at(center.getX(), center.getY(), center.getZ())).ignoreAirBlocks(false).build());
+            Clipboard cb = reader.read();
+            try (EditSession session = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
+                Operations.complete(new ClipboardHolder(cb).createPaste(session).to(BlockVector3.at(center.getX(), center.getY(), center.getZ())).ignoreAirBlocks(false).build());
             }
         } catch (Exception e) { e.printStackTrace(); }
     }

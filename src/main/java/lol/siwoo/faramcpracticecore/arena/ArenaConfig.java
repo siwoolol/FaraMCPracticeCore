@@ -22,8 +22,8 @@ public class ArenaConfig {
         this.corner2 = config.getVector("corner2", new Vector(-30, 0, -30));
         this.center = config.getVector("center", new Vector(0, 0, 0));
         this.kits = new ArrayList<>();
-        List<String> configKits = config.getStringList("kits");
-        if (configKits != null) for (String k : configKits) kits.add(k.toLowerCase());
+        List<String> list = config.getStringList("kits");
+        if (list != null) for (String k : list) kits.add(k.toLowerCase());
     }
 
     public String getName() { return name; }
@@ -33,5 +33,5 @@ public class ArenaConfig {
     public Vector getCorner1() { return corner1.clone(); }
     public Vector getCorner2() { return corner2.clone(); }
     public Vector getCenter() { return center.clone(); }
-    public boolean isKitAllowed(String kitName) { return kits.isEmpty() || kits.contains(kitName.toLowerCase()); }
+    public boolean isKitAllowed(String kit) { return kits.isEmpty() || kits.contains(kit.toLowerCase()); }
 }
