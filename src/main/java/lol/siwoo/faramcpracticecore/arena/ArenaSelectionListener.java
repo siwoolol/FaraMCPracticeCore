@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.util.Vector; // Added
 import java.util.List;
 
 public class ArenaSelectionListener implements Listener {
@@ -24,18 +25,14 @@ public class ArenaSelectionListener implements Listener {
     @EventHandler
     public void onKitSelect(KitSelectEvent event) {
         Player player = event.getPlayer();
-        if (player.hasPermission("faramcpracticecore.admin.selectarena")) {
-            if (StrikePractice.getAPI().isInQueue(player)) {
-                ArenaSelectorGUI.open(player, manager, event.getKit().getName());
-            }
+        if (player.hasPermission("faramcpracticecore.selectarena") && StrikePractice.getAPI().isInQueue(player)) {
+            ArenaSelectorGUI.open(player, manager, event.getKit().getName());
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onFightStart(FightStartEvent event) {
         Fight fight = event.getFight();
-
-        // Use setUsing(false) to release placeholder
         if (fight.getArena().getName().toLowerCase().contains("dynamic")) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> fight.getArena().setUsing(false), 2L);
         }
@@ -51,18 +48,28 @@ public class ArenaSelectionListener implements Listener {
         FightSession session = manager.createSession(fight, config);
         if (session == null) return;
 
-        // MATH: Base World Position + Arena relative Center + Player relative Spawn
-        Location matchCenter = session.getCenter().clone().add(config.getCenter());
-        Location s1 = matchCenter.clone().add(config.getPos1());
-        Location s2 = matchCenter.clone().add(config.getPos2());
+        // MATH: Match Origin (World Offset + Arena Center Offset)
+        Location origin = session.getCenter().clone().add(config.getCenter());
 
-        // Update the temporary locs for StrikePractice logic
+        Location s1 = origin.clone().add(config.getPos1());
+        Location s2 = origin.clone().add(config.getPos2());
+
+        // AUTO-FACE LOGIC: Calculate direction vectors
+        // Player 1 looks at Player 2
+        Vector dir1 = s2.toVector().subtract(s1.toVector()).setY(0); // Lock pitch to 0
+        s1.setDirection(dir1);
+
+        // Player 2 looks at Player 1
+        Vector dir2 = s1.toVector().subtract(s2.toVector()).setY(0); // Lock pitch to 0
+        s2.setDirection(dir2);
+
+        // Update StrikePractice internal locations
         fight.getArena().setLoc1(s1);
         fight.getArena().setLoc2(s2);
 
         List<Player> players = fight.getPlayersInFight();
 
-        // FIX: Teleport with a 1-tick delay to override StrikePractice's initial spawn
+        // Use a 1-tick delay to override StrikePractice's initial spawn logic
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (players.size() >= 1) players.get(0).teleport(s1);
             if (players.size() >= 2) players.get(1).teleport(s2);
@@ -70,7 +77,5 @@ public class ArenaSelectionListener implements Listener {
     }
 
     @EventHandler
-    public void onFightEnd(FightEndEvent event) {
-        manager.endSession(event.getFight());
-    }
+    public void onFightEnd(FightEndEvent event) { manager.endSession(event.getFight()); }
 }
