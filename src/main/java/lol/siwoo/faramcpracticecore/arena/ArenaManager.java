@@ -7,6 +7,7 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.*;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.util.SideEffectSet;
 import ga.strikepractice.fights.Fight;
@@ -124,13 +125,27 @@ public class ArenaManager {
     }
 
     private void clearArena(ArenaConfig config, Location center) {
-        Location c1 = center.clone().add(config.getCorner1()), c2 = center.clone().add(config.getCorner2());
-        for (int x = Math.min(c1.getBlockX(), c2.getBlockX()); x <= Math.max(c1.getBlockX(), c2.getBlockX()); x++) {
-            for (int y = Math.min(c1.getBlockY(), c2.getBlockY()); y <= Math.max(c1.getBlockY(), c2.getBlockY()); y++) {
-                for (int z = Math.min(c1.getBlockZ(), c2.getBlockZ()); z <= Math.max(c1.getBlockZ(), c2.getBlockZ()); z++) {
-                    center.getWorld().getBlockAt(x, y, z).setType(Material.AIR, false);
-                }
-            }
+        try (EditSession session = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
+            session.setSideEffectApplier(SideEffectSet.none());
+
+            Vector c1Offset = config.getCorner1();
+            Vector c2Offset = config.getCorner2();
+
+            BlockVector3 min = BlockVector3.at(
+                    center.getBlockX() + Math.min(c1Offset.getBlockX(), c2Offset.getBlockX()),
+                    center.getBlockY() + Math.min(c1Offset.getBlockY(), c2Offset.getBlockY()),
+                    center.getBlockZ() + Math.min(c1Offset.getBlockZ(), c2Offset.getBlockZ())
+            );
+            BlockVector3 max = BlockVector3.at(
+                    center.getBlockX() + Math.max(c1Offset.getBlockX(), c2Offset.getBlockX()),
+                    center.getBlockY() + Math.max(c1Offset.getBlockY(), c2Offset.getBlockY()),
+                    center.getBlockZ() + Math.max(c1Offset.getBlockZ(), c2Offset.getBlockZ())
+            );
+
+            CuboidRegion region = new CuboidRegion(min, max);
+            session.setBlocks(region, BukkitAdapter.adapt(Material.AIR.createBlockData()));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
