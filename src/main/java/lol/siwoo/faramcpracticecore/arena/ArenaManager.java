@@ -109,10 +109,17 @@ public class ArenaManager {
 
     public void endSession(Fight fight) {
         FightSession s = activeSessions.remove(fight);
+
         if (s != null) {
-            clearArena(s.getConfig(), s.getCenter());
-            // Cleanup chunk ticket
-            s.getCenter().getWorld().removePluginChunkTicket(s.getCenter().getBlockX() >> 4, s.getCenter().getBlockZ() >> 4, plugin);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                clearArena(s.getConfig(), s.getCenter());
+
+                s.getCenter().getWorld().removePluginChunkTicket(
+                        s.getCenter().getBlockX() >> 4,
+                        s.getCenter().getBlockZ() >> 4,
+                        plugin
+                );
+            }, 20L);
         }
     }
 
