@@ -10,12 +10,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.util.Vector; // Added
+import org.bukkit.util.Vector;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class ArenaSelectionListener implements Listener {
     private final FaraMCPracticeCore plugin;
     private final ArenaManager manager;
+    // Track players who are in the post-fight delay to prevent duplicate handling
+    private final Set<UUID> delayedPlayers = new HashSet<>();
 
     public ArenaSelectionListener(FaraMCPracticeCore plugin, ArenaManager manager) {
         this.plugin = plugin;
@@ -72,27 +78,71 @@ public class ArenaSelectionListener implements Listener {
         }, 1L);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onFightEnd(FightEndEvent event) {
-        Fight fight = event.getFight();
-        List<Player> players = fight.getPlayersInFight();
+    /**
+     * Handles the delayed teleport-to-lobby for all fight types.
+     * Keeps players in the arena for 3 seconds so they can see the victory/defeat title.
+     */
+    private void handleDelayedTeleport(Fight fight, List<Player> players) {
         Location spawn = StrikePractice.getAPI().getSpawnLocation();
 
+        // Mark players as in post-fight delay
+        for (Player p : players) {
+            if (p != null) delayedPlayers.add(p.getUniqueId());
+        }
+
+        // 1-tick delay: override StrikePractice's instant teleport back to spawn
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             for (Player p : players) {
-                if (p != null && p.isOnline()) {
-                    p.teleport(p.getLocation());
+                if (p != null && p.isOnline() && delayedPlayers.contains(p.getUniqueId())) {
+                    p.teleport(p.getLocation()); // Keep them where they are
                 }
             }
         }, 1L);
 
+        // After 3 seconds, teleport to lobby and clean up arena
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             for (Player p : players) {
                 if (p != null && p.isOnline()) {
                     p.teleport(spawn);
+                    delayedPlayers.remove(p.getUniqueId());
                 }
             }
             manager.endSession(fight);
-        }, 60L);
+        }, 60L); // 60 ticks = 3 seconds
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onFightEnd(FightEndEvent event) {
+        Fight fight = event.getFight();
+        List<Player> players = fight.getPlayersInFight();
+        handleDelayedTeleport(fight, players);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onDuelEnd(DuelEndEvent event) {
+        Fight fight = event.getFight();
+        List<Player> players = fight.getPlayersInFight();
+
+        // Override StrikePractice's instant teleport for duels too
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            for (Player p : players) {
+                if (p != null && p.isOnline() && delayedPlayers.contains(p.getUniqueId())) {
+                    p.teleport(p.getLocation());
+                }
+            }
+        }, 1L);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBotDuelEnd(BotDuelEndEvent event) {
+        Fight fight = event.getFight();
+        Player player = event.getPlayer();
+
+        // Override StrikePractice's instant teleport for bot duels too
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (player != null && player.isOnline() && delayedPlayers.contains(player.getUniqueId())) {
+                player.teleport(player.getLocation());
+            }
+        }, 1L);
     }
 }
