@@ -72,6 +72,27 @@ public class ArenaSelectionListener implements Listener {
         }, 1L);
     }
 
-    @EventHandler
-    public void onFightEnd(FightEndEvent event) { manager.endSession(event.getFight()); }
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onFightEnd(FightEndEvent event) {
+        Fight fight = event.getFight();
+        List<Player> players = fight.getPlayersInFight();
+        Location spawn = StrikePractice.getAPI().getSpawnLocation();
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            for (Player p : players) {
+                if (p != null && p.isOnline()) {
+                    p.teleport(p.getLocation());
+                }
+            }
+        }, 1L);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            for (Player p : players) {
+                if (p != null && p.isOnline()) {
+                    p.teleport(spawn);
+                }
+            }
+            manager.endSession(fight);
+        }, 60L);
+    }
 }
