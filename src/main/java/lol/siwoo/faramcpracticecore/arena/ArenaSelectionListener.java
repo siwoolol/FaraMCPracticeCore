@@ -20,13 +20,9 @@ public class ArenaSelectionListener implements Listener {
     private final FaraMCPracticeCore plugin;
     private final ArenaManager manager;
 
-    // Players waiting for arena paste to complete (stay in lobby)
     private final Set<UUID> pendingPaste = new HashSet<>();
-    // Players in post-fight delay (stay in arena for 3s)
     private final Set<UUID> delayedPlayers = new HashSet<>();
-    // Fights already processed for start (prevent double-fire)
     private final Set<Fight> handledStarts = new HashSet<>();
-    // Fights already processed for end (prevent double-fire)
     private final Set<Fight> handledEnds = new HashSet<>();
 
     public ArenaSelectionListener(FaraMCPracticeCore plugin, ArenaManager manager) {
@@ -42,9 +38,6 @@ public class ArenaSelectionListener implements Listener {
         }
     }
 
-    /**
-     * Block teleports for players waiting for paste OR in post-fight delay.
-     */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
@@ -54,34 +47,40 @@ public class ArenaSelectionListener implements Listener {
     }
 
     // ─── Fight Start Handlers ─────────────────────────────────────────────
-    // Separate handlers for each event type to get the correct player list.
-    // All delegate to handleFightStart(), which deduplicates via handledStarts.
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBotDuelStart(BotDuelStartEvent event) {
-        // Bot fights: only the human player
+        plugin.getLogger().info("[Arena] BotDuelStartEvent fired | player=" + event.getPlayer().getName());
         handleFightStart(event.getFight(), List.of(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onDuelStart(DuelStartEvent event) {
-        // Duels: both players from the event
+        plugin.getLogger().info("[Arena] DuelStartEvent fired | p1=" + event.getPlayer1().getName()
+                + " p2=" + event.getPlayer2().getName());
         handleFightStart(event.getFight(), List.of(event.getPlayer1(), event.getPlayer2()));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onFightStart(FightStartEvent event) {
-        // Catch-all for any fight type (unranked queue, etc.)
+        // CRITICAL: Skip child event types — they have their own dedicated handlers
+        // above.
+        // Without this check, this handler fires BEFORE the specific handler and uses
+        // fight.getPlayersInFight() which returns 0 for bot fights.
+        if (event instanceof DuelStartEvent || event instanceof BotDuelStartEvent) {
+            return;
+        }
+
+        plugin.getLogger().info("[Arena] FightStartEvent fired (generic) | players="
+                + event.getFight().getPlayersInFight().size());
         handleFightStart(event.getFight(), event.getFight().getPlayersInFight());
     }
 
-    /**
-     * Core fight start handler. Deduplicates via handledStarts.
-     */
     private void handleFightStart(Fight fight, List<Player> players) {
-        // Prevent processing the same fight twice (SP fires parent + child events)
-        if (handledStarts.contains(fight))
+        if (handledStarts.contains(fight)) {
+            plugin.getLogger().info("[Arena] Dedup: fight already handled, skipping");
             return;
+        }
         handledStarts.add(fight);
 
         Arena spArena = fight.getArena();
@@ -96,18 +95,17 @@ public class ArenaSelectionListener implements Listener {
             return;
         }
 
-        plugin.getLogger().info("[Arena] Fight start on '" + arenaName + "' | type=" + fight.getClass().getSimpleName()
-                + " | players=" + players.size());
+        plugin.getLogger().info("[Arena] Processing fight on '" + arenaName + "' | type="
+                + fight.getClass().getSimpleName() + " | players=" + players.size());
 
-        // Free up this SP arena so SP can reuse it for the next queue
+        // Free up this SP arena so SP can reuse it
         Bukkit.getScheduler().runTaskLater(plugin, () -> spArena.setUsing(false), 2L);
 
-        // Determine prefix and ensure a free dynamic arena exists
         boolean isBuild = fight.getKit() != null && fight.getKit().isBuild();
         String prefix = isBuild ? "dynamicbuild" : "dynamic";
         ensureDynamicArenaAvailable(prefix);
 
-        // Pick arena config: user-selected or random for kit
+        // Pick arena config
         ArenaConfig selected = null;
         if (!players.isEmpty()) {
             selected = ArenaSelectorGUI.queuedSelections.remove(players.get(0).getUniqueId());
@@ -117,7 +115,7 @@ public class ArenaSelectionListener implements Listener {
         }
 
         if (selected != null) {
-            plugin.getLogger().info("[Arena] Using config '" + selected.getName() + "' for fight");
+            plugin.getLogger().info("[Arena] Using config '" + selected.getName() + "'");
             startMatch(fight, selected, spArena, players);
         } else {
             plugin.getLogger().warning("[Arena] No arena config found! Kit="
@@ -127,7 +125,6 @@ public class ArenaSelectionListener implements Listener {
     }
 
     private void startMatch(Fight fight, ArenaConfig config, Arena spArena, List<Player> players) {
-        // Block SP's teleport — players stay in lobby during paste
         for (Player p : players) {
             if (p != null)
                 pendingPaste.add(p.getUniqueId());
@@ -136,10 +133,8 @@ public class ArenaSelectionListener implements Listener {
         manager.createSession(fight, config).thenAccept(session -> {
             if (session == null)
                 return;
-
             session.setSpArena(spArena);
 
-            // Teleport on the main thread after paste completes
             Bukkit.getScheduler().runTask(plugin, () -> {
                 Location origin = session.getCenter().clone().add(config.getCenter());
 
@@ -148,15 +143,12 @@ public class ArenaSelectionListener implements Listener {
 
                 Vector dir1 = s2.toVector().subtract(s1.toVector()).setY(0);
                 s1.setDirection(dir1);
-
                 Vector dir2 = s1.toVector().subtract(s2.toVector()).setY(0);
                 s2.setDirection(dir2);
 
-                // Update StrikePractice internal locations
                 fight.getArena().setLoc1(s1);
                 fight.getArena().setLoc2(s2);
 
-                // Unblock teleports, then teleport
                 for (Player p : players) {
                     if (p != null)
                         pendingPaste.remove(p.getUniqueId());
