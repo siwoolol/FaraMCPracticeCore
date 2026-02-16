@@ -24,6 +24,8 @@ public class ArenaSelectionListener implements Listener {
     private final Set<UUID> pendingPaste = new HashSet<>();
     // Players in post-fight delay (stay in arena for 3s)
     private final Set<UUID> delayedPlayers = new HashSet<>();
+    // Fights that already had their end handled (prevent double-fire)
+    private final Set<Fight> handledEnds = Collections.newSetFromMap(new WeakHashMap<>());
 
     public ArenaSelectionListener(FaraMCPracticeCore plugin, ArenaManager manager) {
         this.plugin = plugin;
@@ -52,26 +54,41 @@ public class ArenaSelectionListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onFightStart(FightStartEvent event) {
         Fight fight = event.getFight();
-        String arenaName = fight.getArena().getName().toLowerCase();
+        Arena spArena = fight.getArena();
+        String arenaName = spArena.getName().toLowerCase();
 
-        if (arenaName.contains("dynamic")) {
-            // Free up this SP arena immediately so SP can reuse it for the next queue
-            Bukkit.getScheduler().runTaskLater(plugin, () -> fight.getArena().setUsing(false), 2L);
+        // Determine the dynamic arena prefix based on kit type
+        boolean isBuild = fight.getKit() != null && fight.getKit().isBuild();
+        String prefix = isBuild ? "dynamicbuild" : "dynamic";
 
-            // Ensure another free dynamic arena exists for the next fight
-            ensureDynamicArenaAvailable(fight);
+        // For ALL fights: if the arena is dynamic OR we have a dynamic arena available,
+        // use it
+        boolean isDynamic = arenaName.startsWith(prefix) || arenaName.contains("dynamic");
+
+        if (!isDynamic) {
+            // Not on a dynamic arena AND didn't select one — skip our system
+            return;
         }
 
+        // Free up this SP arena immediately so SP can reuse it for the next queue
+        Bukkit.getScheduler().runTaskLater(plugin, () -> spArena.setUsing(false), 2L);
+
+        // Ensure another free dynamic arena exists for the next fight
+        ensureDynamicArenaAvailable(prefix);
+
+        // Pick the right ArenaConfig (user-selected or random for kit)
         Player p = fight.getPlayersInFight().get(0);
         ArenaConfig selected = ArenaSelectorGUI.queuedSelections.remove(p.getUniqueId());
-        if (selected == null)
+        if (selected == null) {
             selected = manager.getRandomArenaForKit(fight.getKit().getName());
+        }
 
-        if (selected != null)
-            startMatch(fight, selected);
+        if (selected != null) {
+            startMatch(fight, selected, spArena);
+        }
     }
 
-    public void startMatch(Fight fight, ArenaConfig config) {
+    private void startMatch(Fight fight, ArenaConfig config, Arena spArena) {
         // Block SP's teleport — players stay in lobby during paste
         List<Player> players = fight.getPlayersInFight();
         for (Player p : players) {
@@ -84,7 +101,7 @@ public class ArenaSelectionListener implements Listener {
                 return;
 
             // Store the SP arena reference for cleanup later
-            session.setSpArena(fight.getArena());
+            session.setSpArena(spArena);
 
             // Teleport on the main thread after paste completes
             Bukkit.getScheduler().runTask(plugin, () -> {
@@ -120,12 +137,8 @@ public class ArenaSelectionListener implements Listener {
 
     /**
      * Ensures at least one free dynamic SP arena exists for the next queued fight.
-     * If all dynamic arenas of the matching type are in use, clones one.
      */
-    private void ensureDynamicArenaAvailable(Fight fight) {
-        boolean isBuild = fight.getKit() != null && fight.getKit().isBuild();
-        String prefix = isBuild ? "dynamicbuild" : "dynamic";
-
+    private void ensureDynamicArenaAvailable(String prefix) {
         List<Arena> matching = new ArrayList<>();
         boolean hasFree = false;
 
@@ -138,41 +151,28 @@ public class ArenaSelectionListener implements Listener {
         }
 
         if (!hasFree && !matching.isEmpty()) {
-            // All dynamic arenas are in use — create a new one
             Arena template = matching.get(0);
             String newName = prefix + "_" + (matching.size() + 1);
 
-            Arena existing = StrikePractice.getAPI().getArena(newName);
-            if (existing != null)
-                return; // already exists
-
-            // Clone the template arena with a new name
-            Arena clone = StrikePractice.getAPI().getArena(template.getName());
-            if (clone == null)
+            if (StrikePractice.getAPI().getArena(newName) != null)
                 return;
 
-            // Create a new arena via the SP API by getting the template and saving a copy
-            // We use the template's locations — our plugin overrides them per-fight anyway
-            Location defaultLoc = new Location(Bukkit.getWorlds().get(0), 0, 100, 0);
-            createSpArena(newName, template, defaultLoc);
+            createSpArena(newName, template);
         }
     }
 
     /**
-     * Creates a new StrikePractice arena by cloning a template's settings.
+     * Creates a new StrikePractice arena by cloning a template.
      */
-    private void createSpArena(String name, Arena template, Location defaultLoc) {
+    private void createSpArena(String name, Arena template) {
         try {
-            // Use BattleKit.createKit pattern — SP arenas implement
-            // ConfigurationSerializable
-            // We serialize the template, modify the name, and save
+            Location defaultLoc = new Location(Bukkit.getWorlds().get(0), 0, 100, 0);
             Map<String, Object> data = template.serialize();
             data.put("name", name);
             data.put("loc1", defaultLoc);
             data.put("loc2", defaultLoc);
             data.put("center", defaultLoc);
 
-            // Deserialize back into an Arena and register it
             Arena newArena = (Arena) org.bukkit.configuration.serialization.ConfigurationSerialization
                     .deserializeObject(data, template.getClass());
 
@@ -188,10 +188,13 @@ public class ArenaSelectionListener implements Listener {
     }
 
     /**
-     * Cleans up extra dynamic SP arenas after a fight — keeps at least 1 of each
-     * prefix.
+     * Cleans up extra dynamic SP arenas — keeps at least 1 of each prefix.
      */
-    private void cleanupDynamicArena(FightSession session) {
+    private void cleanupDynamicArena(Fight fight) {
+        FightSession session = manager.getSession(fight);
+        if (session == null)
+            return;
+
         Arena spArena = session.getSpArena();
         if (spArena == null)
             return;
@@ -203,12 +206,11 @@ public class ArenaSelectionListener implements Listener {
         boolean isBuild = arenaName.startsWith("dynamicbuild");
         String prefix = isBuild ? "dynamicbuild" : "dynamic";
 
-        // Count how many arenas share this prefix
         long count = StrikePractice.getAPI().getArenas().stream()
                 .filter(a -> a.getName().toLowerCase().startsWith(prefix))
                 .count();
 
-        // Only remove if there's more than 1 (keep at least the base arena)
+        // Only remove if there's more than 1 AND this is an extra (has underscore)
         if (count > 1 && arenaName.contains("_")) {
             spArena.removeFromStrikePractice();
             plugin.getLogger().info("Removed extra dynamic SP arena: " + spArena.getName());
@@ -218,10 +220,20 @@ public class ArenaSelectionListener implements Listener {
     // ─── Post-Fight Delay ────────────────────────────────────────────────
 
     /**
-     * Keeps players in the arena for 3 seconds after fight ends,
-     * then teleports to spawn and cleans up.
+     * Single handler for ALL fight end types.
+     * Uses handledEnds set to prevent double-handling when both
+     * FightEndEvent and DuelEndEvent/BotDuelEndEvent fire for the same fight.
      */
-    private void handleDelayedTeleport(Fight fight, List<Player> players) {
+    private void handleFightEnd(Fight fight, List<Player> players) {
+        // Prevent double-fire (FightEndEvent + DuelEndEvent for the same fight)
+        if (handledEnds.contains(fight))
+            return;
+        handledEnds.add(fight);
+
+        // Only handle if we have an active session for this fight
+        if (manager.getSession(fight) == null)
+            return;
+
         Location spawn = StrikePractice.getAPI().getSpawnLocation();
 
         for (Player p : players) {
@@ -229,7 +241,13 @@ public class ArenaSelectionListener implements Listener {
                 delayedPlayers.add(p.getUniqueId());
         }
 
+        // After 3 seconds: cleanup dynamic arena, unblock teleports, teleport to spawn,
+        // end session
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            // Clean up extra dynamic arenas BEFORE ending the session
+            cleanupDynamicArena(fight);
+
+            // Unblock and teleport
             for (Player p : players) {
                 if (p != null && p.isOnline()) {
                     delayedPlayers.remove(p.getUniqueId());
@@ -237,29 +255,26 @@ public class ArenaSelectionListener implements Listener {
                 }
             }
 
-            FightSession session = manager.getSession(fight);
-            if (session != null) {
-                cleanupDynamicArena(session);
-            }
+            // Clear blocks and release chunks
             manager.endSession(fight);
-        }, 60L); // 60 ticks = 3 seconds
+
+            // Clean up the dedup set
+            handledEnds.remove(fight);
+        }, 60L);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onFightEnd(FightEndEvent event) {
-        Fight fight = event.getFight();
-        handleDelayedTeleport(fight, fight.getPlayersInFight());
+        handleFightEnd(event.getFight(), event.getFight().getPlayersInFight());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDuelEnd(DuelEndEvent event) {
-        Fight fight = event.getFight();
-        handleDelayedTeleport(fight, fight.getPlayersInFight());
+        handleFightEnd(event.getFight(), event.getFight().getPlayersInFight());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBotDuelEnd(BotDuelEndEvent event) {
-        Fight fight = event.getFight();
-        handleDelayedTeleport(fight, List.of(event.getPlayer()));
+        handleFightEnd(event.getFight(), List.of(event.getPlayer()));
     }
 }
