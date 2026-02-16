@@ -45,49 +45,56 @@ public class ArenaSelectionListener implements Listener {
 
         Player p = fight.getPlayersInFight().get(0);
         ArenaConfig selected = ArenaSelectorGUI.queuedSelections.remove(p.getUniqueId());
-        if (selected == null) selected = manager.getRandomArenaForKit(fight.getKit().getName());
+        if (selected == null)
+            selected = manager.getRandomArenaForKit(fight.getKit().getName());
 
-        if (selected != null) startMatch(fight, selected);
+        if (selected != null)
+            startMatch(fight, selected);
     }
 
     public void startMatch(Fight fight, ArenaConfig config) {
-        FightSession session = manager.createSession(fight, config);
-        if (session == null) return;
+        manager.createSession(fight, config).thenAccept(session -> {
+            if (session == null)
+                return;
 
-        Location origin = session.getCenter().clone().add(config.getCenter());
+            // Teleport on the main thread after paste completes
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                Location origin = session.getCenter().clone().add(config.getCenter());
 
-        Location s1 = origin.clone().add(config.getPos1());
-        Location s2 = origin.clone().add(config.getPos2());
+                Location s1 = origin.clone().add(config.getPos1());
+                Location s2 = origin.clone().add(config.getPos2());
 
-        Vector dir1 = s2.toVector().subtract(s1.toVector()).setY(0);
-        s1.setDirection(dir1);
+                Vector dir1 = s2.toVector().subtract(s1.toVector()).setY(0);
+                s1.setDirection(dir1);
 
-        Vector dir2 = s1.toVector().subtract(s2.toVector()).setY(0);
-        s2.setDirection(dir2);
+                Vector dir2 = s1.toVector().subtract(s2.toVector()).setY(0);
+                s2.setDirection(dir2);
 
-        // Update StrikePractice internal locations
-        fight.getArena().setLoc1(s1);
-        fight.getArena().setLoc2(s2);
+                // Update StrikePractice internal locations
+                fight.getArena().setLoc1(s1);
+                fight.getArena().setLoc2(s2);
 
-        List<Player> players = fight.getPlayersInFight();
-
-        // Use a 1-tick delay to override StrikePractice's initial spawn logic
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (players.size() >= 1) players.get(0).teleport(s1);
-            if (players.size() >= 2) players.get(1).teleport(s2);
-        }, 1L);
+                List<Player> players = fight.getPlayersInFight();
+                if (players.size() >= 1)
+                    players.get(0).teleport(s1);
+                if (players.size() >= 2)
+                    players.get(1).teleport(s2);
+            });
+        });
     }
 
     /**
      * Handles the delayed teleport-to-lobby for all fight types.
-     * Keeps players in the arena for 3 seconds so they can see the victory/defeat title.
+     * Keeps players in the arena for 3 seconds so they can see the victory/defeat
+     * title.
      */
     private void handleDelayedTeleport(Fight fight, List<Player> players) {
         Location spawn = StrikePractice.getAPI().getSpawnLocation();
 
         // Mark players as in post-fight delay
         for (Player p : players) {
-            if (p != null) delayedPlayers.add(p.getUniqueId());
+            if (p != null)
+                delayedPlayers.add(p.getUniqueId());
         }
 
         // 1-tick delay: override StrikePractice's instant teleport back to spawn

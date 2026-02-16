@@ -17,6 +17,7 @@ import org.bukkit.*;
 import org.bukkit.util.Vector;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ArenaManager {
@@ -62,9 +63,9 @@ public class ArenaManager {
         }
     }
 
-    public FightSession createSession(Fight fight, ArenaConfig config) {
+    public CompletableFuture<FightSession> createSession(Fight fight, ArenaConfig config) {
         if (pasteWorlds.isEmpty())
-            return null;
+            return CompletableFuture.completedFuture(null);
         World world = pasteWorlds.get(currentWorldIndex);
         Location center = new Location(world, nextXOffset, 100, 0);
 
@@ -78,14 +79,16 @@ public class ArenaManager {
         FightSession session = new FightSession(fight, config, center);
         activeSessions.put(fight, session);
 
-        pasteArena(config, center);
-        return session;
+        return pasteArena(config, center).thenApply(v -> session);
     }
 
-    private void pasteArena(ArenaConfig config, Location center) {
+    private CompletableFuture<Void> pasteArena(ArenaConfig config, Location center) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
         File file = new File(arenaFolder, config.getSchematicName());
-        if (!file.exists())
-            return;
+        if (!file.exists()) {
+            future.complete(null);
+            return future;
+        }
 
         // FAWE: Everything runs async — EditSession is thread-safe
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -106,10 +109,13 @@ public class ArenaManager {
                             .to(pastePos)
                             .ignoreAirBlocks(false).build());
                 }
+                future.complete(null);
             } catch (Exception e) {
                 e.printStackTrace();
+                future.complete(null);
             }
         });
+        return future;
     }
 
     public void endSession(Fight fight) {
