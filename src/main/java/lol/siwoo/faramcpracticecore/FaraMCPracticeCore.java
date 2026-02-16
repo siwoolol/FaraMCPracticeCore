@@ -56,7 +56,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         apiCheck();
         registerEvents();
 
-//        JoinMessage.initialize(this);
+        // JoinMessage.initialize(this);
 
         WebhookMessage.statusMessage("Back Up");
     }
@@ -88,7 +88,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
             strikePracticeAPI = StrikePractice.getAPI();
 
             if (strikePracticeAPI == null) {
-                getLogger().severe("Failed to get StrikePractice API! Make sure StrikePractice is installed and loaded.");
+                getLogger()
+                        .severe("Failed to get StrikePractice API! Make sure StrikePractice is installed and loaded.");
                 getServer().getPluginManager().disablePlugin(this);
                 return;
             }
@@ -98,6 +99,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
             return;
         }
     }
+
     @Override
     public void onDisable() {
         WebhookMessage.statusMessage("Down");
@@ -108,7 +110,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         e.joinMessage(null);
 
         Player p = e.getPlayer();
-//        JoinMessage.sendJoinMessage(p);
+        // JoinMessage.sendJoinMessage(p);
     }
 
     @EventHandler
@@ -133,14 +135,14 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new ArenaSelectorGUI(arenaManager), this);
         getCommand("faraarena").setExecutor(new ArenaSetupCommand(this));
 
-//        aiCoach = new AICoach(this, strikePracticeAPI);
-//        trainingManager = new TrainingManager(this);
+        // aiCoach = new AICoach(this, strikePracticeAPI);
+        // trainingManager = new TrainingManager(this);
 
         // Fixes
         pm.registerEvents(new PotThrowMech(), this);
 
         pm.registerEvents(this, this);
-//        pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
+        // pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
         pm.registerEvents(new QueueGUIListener(this), this);
         pm.registerEvents(new KitEditor(this), this);
         pm.registerEvents(new WarningMessage(), this);
@@ -151,14 +153,14 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new SuggestPartyOwnerListener(), this);
         pm.registerEvents(new Boxing(this), this);
         pm.registerEvents(new BedFight(this), this);
-//        pm.registerEvents(new FireballFight(this), this);
+        // pm.registerEvents(new FireballFight(this), this);
         pm.registerEvents(new WindFight(this), this);
         pm.registerEvents(new RBWFFA(this), this);
-//        pm.registerEvents(new AICoachListener(aiCoach, strikePracticeAPI), this);
+        // pm.registerEvents(new AICoachListener(aiCoach, strikePracticeAPI), this);
 
-//        DataLogger dataLogger = new DataLogger(this);
-//        pm.registerEvents(dataLogger, this);
-//        pm.registerEvents(new JoinMessage(), this);
+        // DataLogger dataLogger = new DataLogger(this);
+        // pm.registerEvents(dataLogger, this);
+        // pm.registerEvents(new JoinMessage(), this);
         QueueLastGame queueLastGame = new QueueLastGame();
         pm.registerEvents(queueLastGame, this);
 
@@ -168,10 +170,10 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("ranked").setExecutor(new RankedQueue());
         getCommand("botduel").setExecutor(new PvpBotQueue());
         getCommand("queuelastgame").setExecutor(queueLastGame);
-//        getCommand("train").setExecutor(new TrainingCommand(this, trainingManager));
+        // getCommand("train").setExecutor(new TrainingCommand(this, trainingManager));
 
         getCommand("fly").setExecutor(new Flight());
-//        getCommand("ai").setExecutor(aiCoach);
+        // getCommand("ai").setExecutor(aiCoach);
         getCommand("forcewin").setExecutor(new ForceWin());
         getCommand("hurryuppartyowner").setExecutor(new HurryUpPartyOwner());
         getCommand("suggestgamemodetopartyowner").setExecutor(new SuggestPartyOwner());
@@ -180,8 +182,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("gmsp").setExecutor(new GMSP());
         getCommand("gma").setExecutor(new GMA());
         getCommand("sudo").setExecutor(new Sudo());
-//        getCommand("terms_agree").setExecutor(new Agree(this));
-//        getCommand("terms_disagree").setExecutor(new Disagree());
+        // getCommand("terms_agree").setExecutor(new Agree(this));
+        // getCommand("terms_disagree").setExecutor(new Disagree());
     }
 
     public ArenaManager getArenaManager() {
@@ -209,9 +211,10 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         }
     }
 
-// Basic permission check example
-//    if (!p.hasPermission("faramcpracticecore.admin")) {
-//        p.sendMessage(ChatColor.GRAY + "Unknown command. Type" + ChatColor.RED + " /help " + ChatColor.GRAY + "for help.");
-//        return true;
-//    }
+    // Basic permission check example
+    // if (!p.hasPermission("faramcpracticecore.admin")) {
+    // p.sendMessage(ChatColor.GRAY + "Unknown command. Type" + ChatColor.RED + "
+    // /help " + ChatColor.GRAY + "for help.");
+    // return true;
+    // }
 }
