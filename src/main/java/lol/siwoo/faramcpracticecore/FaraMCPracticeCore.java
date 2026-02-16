@@ -144,6 +144,12 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(this, this);
         // pm.registerEvents(new TrainingGUIListener(this, trainingManager), this);
         pm.registerEvents(new QueueGUIListener(this), this);
+        PvpBotQueue botQueue = new PvpBotQueue(this);
+        pm.registerEvents(botQueue, this);
+        pm.registerEvents(new BotQueueListener(this), this);
+        DuelGUI duelGUI = new DuelGUI(this);
+        pm.registerEvents(duelGUI, this);
+        pm.registerEvents(new DuelGUIListener(this), this);
         pm.registerEvents(new KitEditor(this), this);
         pm.registerEvents(new WarningMessage(), this);
         pm.registerEvents(new UnrankedGUI(this), this);
@@ -168,7 +174,8 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         getCommand("unranked").setExecutor(new UnrankedGUI(this));
         getCommand("queue").setExecutor(new UnrankedGUI(this));
         getCommand("ranked").setExecutor(new RankedQueue());
-        getCommand("botduel").setExecutor(new PvpBotQueue());
+        getCommand("botduel").setExecutor(botQueue);
+        getCommand("duel").setExecutor(duelGUI);
         getCommand("queuelastgame").setExecutor(queueLastGame);
         // getCommand("train").setExecutor(new TrainingCommand(this, trainingManager));
 

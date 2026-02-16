@@ -326,4 +326,45 @@ public class ArenaManager {
     public void shutdown() {
         activeSessions.keySet().forEach(this::endSession);
     }
+
+    public Arena getOrAllocateDynamicArena(boolean isBuild) {
+        String baseName = isBuild ? "dynamicbuild" : "dynamic";
+        List<Arena> existing = StrikePractice.getAPI().getArenas();
+
+        // 1. Try to find a free existing arena
+        for (Arena a : existing) {
+            if (a.getName().toLowerCase().startsWith(baseName) && !a.isUsing()) {
+                return a;
+            }
+        }
+
+        // 2. No free arena, create a new one
+        // Find the base template (the one strictly named "dynamic" or "dynamicbuild")
+        Arena template = StrikePractice.getAPI().getArena(baseName);
+        if (template == null) {
+            plugin.getLogger().warning("Base arena '" + baseName + "' missing! Cannot allocate dynamic arena.");
+            return null;
+        }
+
+        // Find a new name
+        int i = 1;
+        String newName;
+        do {
+            i++;
+            newName = baseName + "_" + i;
+        } while (StrikePractice.getAPI().getArena(newName) != null);
+
+        // Create it
+        createBaseSpArena(newName, template.getLoc1(), isBuild); // Uses helper which saves it
+        Arena newArena = StrikePractice.getAPI().getArena(newName);
+        if (newArena != null) {
+            // Ensure permissions/kits are copied from template in case createBaseSpArena
+            // didn't (it clears kits)
+            newArena.setKits(template.getKits());
+            newArena.saveForStrikePractice();
+            return newArena;
+        }
+
+        return null;
+    }
 }

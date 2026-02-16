@@ -14,6 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
+import net.citizensnpcs.api.npc.NPC;
+
 import java.util.*;
 
 public class ArenaSelectionListener implements Listener {
@@ -24,6 +26,7 @@ public class ArenaSelectionListener implements Listener {
     private final Set<UUID> delayedPlayers = new HashSet<>();
     private final Set<Fight> handledStarts = new HashSet<>();
     private final Set<Fight> handledEnds = new HashSet<>();
+    private final Map<Fight, NPC> pendingBots = new WeakHashMap<>();
 
     public ArenaSelectionListener(FaraMCPracticeCore plugin, ArenaManager manager) {
         this.plugin = plugin;
@@ -50,6 +53,10 @@ public class ArenaSelectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBotDuelStart(BotDuelStartEvent event) {
+        // Store the bot to teleport it later
+        if (event.getBot() != null) {
+            pendingBots.put(event.getFight(), event.getBot());
+        }
         // Bot fight: use the single human player
         handleFightStart(event.getFight(), List.of(event.getPlayer()));
     }
@@ -84,8 +91,7 @@ public class ArenaSelectionListener implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> spArena.setUsing(false), 2L);
 
         boolean isBuild = fight.getKit() != null && fight.getKit().isBuild();
-        String prefix = isBuild ? "dynamicbuild" : "dynamic";
-        ensureDynamicArenaAvailable(prefix);
+        manager.getOrAllocateDynamicArena(isBuild);
 
         ArenaConfig selected = null;
         if (!players.isEmpty()) {
@@ -130,15 +136,30 @@ public class ArenaSelectionListener implements Listener {
                 fight.getArena().setLoc1(s1);
                 fight.getArena().setLoc2(s2);
 
+                // Explicitly teleport the bot if present
+                NPC bot = pendingBots.remove(fight);
+                if (bot != null && bot.isSpawned()) {
+                    bot.teleport(s2, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    plugin.getLogger().info("[Arena] Force teleported bot " + bot.getName() + " to " + s2.toVector());
+                } else if (bot != null) {
+                    plugin.getLogger().warning("[Arena] Bot " + bot.getName() + " is not spawned!");
+                }
+
                 // Unblock and teleport human players
                 for (Player p : players) {
-                    if (p != null)
+                    if (p != null) {
                         pendingPaste.remove(p.getUniqueId());
+                    }
                 }
-                if (players.size() >= 1)
-                    players.get(0).teleport(s1);
-                if (players.size() >= 2)
+
+                if (players.size() >= 1) {
+                    boolean success = players.get(0).teleport(s1);
+                    plugin.getLogger().info("[Arena] Teleporting player " + players.get(0).getName() + " to "
+                            + s1.toVector() + " | Success: " + success);
+                }
+                if (players.size() >= 2) {
                     players.get(1).teleport(s2);
+                }
 
                 plugin.getLogger().info("[Arena] Teleported " + players.size() + " player(s) to '"
                         + config.getName() + "' in " + s1.getWorld().getName());
@@ -147,55 +168,6 @@ public class ArenaSelectionListener implements Listener {
     }
 
     // ─── Dynamic Arena Management ────────────────────────────────────────
-
-    private void ensureDynamicArenaAvailable(String prefix) {
-        List<Arena> matching = new ArrayList<>();
-        boolean hasFree = false;
-
-        for (Arena a : StrikePractice.getAPI().getArenas()) {
-            if (a.getName().toLowerCase().startsWith(prefix)) {
-                matching.add(a);
-                if (!a.isUsing())
-                    hasFree = true;
-            }
-        }
-
-        if (!hasFree && !matching.isEmpty()) {
-            Arena template = matching.get(0);
-            String newName = prefix + "_" + (matching.size() + 1);
-            if (StrikePractice.getAPI().getArena(newName) != null)
-                return;
-            createSpArena(newName, template);
-        }
-    }
-
-    private void createSpArena(String name, Arena template) {
-        try {
-            Location defaultLoc = new Location(Bukkit.getWorld("world"), 0, 100, 0);
-            Map<String, Object> data = template.serialize();
-            data.put("name", name);
-            data.put("loc1", defaultLoc.clone());
-            data.put("loc2", defaultLoc.clone());
-            data.put("center", defaultLoc.clone());
-
-            Arena newArena = (Arena) org.bukkit.configuration.serialization.ConfigurationSerialization
-                    .deserializeObject(data, template.getClass());
-
-            if (newArena != null) {
-                newArena.setLoc1(defaultLoc.clone());
-                newArena.setLoc2(defaultLoc.clone());
-                newArena.setCenter(defaultLoc.clone());
-                newArena.setBuild(template.isBuild());
-                newArena.setUsing(false);
-                newArena.setKits(template.getKits());
-                newArena.saveForStrikePractice();
-                plugin.getLogger().info("[Arena] Created dynamic SP arena: " + name);
-            }
-        } catch (Exception e) {
-            plugin.getLogger().warning("[Arena] Failed to create '" + name + "': " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     private void cleanupDynamicArena(Fight fight) {
         FightSession session = manager.getSession(fight);

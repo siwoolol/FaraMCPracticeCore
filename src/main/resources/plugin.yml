@@ -40,6 +40,9 @@ commands:
   botduel:
     usage: "/botduel"
     description: "Open the PvP Bot GUI"
+  duel:
+    usage: "/duel <player>"
+    description: "Send a duel request to another player"
   fly:
     usage: "/fly"
     description: "Allows You To Fly"
