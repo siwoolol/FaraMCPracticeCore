@@ -11,6 +11,8 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.util.SideEffectSet;
+import ga.strikepractice.StrikePractice;
+import ga.strikepractice.arena.Arena;
 import ga.strikepractice.fights.Fight;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import org.bukkit.*;
@@ -35,6 +37,9 @@ public class ArenaManager {
             arenaFolder.mkdirs();
         setupWorlds();
         loadArenas();
+
+        // Initialize dynamic SP arenas after StrikePractice is fully loaded
+        Bukkit.getScheduler().runTaskLater(plugin, this::initDynamicSpArenas, 40L);
     }
 
     private void setupWorlds() {
@@ -47,10 +52,78 @@ public class ArenaManager {
                         .generateStructures(false).createWorld();
             }
             if (world != null) {
-                // Persistent loading for Paper 1.21.1+
                 world.addPluginChunkTicket(0, 0, plugin);
                 pasteWorlds.add(world);
             }
+        }
+    }
+
+    /**
+     * On startup: remove all dynamic/dynamicbuild SP arenas, then create fresh
+     * ones.
+     * This prevents StrikePractice from glitching with stale arena configs.
+     */
+    private void initDynamicSpArenas() {
+        try {
+            List<Arena> toRemove = new ArrayList<>();
+            for (Arena a : StrikePractice.getAPI().getArenas()) {
+                String name = a.getName().toLowerCase();
+                if (name.startsWith("dynamic")) {
+                    toRemove.add(a);
+                }
+            }
+
+            for (Arena a : toRemove) {
+                a.removeFromStrikePractice();
+                plugin.getLogger().info("Removed stale SP arena: " + a.getName());
+            }
+
+            // Create fresh "dynamic" and "dynamicbuild" arenas
+            Location defaultLoc = new Location(Bukkit.getWorlds().get(0), 0, 100, 0);
+            createFreshSpArena("dynamic", defaultLoc, false);
+            createFreshSpArena("dynamicbuild", defaultLoc, true);
+
+            plugin.getLogger().info("Dynamic SP arenas initialized.");
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to init dynamic SP arenas: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Creates a fresh SP arena with the given name using the SP API.
+     */
+    private void createFreshSpArena(String name, Location loc, boolean isBuild) {
+        try {
+            // Check if any existing arena can be used as a template for serialization
+            List<Arena> existing = StrikePractice.getAPI().getArenas();
+            if (existing.isEmpty()) {
+                plugin.getLogger().warning("No existing SP arenas to use as template for " + name);
+                return;
+            }
+
+            Arena template = existing.get(0);
+            Map<String, Object> data = template.serialize();
+            data.put("name", name);
+            data.put("loc1", loc.clone());
+            data.put("loc2", loc.clone());
+            data.put("center", loc.clone());
+
+            Arena newArena = (Arena) org.bukkit.configuration.serialization.ConfigurationSerialization
+                    .deserializeObject(data, template.getClass());
+
+            if (newArena != null) {
+                newArena.setUsing(false);
+                if (isBuild)
+                    newArena.setBuild(true);
+                // Allow all kits
+                newArena.setKits(new ArrayList<>());
+                newArena.saveForStrikePractice();
+                plugin.getLogger().info("Created fresh SP arena: " + name);
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to create SP arena '" + name + "': " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -90,7 +163,6 @@ public class ArenaManager {
             return future;
         }
 
-        // FAWE: Everything runs async — EditSession is thread-safe
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try (ClipboardReader reader = ClipboardFormats.findByFile(file).getReader(new FileInputStream(file))) {
                 Clipboard cb = reader.read();
@@ -122,23 +194,24 @@ public class ArenaManager {
         FightSession s = activeSessions.remove(fight);
 
         if (s != null) {
-            // Delay 1 second, then clear async
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                // Remove chunk ticket on the main thread (Bukkit API requirement)
-                s.getCenter().getWorld().removePluginChunkTicket(
-                        s.getCenter().getBlockX() >> 4,
-                        s.getCenter().getBlockZ() >> 4,
-                        plugin);
-
-                // Clear arena blocks asynchronously via FAWE
-                clearArenaAsync(s.getConfig(), s.getCenter());
-            }, 20L);
+            // Clear blocks first, THEN release the chunk ticket
+            clearArenaAsync(s.getConfig(), s.getCenter()).thenRun(() -> {
+                // Release chunk ticket on the main thread after blocks are cleared
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    s.getCenter().getWorld().removePluginChunkTicket(
+                            s.getCenter().getBlockX() >> 4,
+                            s.getCenter().getBlockZ() >> 4,
+                            plugin);
+                });
+            });
         }
     }
 
-    private void clearArenaAsync(ArenaConfig config, Location center) {
+    private CompletableFuture<Void> clearArenaAsync(ArenaConfig config, Location center) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try (EditSession session = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
+            try (EditSession session = WorldEdit.getInstance()
+                    .newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
                 session.setSideEffectApplier(SideEffectSet.none());
 
                 Vector c1Offset = config.getCorner1();
@@ -155,10 +228,18 @@ public class ArenaManager {
 
                 CuboidRegion region = new CuboidRegion(min, max);
                 session.setBlocks((Region) region, BukkitAdapter.adapt(Material.AIR.createBlockData()));
+                session.flushQueue();
+
+                plugin.getLogger().info("Cleared arena blocks at " + center.getBlockX() + ", " + center.getBlockY()
+                        + ", " + center.getBlockZ());
+                future.complete(null);
             } catch (Exception e) {
+                plugin.getLogger().warning("Failed to clear arena: " + e.getMessage());
                 e.printStackTrace();
+                future.complete(null);
             }
         });
+        return future;
     }
 
     public ArenaConfig getRandomArenaForKit(String kit) {
