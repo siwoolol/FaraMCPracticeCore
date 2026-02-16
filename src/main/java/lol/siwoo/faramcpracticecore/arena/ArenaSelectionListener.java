@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
 import java.util.HashSet;
@@ -84,6 +85,17 @@ public class ArenaSelectionListener implements Listener {
     }
 
     /**
+     * Block ALL teleports for players in the post-fight delay.
+     * This prevents StrikePractice from teleporting them back to spawn instantly.
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        if (delayedPlayers.contains(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+        }
+    }
+
+    /**
      * Handles the delayed teleport-to-lobby for all fight types.
      * Keeps players in the arena for 3 seconds so they can see the victory/defeat
      * title.
@@ -91,27 +103,19 @@ public class ArenaSelectionListener implements Listener {
     private void handleDelayedTeleport(Fight fight, List<Player> players) {
         Location spawn = StrikePractice.getAPI().getSpawnLocation();
 
-        // Mark players as in post-fight delay
+        // Mark players as in post-fight delay (blocks all teleports via the event
+        // listener)
         for (Player p : players) {
             if (p != null)
                 delayedPlayers.add(p.getUniqueId());
         }
 
-        // 1-tick delay: override StrikePractice's instant teleport back to spawn
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            for (Player p : players) {
-                if (p != null && p.isOnline() && delayedPlayers.contains(p.getUniqueId())) {
-                    p.teleport(p.getLocation()); // Keep them where they are
-                }
-            }
-        }, 1L);
-
-        // After 3 seconds, teleport to lobby and clean up arena
+        // After 3 seconds, unblock and teleport to lobby
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             for (Player p : players) {
                 if (p != null && p.isOnline()) {
-                    p.teleport(spawn);
                     delayedPlayers.remove(p.getUniqueId());
+                    p.teleport(spawn);
                 }
             }
             manager.endSession(fight);
@@ -129,27 +133,12 @@ public class ArenaSelectionListener implements Listener {
     public void onDuelEnd(DuelEndEvent event) {
         Fight fight = event.getFight();
         List<Player> players = fight.getPlayersInFight();
-
-        // Override StrikePractice's instant teleport for duels too
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            for (Player p : players) {
-                if (p != null && p.isOnline() && delayedPlayers.contains(p.getUniqueId())) {
-                    p.teleport(p.getLocation());
-                }
-            }
-        }, 1L);
+        handleDelayedTeleport(fight, players);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBotDuelEnd(BotDuelEndEvent event) {
         Fight fight = event.getFight();
-        Player player = event.getPlayer();
-
-        // Override StrikePractice's instant teleport for bot duels too
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (player != null && player.isOnline() && delayedPlayers.contains(player.getUniqueId())) {
-                player.teleport(player.getLocation());
-            }
-        }, 1L);
+        handleDelayedTeleport(fight, List.of(event.getPlayer()));
     }
 }
