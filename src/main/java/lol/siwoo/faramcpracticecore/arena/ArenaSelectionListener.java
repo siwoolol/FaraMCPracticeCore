@@ -24,6 +24,9 @@ public class ArenaSelectionListener implements Listener {
     private final Set<UUID> pendingPaste = new HashSet<>();
     // Players in post-fight delay (stay in arena for 3s)
     private final Set<UUID> delayedPlayers = new HashSet<>();
+    // Fights that already had their start handled (prevent double-fire from
+    // DuelStartEvent + FightStartEvent)
+    private final Set<Fight> handledStarts = Collections.newSetFromMap(new WeakHashMap<>());
     // Fights that already had their end handled (prevent double-fire)
     private final Set<Fight> handledEnds = Collections.newSetFromMap(new WeakHashMap<>());
 
@@ -51,40 +54,61 @@ public class ArenaSelectionListener implements Listener {
         }
     }
 
+    /**
+     * Handles ALL fight types: unranked, duels, and bot fights.
+     * DuelStartEvent and BotDuelStartEvent extend FightStartEvent,
+     * so this handler receives them all. We use handledStarts to prevent
+     * processing the same fight twice.
+     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onFightStart(FightStartEvent event) {
         Fight fight = event.getFight();
+
+        // Prevent double-fire: SP fires both FightStartEvent AND
+        // DuelStartEvent/BotDuelStartEvent
+        if (handledStarts.contains(fight))
+            return;
+        handledStarts.add(fight);
+
         Arena spArena = fight.getArena();
+        if (spArena == null)
+            return;
+
         String arenaName = spArena.getName().toLowerCase();
 
-        // Determine the dynamic arena prefix based on kit type
-        boolean isBuild = fight.getKit() != null && fight.getKit().isBuild();
-        String prefix = isBuild ? "dynamicbuild" : "dynamic";
-
-        // For ALL fights: if the arena is dynamic OR we have a dynamic arena available,
-        // use it
-        boolean isDynamic = arenaName.startsWith(prefix) || arenaName.contains("dynamic");
-
-        if (!isDynamic) {
-            // Not on a dynamic arena AND didn't select one — skip our system
+        // Only handle fights on dynamic arenas
+        if (!arenaName.contains("dynamic"))
             return;
-        }
+
+        plugin.getLogger().info("Handling fight start on arena: " + arenaName
+                + " | Fight type: " + fight.getClass().getSimpleName()
+                + " | Players: " + fight.getPlayersInFight().size());
 
         // Free up this SP arena immediately so SP can reuse it for the next queue
         Bukkit.getScheduler().runTaskLater(plugin, () -> spArena.setUsing(false), 2L);
+
+        // Determine prefix for dynamic arena management
+        boolean isBuild = fight.getKit() != null && fight.getKit().isBuild();
+        String prefix = isBuild ? "dynamicbuild" : "dynamic";
 
         // Ensure another free dynamic arena exists for the next fight
         ensureDynamicArenaAvailable(prefix);
 
         // Pick the right ArenaConfig (user-selected or random for kit)
-        Player p = fight.getPlayersInFight().get(0);
-        ArenaConfig selected = ArenaSelectorGUI.queuedSelections.remove(p.getUniqueId());
-        if (selected == null) {
+        List<Player> players = fight.getPlayersInFight();
+        ArenaConfig selected = null;
+
+        if (!players.isEmpty()) {
+            selected = ArenaSelectorGUI.queuedSelections.remove(players.get(0).getUniqueId());
+        }
+        if (selected == null && fight.getKit() != null) {
             selected = manager.getRandomArenaForKit(fight.getKit().getName());
         }
 
         if (selected != null) {
             startMatch(fight, selected, spArena);
+        } else {
+            plugin.getLogger().warning("No arena config found for fight, skipping paste.");
         }
     }
 
@@ -129,6 +153,9 @@ public class ArenaSelectionListener implements Listener {
                     players.get(0).teleport(s1);
                 if (players.size() >= 2)
                     players.get(1).teleport(s2);
+
+                plugin.getLogger().info("Teleported " + players.size() + " players to arena '"
+                        + config.getName() + "' in " + s1.getWorld().getName());
             });
         });
     }
@@ -166,24 +193,30 @@ public class ArenaSelectionListener implements Listener {
      */
     private void createSpArena(String name, Arena template) {
         try {
-            Location defaultLoc = new Location(Bukkit.getWorlds().get(0), 0, 100, 0);
+            Location defaultLoc = new Location(Bukkit.getWorld("world"), 0, 100, 0);
             Map<String, Object> data = template.serialize();
             data.put("name", name);
-            data.put("loc1", defaultLoc);
-            data.put("loc2", defaultLoc);
-            data.put("center", defaultLoc);
+            data.put("loc1", defaultLoc.clone());
+            data.put("loc2", defaultLoc.clone());
+            data.put("center", defaultLoc.clone());
 
             Arena newArena = (Arena) org.bukkit.configuration.serialization.ConfigurationSerialization
                     .deserializeObject(data, template.getClass());
 
             if (newArena != null) {
+                newArena.setLoc1(defaultLoc.clone());
+                newArena.setLoc2(defaultLoc.clone());
+                newArena.setCenter(defaultLoc.clone());
+                newArena.setBuild(template.isBuild());
                 newArena.setUsing(false);
                 newArena.setKits(template.getKits());
                 newArena.saveForStrikePractice();
-                plugin.getLogger().info("Created dynamic SP arena: " + name);
+                plugin.getLogger()
+                        .info("Created dynamic SP arena: " + name + " (cloned from " + template.getName() + ")");
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to create dynamic arena '" + name + "': " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -210,7 +243,6 @@ public class ArenaSelectionListener implements Listener {
                 .filter(a -> a.getName().toLowerCase().startsWith(prefix))
                 .count();
 
-        // Only remove if there's more than 1 AND this is an extra (has underscore)
         if (count > 1 && arenaName.contains("_")) {
             spArena.removeFromStrikePractice();
             plugin.getLogger().info("Removed extra dynamic SP arena: " + spArena.getName());
@@ -221,16 +253,13 @@ public class ArenaSelectionListener implements Listener {
 
     /**
      * Single handler for ALL fight end types.
-     * Uses handledEnds set to prevent double-handling when both
-     * FightEndEvent and DuelEndEvent/BotDuelEndEvent fire for the same fight.
+     * Uses handledEnds set to prevent double-handling.
      */
     private void handleFightEnd(Fight fight, List<Player> players) {
-        // Prevent double-fire (FightEndEvent + DuelEndEvent for the same fight)
         if (handledEnds.contains(fight))
             return;
         handledEnds.add(fight);
 
-        // Only handle if we have an active session for this fight
         if (manager.getSession(fight) == null)
             return;
 
@@ -241,13 +270,9 @@ public class ArenaSelectionListener implements Listener {
                 delayedPlayers.add(p.getUniqueId());
         }
 
-        // After 3 seconds: cleanup dynamic arena, unblock teleports, teleport to spawn,
-        // end session
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            // Clean up extra dynamic arenas BEFORE ending the session
             cleanupDynamicArena(fight);
 
-            // Unblock and teleport
             for (Player p : players) {
                 if (p != null && p.isOnline()) {
                     delayedPlayers.remove(p.getUniqueId());
@@ -255,11 +280,9 @@ public class ArenaSelectionListener implements Listener {
                 }
             }
 
-            // Clear blocks and release chunks
             manager.endSession(fight);
-
-            // Clean up the dedup set
             handledEnds.remove(fight);
+            handledStarts.remove(fight);
         }, 60L);
     }
 
