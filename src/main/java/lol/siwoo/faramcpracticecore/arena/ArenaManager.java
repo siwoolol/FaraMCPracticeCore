@@ -11,6 +11,7 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.util.SideEffectSet;
+import com.sk89q.worldedit.world.block.BlockTypes;
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.arena.Arena;
 import ga.strikepractice.fights.Fight;
@@ -59,31 +60,77 @@ public class ArenaManager {
     }
 
     /**
-     * On startup: remove all dynamic/dynamicbuild SP arenas, then create fresh
-     * ones.
-     * This prevents StrikePractice from glitching with stale arena configs.
+     * On startup: remove ALL extra dynamic arenas (dynamic_2, dynamicbuild_3, etc.)
+     * then ensure the base "dynamic" and "dynamicbuild" arenas exist and are
+     * properly configured.
+     * All locations are set in minecraft:world (the main world).
      */
     private void initDynamicSpArenas() {
         try {
+            World mainWorld = Bukkit.getWorld("world");
+            if (mainWorld == null) {
+                plugin.getLogger().warning("Could not find 'world' for dynamic arena init!");
+                return;
+            }
+
+            Location spawnLoc = new Location(mainWorld, 0, 100, 0);
+
+            // Remove all extra dynamic arenas (anything with underscore like dynamic_2,
+            // dynamicbuild_3)
             List<Arena> toRemove = new ArrayList<>();
+            boolean hasDynamic = false;
+            boolean hasDynamicBuild = false;
+
             for (Arena a : StrikePractice.getAPI().getArenas()) {
                 String name = a.getName().toLowerCase();
-                if (name.startsWith("dynamic")) {
+                if (name.equals("dynamic")) {
+                    hasDynamic = true;
+                } else if (name.equals("dynamicbuild")) {
+                    hasDynamicBuild = true;
+                } else if (name.startsWith("dynamic")) {
+                    // Extra dynamic arena (dynamic_2, dynamicbuild_3, etc.) — remove it
                     toRemove.add(a);
                 }
             }
 
             for (Arena a : toRemove) {
                 a.removeFromStrikePractice();
-                plugin.getLogger().info("Removed stale SP arena: " + a.getName());
+                plugin.getLogger().info("Removed extra SP arena: " + a.getName());
             }
 
-            // Create fresh "dynamic" and "dynamicbuild" arenas
-            Location defaultLoc = new Location(Bukkit.getWorlds().get(0), 0, 100, 0);
-            createFreshSpArena("dynamic", defaultLoc, false);
-            createFreshSpArena("dynamicbuild", defaultLoc, true);
+            // Ensure "dynamic" exists — non-build arena on world
+            if (hasDynamic) {
+                Arena existing = StrikePractice.getAPI().getArena("dynamic");
+                if (existing != null) {
+                    existing.setLoc1(spawnLoc.clone());
+                    existing.setLoc2(spawnLoc.clone());
+                    existing.setCenter(spawnLoc.clone());
+                    existing.setBuild(false);
+                    existing.setUsing(false);
+                    existing.saveForStrikePractice();
+                    plugin.getLogger().info("Reconfigured SP arena: dynamic");
+                }
+            } else {
+                createBaseSpArena("dynamic", spawnLoc, false);
+            }
 
-            plugin.getLogger().info("Dynamic SP arenas initialized.");
+            // Ensure "dynamicbuild" exists — build arena on world
+            if (hasDynamicBuild) {
+                Arena existing = StrikePractice.getAPI().getArena("dynamicbuild");
+                if (existing != null) {
+                    existing.setLoc1(spawnLoc.clone());
+                    existing.setLoc2(spawnLoc.clone());
+                    existing.setCenter(spawnLoc.clone());
+                    existing.setBuild(true);
+                    existing.setUsing(false);
+                    existing.saveForStrikePractice();
+                    plugin.getLogger().info("Reconfigured SP arena: dynamicbuild");
+                }
+            } else {
+                createBaseSpArena("dynamicbuild", spawnLoc, true);
+            }
+
+            plugin.getLogger().info("Dynamic SP arenas initialized on world '" + mainWorld.getName() + "'.");
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to init dynamic SP arenas: " + e.getMessage());
             e.printStackTrace();
@@ -91,14 +138,13 @@ public class ArenaManager {
     }
 
     /**
-     * Creates a fresh SP arena with the given name using the SP API.
+     * Creates a new base SP arena by cloning an existing template.
      */
-    private void createFreshSpArena(String name, Location loc, boolean isBuild) {
+    private void createBaseSpArena(String name, Location loc, boolean isBuild) {
         try {
-            // Check if any existing arena can be used as a template for serialization
             List<Arena> existing = StrikePractice.getAPI().getArenas();
             if (existing.isEmpty()) {
-                plugin.getLogger().warning("No existing SP arenas to use as template for " + name);
+                plugin.getLogger().warning("No existing SP arenas to use as template for '" + name + "'");
                 return;
             }
 
@@ -113,13 +159,14 @@ public class ArenaManager {
                     .deserializeObject(data, template.getClass());
 
             if (newArena != null) {
+                newArena.setLoc1(loc.clone());
+                newArena.setLoc2(loc.clone());
+                newArena.setCenter(loc.clone());
+                newArena.setBuild(isBuild);
                 newArena.setUsing(false);
-                if (isBuild)
-                    newArena.setBuild(true);
-                // Allow all kits
                 newArena.setKits(new ArrayList<>());
                 newArena.saveForStrikePractice();
-                plugin.getLogger().info("Created fresh SP arena: " + name);
+                plugin.getLogger().info("Created SP arena: " + name + " (build=" + isBuild + ")");
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to create SP arena '" + name + "': " + e.getMessage());
@@ -142,7 +189,6 @@ public class ArenaManager {
         World world = pasteWorlds.get(currentWorldIndex);
         Location center = new Location(world, nextXOffset, 100, 0);
 
-        // Track chunk for this match to keep it loaded
         world.addPluginChunkTicket(center.getBlockX() >> 4, center.getBlockZ() >> 4, plugin);
 
         currentWorldIndex = (currentWorldIndex + 1) % pasteWorlds.size();
@@ -159,6 +205,7 @@ public class ArenaManager {
         CompletableFuture<Void> future = new CompletableFuture<>();
         File file = new File(arenaFolder, config.getSchematicName());
         if (!file.exists()) {
+            plugin.getLogger().warning("Schematic not found: " + file.getAbsolutePath());
             future.complete(null);
             return future;
         }
@@ -181,8 +228,13 @@ public class ArenaManager {
                             .to(pastePos)
                             .ignoreAirBlocks(false).build());
                 }
+
+                plugin.getLogger().info("Pasted arena '" + config.getName() + "' at "
+                        + center.getWorld().getName() + " " + center.getBlockX() + "," + center.getBlockY() + ","
+                        + center.getBlockZ());
                 future.complete(null);
             } catch (Exception e) {
+                plugin.getLogger().severe("Failed to paste arena: " + e.getMessage());
                 e.printStackTrace();
                 future.complete(null);
             }
@@ -194,47 +246,63 @@ public class ArenaManager {
         FightSession s = activeSessions.remove(fight);
 
         if (s != null) {
-            // Clear blocks first, THEN release the chunk ticket
+            plugin.getLogger().info("Ending session for fight, clearing arena at "
+                    + s.getCenter().getWorld().getName() + " " + s.getCenter().getBlockX() + ","
+                    + s.getCenter().getBlockY() + "," + s.getCenter().getBlockZ());
+
+            // Clear blocks FIRST, then release chunk ticket after completion
             clearArenaAsync(s.getConfig(), s.getCenter()).thenRun(() -> {
-                // Release chunk ticket on the main thread after blocks are cleared
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     s.getCenter().getWorld().removePluginChunkTicket(
                             s.getCenter().getBlockX() >> 4,
                             s.getCenter().getBlockZ() >> 4,
                             plugin);
+                    plugin.getLogger().info("Released chunk ticket after arena clear.");
                 });
             });
+        } else {
+            plugin.getLogger().warning("endSession called but no active session found for this fight.");
         }
     }
 
     private CompletableFuture<Void> clearArenaAsync(ArenaConfig config, Location center) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try (EditSession session = WorldEdit.getInstance()
-                    .newEditSession(BukkitAdapter.adapt(center.getWorld()))) {
-                session.setSideEffectApplier(SideEffectSet.none());
+            try {
+                com.sk89q.worldedit.world.World weWorld = BukkitAdapter.adapt(center.getWorld());
 
                 Vector c1Offset = config.getCorner1();
                 Vector c2Offset = config.getCorner2();
+                Vector ctrOffset = config.getCenter();
+
+                // Account for the center offset (same offset used during paste)
+                int baseX = center.getBlockX() + ctrOffset.getBlockX();
+                int baseY = center.getBlockY() + ctrOffset.getBlockY();
+                int baseZ = center.getBlockZ() + ctrOffset.getBlockZ();
 
                 BlockVector3 min = BlockVector3.at(
-                        center.getBlockX() + Math.min(c1Offset.getBlockX(), c2Offset.getBlockX()),
-                        center.getBlockY() + Math.min(c1Offset.getBlockY(), c2Offset.getBlockY()),
-                        center.getBlockZ() + Math.min(c1Offset.getBlockZ(), c2Offset.getBlockZ()));
+                        baseX + Math.min(c1Offset.getBlockX(), c2Offset.getBlockX()),
+                        baseY + Math.min(c1Offset.getBlockY(), c2Offset.getBlockY()),
+                        baseZ + Math.min(c1Offset.getBlockZ(), c2Offset.getBlockZ()));
                 BlockVector3 max = BlockVector3.at(
-                        center.getBlockX() + Math.max(c1Offset.getBlockX(), c2Offset.getBlockX()),
-                        center.getBlockY() + Math.max(c1Offset.getBlockY(), c2Offset.getBlockY()),
-                        center.getBlockZ() + Math.max(c1Offset.getBlockZ(), c2Offset.getBlockZ()));
+                        baseX + Math.max(c1Offset.getBlockX(), c2Offset.getBlockX()),
+                        baseY + Math.max(c1Offset.getBlockY(), c2Offset.getBlockY()),
+                        baseZ + Math.max(c1Offset.getBlockZ(), c2Offset.getBlockZ()));
 
-                CuboidRegion region = new CuboidRegion(min, max);
-                session.setBlocks((Region) region, BukkitAdapter.adapt(Material.AIR.createBlockData()));
-                session.flushQueue();
+                plugin.getLogger()
+                        .info("Clearing region from " + min + " to " + max + " in " + center.getWorld().getName());
 
-                plugin.getLogger().info("Cleared arena blocks at " + center.getBlockX() + ", " + center.getBlockY()
-                        + ", " + center.getBlockZ());
+                try (EditSession session = WorldEdit.getInstance().newEditSession(weWorld)) {
+                    session.setSideEffectApplier(SideEffectSet.none());
+                    CuboidRegion region = new CuboidRegion(weWorld, min, max);
+                    int affected = session.setBlocks((Region) region, BlockTypes.AIR.getDefaultState().toBaseBlock());
+                    session.flushQueue();
+                    plugin.getLogger().info("Cleared " + affected + " blocks.");
+                }
+
                 future.complete(null);
             } catch (Exception e) {
-                plugin.getLogger().warning("Failed to clear arena: " + e.getMessage());
+                plugin.getLogger().severe("Failed to clear arena: " + e.getMessage());
                 e.printStackTrace();
                 future.complete(null);
             }
