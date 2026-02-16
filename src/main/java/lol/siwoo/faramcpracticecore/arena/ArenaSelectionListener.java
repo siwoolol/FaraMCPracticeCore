@@ -47,67 +47,37 @@ public class ArenaSelectionListener implements Listener {
     }
 
     // ─── Fight Start Handlers ─────────────────────────────────────────────
-    //
-    // Bot fights: Skip our paste system entirely — Citizens NPCs can't cross
-    // worlds.
-    // SP handles bot fights normally on the dynamic arena.
-    //
-    // Duels + Unranked: SP fires DuelStartEvent BEFORE the arena is assigned
-    // (arena=null),
-    // then fires FightStartEvent AFTER the arena is set.
-    // So we skip DuelStartEvent and only process FightStartEvent.
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBotDuelStart(BotDuelStartEvent event) {
-        // Bot fights: Citizens NPCs can't teleport across worlds.
-        // We just handle the dynamic arena management (freeing + ensuring availability)
-        // but DON'T paste or teleport — let SP handle it normally.
-        Fight fight = event.getFight();
-        Arena spArena = fight.getArena();
-        if (spArena == null)
+        // Bot fight: use the single human player
+        handleFightStart(event.getFight(), List.of(event.getPlayer()));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onFightStart(FightStartEvent event) {
+        // Skip child events — they have their own handlers
+        if (event instanceof BotDuelStartEvent)
             return;
+        handleFightStart(event.getFight(), event.getFight().getPlayersInFight());
+    }
+
+    private void handleFightStart(Fight fight, List<Player> players) {
+        if (handledStarts.contains(fight))
+            return;
+        handledStarts.add(fight);
+
+        Arena spArena = fight.getArena();
+        if (spArena == null) {
+            // Arena not assigned yet — remove from dedup so next event can retry
+            handledStarts.remove(fight);
+            return;
+        }
 
         String arenaName = spArena.getName().toLowerCase();
         if (!arenaName.contains("dynamic"))
             return;
 
-        plugin.getLogger().info("[Arena] Bot fight on '" + arenaName + "' — letting SP handle (no paste)");
-
-        // Free up and ensure availability for next fight
-        Bukkit.getScheduler().runTaskLater(plugin, () -> spArena.setUsing(false), 2L);
-        boolean isBuild = fight.getKit() != null && fight.getKit().isBuild();
-        ensureDynamicArenaAvailable(isBuild ? "dynamicbuild" : "dynamic");
-
-        // Mark as handled so onFightStart doesn't also process it
-        handledStarts.add(fight);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onFightStart(FightStartEvent event) {
-        // This catches ALL fight types including DuelStartEvent.
-        // BotDuelStartEvent is already handled above and marked in handledStarts.
-        Fight fight = event.getFight();
-
-        if (handledStarts.contains(fight)) {
-            return;
-        }
-        handledStarts.add(fight);
-
-        Arena spArena = fight.getArena();
-        if (spArena == null) {
-            // Arena not assigned yet (SP fires DuelStartEvent before assigning arena).
-            // Remove from handledStarts so the next event for this fight can try again.
-            handledStarts.remove(fight);
-            plugin.getLogger().info("[Arena] Arena is null, will retry on next event for this fight");
-            return;
-        }
-
-        String arenaName = spArena.getName().toLowerCase();
-        if (!arenaName.contains("dynamic")) {
-            return;
-        }
-
-        List<Player> players = fight.getPlayersInFight();
         plugin.getLogger().info("[Arena] Processing fight on '" + arenaName + "' | type="
                 + fight.getClass().getSimpleName() + " | players=" + players.size());
 
@@ -130,8 +100,7 @@ public class ArenaSelectionListener implements Listener {
             startMatch(fight, selected, spArena, players);
         } else {
             plugin.getLogger().warning("[Arena] No arena config found! Kit="
-                    + (fight.getKit() != null ? fight.getKit().getName() : "null")
-                    + " | Available configs=" + manager.getArenas().keySet());
+                    + (fight.getKit() != null ? fight.getKit().getName() : "null"));
         }
     }
 
@@ -157,9 +126,11 @@ public class ArenaSelectionListener implements Listener {
                 Vector dir2 = s1.toVector().subtract(s2.toVector()).setY(0);
                 s2.setDirection(dir2);
 
+                // Update SP arena locations — this makes SP teleport bots here too
                 fight.getArena().setLoc1(s1);
                 fight.getArena().setLoc2(s2);
 
+                // Unblock and teleport human players
                 for (Player p : players) {
                     if (p != null)
                         pendingPaste.remove(p.getUniqueId());
