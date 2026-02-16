@@ -24,11 +24,10 @@ public class ArenaSelectionListener implements Listener {
     private final Set<UUID> pendingPaste = new HashSet<>();
     // Players in post-fight delay (stay in arena for 3s)
     private final Set<UUID> delayedPlayers = new HashSet<>();
-    // Fights that already had their start handled (prevent double-fire from
-    // DuelStartEvent + FightStartEvent)
-    private final Set<Fight> handledStarts = Collections.newSetFromMap(new WeakHashMap<>());
-    // Fights that already had their end handled (prevent double-fire)
-    private final Set<Fight> handledEnds = Collections.newSetFromMap(new WeakHashMap<>());
+    // Fights already processed for start (prevent double-fire)
+    private final Set<Fight> handledStarts = new HashSet<>();
+    // Fights already processed for end (prevent double-fire)
+    private final Set<Fight> handledEnds = new HashSet<>();
 
     public ArenaSelectionListener(FaraMCPracticeCore plugin, ArenaManager manager) {
         this.plugin = plugin;
@@ -54,50 +53,62 @@ public class ArenaSelectionListener implements Listener {
         }
     }
 
-    /**
-     * Handles ALL fight types: unranked, duels, and bot fights.
-     * DuelStartEvent and BotDuelStartEvent extend FightStartEvent,
-     * so this handler receives them all. We use handledStarts to prevent
-     * processing the same fight twice.
-     */
+    // ─── Fight Start Handlers ─────────────────────────────────────────────
+    // Separate handlers for each event type to get the correct player list.
+    // All delegate to handleFightStart(), which deduplicates via handledStarts.
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onBotDuelStart(BotDuelStartEvent event) {
+        // Bot fights: only the human player
+        handleFightStart(event.getFight(), List.of(event.getPlayer()));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onDuelStart(DuelStartEvent event) {
+        // Duels: both players from the event
+        handleFightStart(event.getFight(), List.of(event.getPlayer1(), event.getPlayer2()));
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onFightStart(FightStartEvent event) {
-        Fight fight = event.getFight();
+        // Catch-all for any fight type (unranked queue, etc.)
+        handleFightStart(event.getFight(), event.getFight().getPlayersInFight());
+    }
 
-        // Prevent double-fire: SP fires both FightStartEvent AND
-        // DuelStartEvent/BotDuelStartEvent
+    /**
+     * Core fight start handler. Deduplicates via handledStarts.
+     */
+    private void handleFightStart(Fight fight, List<Player> players) {
+        // Prevent processing the same fight twice (SP fires parent + child events)
         if (handledStarts.contains(fight))
             return;
         handledStarts.add(fight);
 
         Arena spArena = fight.getArena();
-        if (spArena == null)
+        if (spArena == null) {
+            plugin.getLogger().warning("[Arena] Fight started but arena is null!");
             return;
+        }
 
         String arenaName = spArena.getName().toLowerCase();
-
-        // Only handle fights on dynamic arenas
-        if (!arenaName.contains("dynamic"))
+        if (!arenaName.contains("dynamic")) {
+            plugin.getLogger().info("[Arena] Skipping non-dynamic arena: " + arenaName);
             return;
+        }
 
-        plugin.getLogger().info("Handling fight start on arena: " + arenaName
-                + " | Fight type: " + fight.getClass().getSimpleName()
-                + " | Players: " + fight.getPlayersInFight().size());
+        plugin.getLogger().info("[Arena] Fight start on '" + arenaName + "' | type=" + fight.getClass().getSimpleName()
+                + " | players=" + players.size());
 
-        // Free up this SP arena immediately so SP can reuse it for the next queue
+        // Free up this SP arena so SP can reuse it for the next queue
         Bukkit.getScheduler().runTaskLater(plugin, () -> spArena.setUsing(false), 2L);
 
-        // Determine prefix for dynamic arena management
+        // Determine prefix and ensure a free dynamic arena exists
         boolean isBuild = fight.getKit() != null && fight.getKit().isBuild();
         String prefix = isBuild ? "dynamicbuild" : "dynamic";
-
-        // Ensure another free dynamic arena exists for the next fight
         ensureDynamicArenaAvailable(prefix);
 
-        // Pick the right ArenaConfig (user-selected or random for kit)
-        List<Player> players = fight.getPlayersInFight();
+        // Pick arena config: user-selected or random for kit
         ArenaConfig selected = null;
-
         if (!players.isEmpty()) {
             selected = ArenaSelectorGUI.queuedSelections.remove(players.get(0).getUniqueId());
         }
@@ -106,15 +117,17 @@ public class ArenaSelectionListener implements Listener {
         }
 
         if (selected != null) {
-            startMatch(fight, selected, spArena);
+            plugin.getLogger().info("[Arena] Using config '" + selected.getName() + "' for fight");
+            startMatch(fight, selected, spArena, players);
         } else {
-            plugin.getLogger().warning("No arena config found for fight, skipping paste.");
+            plugin.getLogger().warning("[Arena] No arena config found! Kit="
+                    + (fight.getKit() != null ? fight.getKit().getName() : "null")
+                    + " | Available configs=" + manager.getArenas().keySet());
         }
     }
 
-    private void startMatch(Fight fight, ArenaConfig config, Arena spArena) {
+    private void startMatch(Fight fight, ArenaConfig config, Arena spArena, List<Player> players) {
         // Block SP's teleport — players stay in lobby during paste
-        List<Player> players = fight.getPlayersInFight();
         for (Player p : players) {
             if (p != null)
                 pendingPaste.add(p.getUniqueId());
@@ -124,7 +137,6 @@ public class ArenaSelectionListener implements Listener {
             if (session == null)
                 return;
 
-            // Store the SP arena reference for cleanup later
             session.setSpArena(spArena);
 
             // Teleport on the main thread after paste completes
@@ -154,7 +166,7 @@ public class ArenaSelectionListener implements Listener {
                 if (players.size() >= 2)
                     players.get(1).teleport(s2);
 
-                plugin.getLogger().info("Teleported " + players.size() + " players to arena '"
+                plugin.getLogger().info("[Arena] Teleported " + players.size() + " player(s) to '"
                         + config.getName() + "' in " + s1.getWorld().getName());
             });
         });
@@ -162,9 +174,6 @@ public class ArenaSelectionListener implements Listener {
 
     // ─── Dynamic Arena Management ────────────────────────────────────────
 
-    /**
-     * Ensures at least one free dynamic SP arena exists for the next queued fight.
-     */
     private void ensureDynamicArenaAvailable(String prefix) {
         List<Arena> matching = new ArrayList<>();
         boolean hasFree = false;
@@ -180,17 +189,12 @@ public class ArenaSelectionListener implements Listener {
         if (!hasFree && !matching.isEmpty()) {
             Arena template = matching.get(0);
             String newName = prefix + "_" + (matching.size() + 1);
-
             if (StrikePractice.getAPI().getArena(newName) != null)
                 return;
-
             createSpArena(newName, template);
         }
     }
 
-    /**
-     * Creates a new StrikePractice arena by cloning a template.
-     */
     private void createSpArena(String name, Arena template) {
         try {
             Location defaultLoc = new Location(Bukkit.getWorld("world"), 0, 100, 0);
@@ -211,18 +215,14 @@ public class ArenaSelectionListener implements Listener {
                 newArena.setUsing(false);
                 newArena.setKits(template.getKits());
                 newArena.saveForStrikePractice();
-                plugin.getLogger()
-                        .info("Created dynamic SP arena: " + name + " (cloned from " + template.getName() + ")");
+                plugin.getLogger().info("[Arena] Created dynamic SP arena: " + name);
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to create dynamic arena '" + name + "': " + e.getMessage());
+            plugin.getLogger().warning("[Arena] Failed to create '" + name + "': " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    /**
-     * Cleans up extra dynamic SP arenas — keeps at least 1 of each prefix.
-     */
     private void cleanupDynamicArena(Fight fight) {
         FightSession session = manager.getSession(fight);
         if (session == null)
@@ -245,16 +245,12 @@ public class ArenaSelectionListener implements Listener {
 
         if (count > 1 && arenaName.contains("_")) {
             spArena.removeFromStrikePractice();
-            plugin.getLogger().info("Removed extra dynamic SP arena: " + spArena.getName());
+            plugin.getLogger().info("[Arena] Removed extra SP arena: " + spArena.getName());
         }
     }
 
-    // ─── Post-Fight Delay ────────────────────────────────────────────────
+    // ─── Fight End Handlers ──────────────────────────────────────────────
 
-    /**
-     * Single handler for ALL fight end types.
-     * Uses handledEnds set to prevent double-handling.
-     */
     private void handleFightEnd(Fight fight, List<Player> players) {
         if (handledEnds.contains(fight))
             return;
