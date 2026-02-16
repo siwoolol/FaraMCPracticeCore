@@ -166,6 +166,10 @@ public class ArenaManager {
         return valid.isEmpty() ? null : valid.get(new Random().nextInt(valid.size()));
     }
 
+    public FightSession getSession(Fight fight) {
+        return activeSessions.get(fight);
+    }
+
     public Map<String, ArenaConfig> getArenas() {
         return new HashMap<>(arenas);
     }
