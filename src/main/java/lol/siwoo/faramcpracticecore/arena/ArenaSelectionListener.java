@@ -122,7 +122,8 @@ public class ArenaSelectionListener implements Listener {
                 return;
             session.setSpArena(spArena);
 
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            // Delay teleport by a few ticks to let chunks settle after async paste
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 Location origin = session.getCenter().clone().add(config.getCenter());
 
                 Location s1 = origin.clone().add(config.getPos1());
@@ -146,7 +147,7 @@ public class ArenaSelectionListener implements Listener {
                     plugin.getLogger().warning("[Arena] Bot " + bot.getName() + " is not spawned!");
                 }
 
-                // Unblock and teleport human players
+                // Unblock players from teleport cancellation, then teleport
                 for (Player p : players) {
                     if (p != null) {
                         pendingPaste.remove(p.getUniqueId());
@@ -164,7 +165,7 @@ public class ArenaSelectionListener implements Listener {
 
                 plugin.getLogger().info("[Arena] Teleported " + players.size() + " player(s) to '"
                         + config.getName() + "' in " + s1.getWorld().getName());
-            });
+            }, 5L); // 5 tick delay for chunks to settle after async paste
         });
     }
 
