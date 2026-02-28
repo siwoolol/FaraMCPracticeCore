@@ -40,25 +40,25 @@ public class DuelGUI implements CommandExecutor, Listener {
         @Override
         public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (!(sender instanceof Player)) {
-                        sender.sendMessage(ChatColor.RED + "This command can only be used by a player.");
+                        sender.sendMessage(MessageStyle.error("This command can only be used by a player."));
                         return true;
                 }
 
                 Player player = (Player) sender;
 
                 if (args.length < 1) {
-                        player.sendMessage(ChatColor.RED + "Usage: /duel <player>");
+                        player.sendMessage(MessageStyle.error("Usage: /duel <player>"));
                         return true;
                 }
 
                 Player target = Bukkit.getPlayer(args[0]);
                 if (target == null || !target.isOnline()) {
-                        player.sendMessage(ChatColor.RED + "Player '" + args[0] + "' is not online.");
+                        player.sendMessage(MessageStyle.errorWithName(args[0], "is not online."));
                         return true;
                 }
 
                 if (target.equals(player)) {
-                        player.sendMessage(ChatColor.RED + "You can't duel yourself!");
+                        player.sendMessage(MessageStyle.error("You can't duel yourself."));
                         return true;
                 }
 

@@ -1,5 +1,6 @@
 package lol.siwoo.faramcpracticecore.arena;
 
+import lol.siwoo.faramcpracticecore.design.MessageStyle;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -16,7 +17,9 @@ public class ArenaSelectorGUI implements Listener {
     private final ArenaManager manager;
     public static final Map<UUID, ArenaConfig> queuedSelections = new HashMap<>();
 
-    public ArenaSelectorGUI(ArenaManager manager) { this.manager = manager; }
+    public ArenaSelectorGUI(ArenaManager manager) {
+        this.manager = manager;
+    }
 
     public static void open(Player p, ArenaManager m, String kit) {
         Inventory gui = Bukkit.createInventory(null, 27, ChatColor.DARK_GREEN + "Select Arena for " + kit);
@@ -32,17 +35,19 @@ public class ArenaSelectorGUI implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (!e.getView().getTitle().contains("Select Arena for")) return;
+        if (!e.getView().getTitle().contains("Select Arena for"))
+            return;
         e.setCancelled(true);
         Player p = (Player) e.getWhoClicked();
         ItemStack item = e.getCurrentItem();
-        if (item == null || item.getType() == Material.AIR) return;
+        if (item == null || item.getType() == Material.AIR)
+            return;
 
         String name = ChatColor.stripColor(item.getItemMeta().getDisplayName());
         ArenaConfig cfg = manager.getArenas().get(name.toLowerCase());
         if (cfg != null) {
             queuedSelections.put(p.getUniqueId(), cfg);
-            p.sendMessage(ChatColor.GREEN + "Selected map " + name + " for your queue!");
+            p.sendMessage(MessageStyle.successWithHighlight("Selected map", name, ""));
             p.closeInventory();
         }
     }

@@ -21,7 +21,7 @@ public class RankedQueue implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "this command can only be used by a player retard.");
+            sender.sendMessage(MessageStyle.error("This command can only be used by a player."));
             return true;
         }
 
@@ -32,8 +32,10 @@ public class RankedQueue implements CommandExecutor {
     }
 
     public static Inventory createQueueGUI(Player player, int slot, String name) {
-//        Inventory gui = Bukkit.createInventory(null, 45, ChatColor.DARK_PURPLE + "Queue Selection");
-        Inventory gui = Bukkit.createInventory(null, 45, ChatColor.DARK_RED.toString() + ChatColor.BOLD + "Ranked: COMING SOON");
+        // Inventory gui = Bukkit.createInventory(null, 45, ChatColor.DARK_PURPLE +
+        // "Queue Selection");
+        Inventory gui = Bukkit.createInventory(null, 45,
+                ChatColor.DARK_RED.toString() + ChatColor.BOLD + "Ranked: COMING SOON");
 
         // Fill background
         fillBackground(gui);
@@ -46,8 +48,7 @@ public class RankedQueue implements CommandExecutor {
             meta.setLore(Arrays.asList(
                     ChatColor.GRAY + "You are currently Queued for the " + name + " Queue",
                     "",
-                    ChatColor.RED + "Click Again to Leave the Queue!"
-            ));
+                    ChatColor.RED + "Click Again to Leave the Queue!"));
 
             item.setItemMeta(meta);
             gui.setItem(slot, item);
@@ -78,8 +79,7 @@ public class RankedQueue implements CommandExecutor {
         PotionEffect regenerationEffect = new PotionEffect(
                 PotionEffectType.REGENERATION,
                 10 * 20,
-                10
-        );
+                10);
 
         potionMeta.addCustomEffect(regenerationEffect, true);
         regenerationPotion.setItemMeta(potionMeta);
@@ -87,7 +87,7 @@ public class RankedQueue implements CommandExecutor {
     }
 
     private static void addQueueItem(Inventory gui, int slot, Material material, String gameMode,
-                                     String displayName, String description) {
+            String displayName, String description) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
@@ -95,8 +95,7 @@ public class RankedQueue implements CommandExecutor {
         meta.setLore(Arrays.asList(
                 ChatColor.GRAY + description,
                 "",
-                ChatColor.GREEN + "Click to join!"
-        ));
+                ChatColor.GREEN + "Click to join!"));
 
         item.setItemMeta(meta);
         gui.setItem(slot, item);

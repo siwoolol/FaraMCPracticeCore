@@ -2,7 +2,7 @@ package lol.siwoo.faramcpracticecore.party;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
-import org.bukkit.ChatColor;
+import lol.siwoo.faramcpracticecore.design.MessageStyle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,7 +19,7 @@ public class HurryUpPartyOwner implements CommandExecutor {
         Player p = (Player) sender;
 
         if (api.getParty(p) == null) {
-            p.sendMessage(ChatColor.RED + "You are not in a Party!");
+            p.sendMessage(MessageStyle.error("You're not in a party."));
             return true;
         }
 
@@ -27,12 +27,12 @@ public class HurryUpPartyOwner implements CommandExecutor {
         Player owner = getPlayer(ownerString);
 
         if (owner == p) {
-            p.sendMessage(ChatColor.RED + "You better hurry up yourself. Stop blaming people lol");
+            p.sendMessage(MessageStyle.error("You're the party owner."));
             return true;
         }
 
-        p.sendMessage(ChatColor.GREEN + "You have Asked The Owner of the Party to Hurry up!");
-        owner.sendMessage(ChatColor.AQUA + p.getName() + " has Asked You to Hurry up!");
+        p.sendMessage(MessageStyle.success("Nudged the party owner."));
+        owner.sendMessage(MessageStyle.infoFromPlayer(p.getName(), "wants you to hurry up!"));
 
         return true;
     }

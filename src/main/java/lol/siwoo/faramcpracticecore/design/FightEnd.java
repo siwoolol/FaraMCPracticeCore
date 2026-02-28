@@ -1,12 +1,16 @@
 package lol.siwoo.faramcpracticecore.design;
 
 import ga.strikepractice.events.DuelEndEvent;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,30 +25,21 @@ public class FightEnd implements Listener {
     }
 
     public void randomDefeatMessage() {
-        defeatMessages.add(" Has Obliterated ");
-        defeatMessages.add(" Has Touched Up Against ");
-        defeatMessages.add(" Has Defeated ");
-        defeatMessages.add(" Destroyed ");
-        defeatMessages.add(" Has Won Against ");
-        defeatMessages.add(" Has Annihilated ");
-        defeatMessages.add(" Outplayed ");
-        defeatMessages.add(" Has Demolished ");
-        defeatMessages.add(" Has Crushed ");
-        defeatMessages.add(" Deleted ");
-        defeatMessages.add(" Erased ");
-        defeatMessages.add(" Has Dominated ");
-        defeatMessages.add(" Sent ");
-        defeatMessages.add(" Vaporized ");
-        defeatMessages.add(" Beat ");
-        defeatMessages.add(" Pummeled ");
-        defeatMessages.add(" Trounced ");
-        defeatMessages.add(" Rout ");
-        defeatMessages.add(" Drubbed ");
-        defeatMessages.add(" Walloped ");
-        defeatMessages.add(" Whipped ");
-        defeatMessages.add(" Trounced ");
-        defeatMessages.add(" Annihilated ");
-        defeatMessages.add(" Vanquished ");
+        defeatMessages.add(" obliterated ");
+        defeatMessages.add(" defeated ");
+        defeatMessages.add(" destroyed ");
+        defeatMessages.add(" outplayed ");
+        defeatMessages.add(" demolished ");
+        defeatMessages.add(" crushed ");
+        defeatMessages.add(" deleted ");
+        defeatMessages.add(" erased ");
+        defeatMessages.add(" dominated ");
+        defeatMessages.add(" vaporized ");
+        defeatMessages.add(" beat ");
+        defeatMessages.add(" pummeled ");
+        defeatMessages.add(" trounced ");
+        defeatMessages.add(" walloped ");
+        defeatMessages.add(" vanquished ");
     }
 
     public void randomSound() {
@@ -73,12 +68,28 @@ public class FightEnd implements Listener {
         Collections.shuffle(soundshuffled);
         Sound randomSound = soundshuffled.get(0);
 
-        // Winner Prompt
-        w.playSound((w.getLocation()), randomSound, 1, 1);
-        w.sendTitle(ChatColor.GREEN.toString() + ChatColor.BOLD + "VICTORY", ChatColor.GREEN + w.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + l.getName());
+        // Modern title timing
+        Title.Times times = Title.Times.times(
+                Duration.ofMillis(200), Duration.ofMillis(2000), Duration.ofMillis(400));
 
-        // Loser Prompt
-        l.playSound((l.getLocation()), randomSound, 1, 1);
-        l.sendTitle(ChatColor.RED.toString() + ChatColor.BOLD + "DEFEAT", ChatColor.RED + w.getName() + ChatColor.WHITE + selectedMessage + ChatColor.GREEN + l.getName());
+        // Build subtitle: "winner verb loser"
+        Component victorySubtitle = Component.empty()
+                .append(Component.text(w.getName(), NamedTextColor.AQUA))
+                .append(Component.text(selectedMessage, NamedTextColor.GRAY))
+                .append(Component.text(l.getName(), NamedTextColor.AQUA));
+
+        // Winner Title
+        w.playSound(w.getLocation(), randomSound, 1, 1);
+        w.showTitle(Title.title(
+                Component.text("VICTORY", NamedTextColor.GREEN).decorate(TextDecoration.BOLD),
+                victorySubtitle,
+                times));
+
+        // Loser Title
+        l.playSound(l.getLocation(), randomSound, 1, 1);
+        l.showTitle(Title.title(
+                Component.text("DEFEAT", NamedTextColor.RED).decorate(TextDecoration.BOLD),
+                victorySubtitle,
+                times));
     }
 }

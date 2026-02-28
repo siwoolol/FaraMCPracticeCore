@@ -3,6 +3,7 @@ package lol.siwoo.faramcpracticecore.party;
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.battlekit.BattleKit;
+import lol.siwoo.faramcpracticecore.design.MessageStyle;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -25,13 +26,13 @@ public class SuggestPartyOwner implements CommandExecutor {
         Player p = (Player) sender;
 
         if (api.getParty(p).getOwner().equals(p)) {
-            p.sendMessage(ChatColor.RED + "Shut the fuck up and start your own event.");
+            p.sendMessage(MessageStyle.error("You're the party owner. Start an event yourself."));
             return true;
         }
 
         Inventory kitSelectionGui = createKitSelectionGUI();
         if (kitSelectionGui == null) {
-            p.sendMessage(ChatColor.RED + "Could not load kits. Please contact an admin.");
+            p.sendMessage(MessageStyle.error("Could not load kits. Contact an admin."));
             return true;
         }
         p.openInventory(kitSelectionGui);
@@ -47,7 +48,8 @@ public class SuggestPartyOwner implements CommandExecutor {
 
         int slot = 0;
         for (BattleKit kit : api.getKits()) {
-            if (slot >= inventorySize) break;
+            if (slot >= inventorySize)
+                break;
 
             ItemStack kitIcon = kit.getIcon().clone();
 
@@ -58,8 +60,7 @@ public class SuggestPartyOwner implements CommandExecutor {
                 meta.setLore(Arrays.asList(
                         ChatColor.GRAY + "Click to suggest this kit to the party owner.",
                         "",
-                        ChatColor.DARK_GRAY + "Kit ID: " + kit.getName()
-                ));
+                        ChatColor.DARK_GRAY + "Kit ID: " + kit.getName()));
                 kitIcon.setItemMeta(meta);
             }
 

@@ -2,7 +2,11 @@ package lol.siwoo.faramcpracticecore.lobby;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
-import org.bukkit.ChatColor;
+import lol.siwoo.faramcpracticecore.design.MessageStyle;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,7 +20,11 @@ public class Flight implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         Player p = (Player) sender;
         if (!p.hasPermission("faramcpracticecore.fly")) {
-            p.sendMessage(ChatColor.RED + "Purchase Ranks to Access This Command - https://store.faramc.uk/");
+            p.sendMessage(Component.empty()
+                    .append(MessageStyle.error("Rank required. "))
+                    .append(Component.text("store.faramc.uk", NamedTextColor.AQUA)
+                            .decorate(TextDecoration.UNDERLINED)
+                            .clickEvent(ClickEvent.openUrl("https://store.faramc.uk/"))));
             return true;
         }
 

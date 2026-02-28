@@ -67,14 +67,14 @@ public class DuelGUIListener implements Listener {
         // Get the target from the pending map
         UUID targetUUID = DuelGUI.pendingDuelTargets.remove(player.getUniqueId());
         if (targetUUID == null) {
-            player.sendMessage(ChatColor.RED + "Duel target not found. Please try again.");
+            player.sendMessage(MessageStyle.error("Duel target not found. Try again."));
             player.closeInventory();
             return;
         }
 
         Player target = Bukkit.getPlayer(targetUUID);
         if (target == null || !target.isOnline()) {
-            player.sendMessage(ChatColor.RED + "That player is no longer online.");
+            player.sendMessage(MessageStyle.error("That player is no longer online."));
             player.closeInventory();
             return;
         }
@@ -83,7 +83,7 @@ public class DuelGUIListener implements Listener {
         Arena dynamicArena = plugin.getArenaManager().getOrAllocateDynamicArena(kit.isBuild());
 
         if (dynamicArena == null) {
-            player.sendMessage(ChatColor.RED + "No arena available right now. Try again.");
+            player.sendMessage(MessageStyle.error("No arena available. Try again."));
             player.closeInventory();
             return;
         }
@@ -108,7 +108,7 @@ public class DuelGUIListener implements Listener {
                     Component.text("Duel request sent to " + target.getName() + "!").color(NamedTextColor.GREEN));
         } catch (Exception e) {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
-            player.sendMessage(ChatColor.RED + "Failed to send duel request.");
+            player.sendMessage(MessageStyle.error("Failed to send duel request."));
             plugin.getLogger().warning("Failed to send duel request from " + player.getName() + " to "
                     + target.getName() + ": " + e.getMessage());
         }
