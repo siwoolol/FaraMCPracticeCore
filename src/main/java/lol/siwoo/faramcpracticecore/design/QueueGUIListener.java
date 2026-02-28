@@ -98,24 +98,47 @@ public class QueueGUIListener implements Listener {
                 return;
             }
 
-            try {
-                api.joinQueue(player, kit);
-                afterActivities(event);
-                player.sendActionBar(Component.text("Joined " + kitId + " queue!").color(NamedTextColor.GREEN));
-
-                // SYSTEM INTEGRATION: Open Map Selector for admins immediately after queuing
-                if (player.hasPermission("faramcpracticecore.selectarena")) {
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId, () -> {
-                        });
-                    }, 1L);
+            // The action to join queue (runs after map selection or immediately)
+            final String finalKitId = kitId;
+            Runnable joinQueue = () -> {
+                try {
+                    if (!player.isOnline())
+                        return;
+                    api.joinQueue(player, kit);
+                    // Reopen queue GUI with the queued state
+                    player.openInventory(UnrankedGUI.createQueueGUI(player, event.getSlot(),
+                            event.getCurrentItem() != null && event.getCurrentItem().hasItemMeta()
+                                    ? event.getCurrentItem().getItemMeta().getDisplayName()
+                                    : finalKitId));
+                    player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
+                    player.sendActionBar(
+                            Component.text("Joined " + finalKitId + " queue!").color(NamedTextColor.GREEN));
+                } catch (Exception e) {
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+                    player.sendActionBar(
+                            Component.text("Failed to join queue. Try again later.").color(NamedTextColor.RED));
+                    plugin.getLogger()
+                            .warning("Failed to add player " + player.getName() + " to queue for kit " + finalKitId
+                                    + ": " + e.getMessage());
                 }
-            } catch (Exception e) {
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
-                player.sendActionBar(
-                        Component.text("Failed to join queue. Try again later.").color(NamedTextColor.RED));
-                plugin.getLogger().warning("Failed to add player " + player.getName() + " to queue for kit " + kitId
-                        + ": " + e.getMessage());
+            };
+
+            // If permissioned: open map selector first, queue fires on callback
+            if (player.hasPermission("faramcpracticecore.selectarena")) {
+                player.closeInventory();
+                ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId, joinQueue);
+            } else {
+                try {
+                    api.joinQueue(player, kit);
+                    afterActivities(event);
+                    player.sendActionBar(Component.text("Joined " + kitId + " queue!").color(NamedTextColor.GREEN));
+                } catch (Exception e) {
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+                    player.sendActionBar(
+                            Component.text("Failed to join queue. Try again later.").color(NamedTextColor.RED));
+                    plugin.getLogger().warning("Failed to add player " + player.getName() + " to queue for kit " + kitId
+                            + ": " + e.getMessage());
+                }
             }
         } else {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);

@@ -30,7 +30,9 @@ public class DuelRequestMessage implements Listener, CommandExecutor {
     /**
      * Sends an apple-styled duel request message to both sender and target.
      */
-    public static void sendDuelRequestMessage(Player sender, Player target, String kitName) {
+    public static void sendDuelRequestMessage(Player sender, Player target, String kitName, String mapName) {
+        String displayMap = (mapName != null && !mapName.isEmpty()) ? mapName : "Random";
+
         // ── Message to the SENDER ──
         Component senderMsg = Component.empty()
                 .append(Component.newline())
@@ -45,6 +47,9 @@ public class DuelRequestMessage implements Listener, CommandExecutor {
                 .append(Component.newline())
                 .append(Component.text("  Kit: ", NamedTextColor.GRAY))
                 .append(Component.text(kitName, NamedTextColor.GREEN))
+                .append(Component.newline())
+                .append(Component.text("  Map: ", NamedTextColor.GRAY))
+                .append(Component.text(displayMap, NamedTextColor.GOLD))
                 .append(Component.newline())
                 .append(Component.newline())
                 .append(Component.text("  Waiting for response...", NamedTextColor.DARK_GRAY)
@@ -93,6 +98,8 @@ public class DuelRequestMessage implements Listener, CommandExecutor {
                 .append(Component.text("  Kit: ", NamedTextColor.GRAY))
                 .append(Component.text(kitName, NamedTextColor.GREEN))
                 .append(Component.newline())
+                .append(Component.text("  Map: ", NamedTextColor.GRAY))
+                .append(Component.text(displayMap, NamedTextColor.GOLD))
                 .append(Component.newline())
                 .append(acceptWrapped)
                 .append(Component.text("   "))

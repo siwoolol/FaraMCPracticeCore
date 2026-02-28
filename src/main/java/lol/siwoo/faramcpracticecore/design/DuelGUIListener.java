@@ -123,7 +123,12 @@ public class DuelGUIListener implements Listener {
 
                 Arena finalArena = dynamicArena;
                 api.sendDuelRequest(player, target, kit, finalArena, true);
-                DuelRequestMessage.sendDuelRequestMessage(player, target, kitDisplayName);
+
+                // Get selected map name (peek, don't remove — fight system needs it)
+                lol.siwoo.faramcpracticecore.arena.ArenaConfig selectedMap = ArenaSelectorGUI.queuedSelections
+                        .get(player.getUniqueId());
+                String mapName = selectedMap != null ? selectedMap.getName() : null;
+                DuelRequestMessage.sendDuelRequestMessage(player, target, kitDisplayName, mapName);
 
                 player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
                 player.sendActionBar(
