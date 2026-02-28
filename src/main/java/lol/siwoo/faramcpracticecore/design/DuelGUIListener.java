@@ -97,8 +97,12 @@ public class DuelGUIListener implements Listener {
                 ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId);
             }
 
-            // Send duel request via SP API
-            api.sendDuelRequest(player, target, kit, dynamicArena, false);
+            // Send duel request via SP API (silent = true, we send our own message)
+            api.sendDuelRequest(player, target, kit, dynamicArena, true);
+
+            // Send our custom styled messages to both players
+            String kitDisplayName = ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName());
+            DuelRequestMessage.sendDuelRequestMessage(player, target, kitDisplayName);
 
             player.sendActionBar(
                     Component.text("Duel request sent to " + target.getName() + "!").color(NamedTextColor.GREEN));

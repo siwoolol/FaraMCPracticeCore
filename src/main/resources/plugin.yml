@@ -43,6 +43,12 @@ commands:
   duel:
     usage: "/duel <player>"
     description: "Send a duel request to another player"
+  duelaccept:
+    usage: "/duelaccept <player>"
+    description: "Accept a duel request"
+  dueldecline:
+    usage: "/dueldecline <player>"
+    description: "Decline a duel request"
   fly:
     usage: "/fly"
     description: "Allows You To Fly"
