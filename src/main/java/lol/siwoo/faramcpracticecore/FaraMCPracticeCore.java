@@ -20,7 +20,7 @@ import lol.siwoo.faramcpracticecore.design.*;
 import lol.siwoo.faramcpracticecore.fix.PotThrowMech;
 import lol.siwoo.faramcpracticecore.gamemode.BedFight;
 import lol.siwoo.faramcpracticecore.gamemode.Boxing;
-//import lol.siwoo.faramcpracticecore.gamemode.FireballFight;
+import lol.siwoo.faramcpracticecore.gamemode.FireballFight;
 import lol.siwoo.faramcpracticecore.gamemode.RBWFFA;
 import lol.siwoo.faramcpracticecore.gamemode.WindFight;
 import lol.siwoo.faramcpracticecore.lobby.Flight;
@@ -160,7 +160,7 @@ public final class FaraMCPracticeCore extends JavaPlugin implements Listener {
         pm.registerEvents(new SuggestPartyOwnerListener(), this);
         pm.registerEvents(new Boxing(this), this);
         pm.registerEvents(new BedFight(this), this);
-        // pm.registerEvents(new FireballFight(this), this);
+        pm.registerEvents(new FireballFight(this), this);
         pm.registerEvents(new WindFight(this), this);
         pm.registerEvents(new RBWFFA(this), this);
         // pm.registerEvents(new AICoachListener(aiCoach, strikePracticeAPI), this);

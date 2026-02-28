@@ -118,54 +118,61 @@ public class ArenaSelectionListener implements Listener {
         }
 
         manager.createSession(fight, config).thenAccept(session -> {
+            // This now runs on the MAIN THREAD with chunks already loaded
             if (session == null)
                 return;
             session.setSpArena(spArena);
 
-            // Delay teleport by a few ticks to let chunks settle after async paste
+            Location origin = session.getCenter().clone().add(config.getCenter());
+
+            Location s1 = origin.clone().add(config.getPos1());
+            Location s2 = origin.clone().add(config.getPos2());
+
+            Vector dir1 = s2.toVector().subtract(s1.toVector()).setY(0);
+            s1.setDirection(dir1);
+            Vector dir2 = s1.toVector().subtract(s2.toVector()).setY(0);
+            s2.setDirection(dir2);
+
+            // Update SP arena locations
+            fight.getArena().setLoc1(s1);
+            fight.getArena().setLoc2(s2);
+
+            // Explicitly teleport the bot if present
+            NPC bot = pendingBots.remove(fight);
+            if (bot != null && bot.isSpawned()) {
+                bot.teleport(s2, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                plugin.getLogger().info("[Arena] Force teleported bot " + bot.getName() + " to " + s2.toVector());
+            } else if (bot != null) {
+                plugin.getLogger().warning("[Arena] Bot " + bot.getName() + " is not spawned!");
+            }
+
+            // Teleport players WHILE still in pendingPaste (so SP can't interfere)
+            // We temporarily remove, teleport, then re-add
+            if (players.size() >= 1) {
+                Player p1 = players.get(0);
+                pendingPaste.remove(p1.getUniqueId());
+                boolean success = p1.teleport(s1);
+                pendingPaste.add(p1.getUniqueId()); // re-block until stable
+                plugin.getLogger().info("[Arena] Teleported " + p1.getName() + " to "
+                        + s1.toVector() + " | Success: " + success);
+            }
+            if (players.size() >= 2) {
+                Player p2 = players.get(1);
+                pendingPaste.remove(p2.getUniqueId());
+                p2.teleport(s2);
+                pendingPaste.add(p2.getUniqueId()); // re-block until stable
+            }
+
+            plugin.getLogger().info("[Arena] Teleported " + players.size() + " player(s) to '"
+                    + config.getName() + "' in " + s1.getWorld().getName());
+
+            // Unblock teleports after a short grace period so SP doesn't re-teleport
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                Location origin = session.getCenter().clone().add(config.getCenter());
-
-                Location s1 = origin.clone().add(config.getPos1());
-                Location s2 = origin.clone().add(config.getPos2());
-
-                Vector dir1 = s2.toVector().subtract(s1.toVector()).setY(0);
-                s1.setDirection(dir1);
-                Vector dir2 = s1.toVector().subtract(s2.toVector()).setY(0);
-                s2.setDirection(dir2);
-
-                // Update SP arena locations — this makes SP teleport bots here too
-                fight.getArena().setLoc1(s1);
-                fight.getArena().setLoc2(s2);
-
-                // Explicitly teleport the bot if present
-                NPC bot = pendingBots.remove(fight);
-                if (bot != null && bot.isSpawned()) {
-                    bot.teleport(s2, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    plugin.getLogger().info("[Arena] Force teleported bot " + bot.getName() + " to " + s2.toVector());
-                } else if (bot != null) {
-                    plugin.getLogger().warning("[Arena] Bot " + bot.getName() + " is not spawned!");
-                }
-
-                // Unblock players from teleport cancellation, then teleport
                 for (Player p : players) {
-                    if (p != null) {
+                    if (p != null)
                         pendingPaste.remove(p.getUniqueId());
-                    }
                 }
-
-                if (players.size() >= 1) {
-                    boolean success = players.get(0).teleport(s1);
-                    plugin.getLogger().info("[Arena] Teleporting player " + players.get(0).getName() + " to "
-                            + s1.toVector() + " | Success: " + success);
-                }
-                if (players.size() >= 2) {
-                    players.get(1).teleport(s2);
-                }
-
-                plugin.getLogger().info("[Arena] Teleported " + players.size() + " player(s) to '"
-                        + config.getName() + "' in " + s1.getWorld().getName());
-            }, 5L); // 5 tick delay for chunks to settle after async paste
+            }, 10L);
         });
     }
 

@@ -80,8 +80,7 @@ public class BedFight implements Listener {
             @Override
             public void run() {
                 long currentTime = System.currentTimeMillis();
-                cooldownMap.entrySet().removeIf(entry -> 
-                    currentTime - entry.getValue() > COOLDOWN_DURATION);
+                cooldownMap.entrySet().removeIf(entry -> currentTime - entry.getValue() > COOLDOWN_DURATION);
             }
         }.runTaskTimer(plugin, 20L, 20L);
     }
@@ -92,7 +91,7 @@ public class BedFight implements Listener {
             return;
         }
 
-        String fightId = "bedfight_" + (++fightCounter)+ "_" + System.currentTimeMillis();
+        String fightId = "bedfight_" + (++fightCounter) + "_" + System.currentTimeMillis();
         fightBedBreaks.put(fightId, new ArrayList<>());
 
         new BukkitRunnable() {
@@ -110,7 +109,7 @@ public class BedFight implements Listener {
                     plugin.getLogger().info("Cached starting position for " + p.getName() + ": " + p.getLocation());
                 });
             }
-        }.runTaskLater(plugin, 2L);
+        }.runTaskLater(plugin, 40L);
     }
 
     @EventHandler
@@ -167,7 +166,8 @@ public class BedFight implements Listener {
             // Restore foot block
             bedData.footLocation.getBlock().setBlockData(bedData.footBlockData, false);
 
-            plugin.getLogger().info("Restored bed at head: " + bedData.headLocation + ", foot: " + bedData.footLocation);
+            plugin.getLogger()
+                    .info("Restored bed at head: " + bedData.headLocation + ", foot: " + bedData.footLocation);
         }
 
         // Clean up bed break data after rollback
@@ -191,7 +191,9 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
-        if (api.getFight(p) == null) { return; }
+        if (api.getFight(p) == null) {
+            return;
+        }
         if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
             return;
         }
@@ -209,7 +211,8 @@ public class BedFight implements Listener {
                 && !Boolean.TRUE.equals(isDead.get(playerId))) {
 
             Location oldlocation = p.getLocation().clone();
-            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -80, p.getLocation().getZ());
+            Location location = new Location(p.getLocation().getWorld(), p.getLocation().getX(), -80,
+                    p.getLocation().getZ());
 
             isDead.put(playerId, true);
             p.teleport(location);
@@ -250,11 +253,14 @@ public class BedFight implements Listener {
 
     @EventHandler
     public void onPlayerDamageByEntity(EntityDamageByEntityEvent e) {
-        if (!(e.getEntity() instanceof Player)) return;
+        if (!(e.getEntity() instanceof Player))
+            return;
         Player p = (Player) e.getEntity();
         UUID playerId = p.getUniqueId();
 
-        if (api.getFight(p) == null) { return; }
+        if (api.getFight(p) == null) {
+            return;
+        }
         if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
             return;
         }
@@ -272,11 +278,13 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
-        if (api.getFight(p) == null) { return; }
+        if (api.getFight(p) == null) {
+            return;
+        }
         if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
             return;
         }
-        
+
         if (Boolean.TRUE.equals(isInBedfight.get(playerId))) {
             if (e.getBlock().getY() > api.getFight(p).getArena().getLoc1().getY() + 8
                     || e.getBlock().getY() < api.getFight(p).getArena().getLoc1().getY() - 8
@@ -291,12 +299,14 @@ public class BedFight implements Listener {
         Player p = e.getPlayer();
         UUID playerId = p.getUniqueId();
 
-        if (api.getFight(p) == null) { return; }
-        if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")
-            || !Boolean.TRUE.equals(isInBedfight.get(playerId))) {
+        if (api.getFight(p) == null) {
             return;
         }
-        
+        if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")
+                || !Boolean.TRUE.equals(isInBedfight.get(playerId))) {
+            return;
+        }
+
         if (!(e.getBlock().getBlockData() instanceof Bed)) {
             return;
         }
@@ -386,8 +396,7 @@ public class BedFight implements Listener {
                     headBlock.getLocation().clone(),
                     footBlock.getLocation().clone(),
                     headBlock.getBlockData().clone(),
-                    footBlock.getBlockData().clone()
-            );
+                    footBlock.getBlockData().clone());
 
             fightBedBreaks.get(fightId).add(breakData);
             e.setCancelled(false);
@@ -411,16 +420,15 @@ public class BedFight implements Listener {
                 if (!sameTeam) {
                     isbedBroken.put(player.getUniqueId(), true);
                     player.showTitle(Title.title(
-                        Component.text("Bed Destroyed", NamedTextColor.RED, TextDecoration.BOLD),
-                        Component.text("You can no longer respawn", NamedTextColor.WHITE)
-                    ));
+                            Component.text("Bed Destroyed", NamedTextColor.RED, TextDecoration.BOLD),
+                            Component.text("You can no longer respawn", NamedTextColor.WHITE)));
                     player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
                 }
             });
         }
     }
 
-        private boolean isInCooldown(UUID playerId) {
+    private boolean isInCooldown(UUID playerId) {
         Long cooldownStart = cooldownMap.get(playerId);
         if (cooldownStart == null) {
             return false;
@@ -456,7 +464,9 @@ public class BedFight implements Listener {
 
         Player p = (Player) e.getEntity();
 
-        if (api.getFight(p) == null) { return; }
+        if (api.getFight(p) == null) {
+            return;
+        }
         if (!api.getFight(p).getKit().getName().equalsIgnoreCase("bedfight")) {
             return;
         }
@@ -482,7 +492,7 @@ public class BedFight implements Listener {
         }
 
         if (isInBedfight.get(pid).equals(Boolean.TRUE)
-            && isDead.get(pid).equals(Boolean.TRUE)) {
+                && isDead.get(pid).equals(Boolean.TRUE)) {
             e.setCancelled(true);
 
             p.getInventory().clear();
@@ -500,9 +510,8 @@ public class BedFight implements Listener {
                 public void run() {
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
                     p.showTitle(Title.title(
-                        Component.text("You died!", NamedTextColor.RED, TextDecoration.BOLD),
-                        Component.text("You will respawn in 3 seconds", NamedTextColor.WHITE)
-                    ));
+                            Component.text("You died!", NamedTextColor.RED, TextDecoration.BOLD),
+                            Component.text("You will respawn in 3 seconds", NamedTextColor.WHITE)));
                 }
             }.runTaskLater(plugin, 20L);
 
@@ -511,9 +520,8 @@ public class BedFight implements Listener {
                 public void run() {
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
                     p.showTitle(Title.title(
-                        Component.text("You died!", NamedTextColor.RED, TextDecoration.BOLD),
-                        Component.text("You will respawn in 2 seconds", NamedTextColor.WHITE)
-                    ));
+                            Component.text("You died!", NamedTextColor.RED, TextDecoration.BOLD),
+                            Component.text("You will respawn in 2 seconds", NamedTextColor.WHITE)));
                 }
             }.runTaskLater(plugin, 40L);
 
@@ -522,9 +530,8 @@ public class BedFight implements Listener {
                 public void run() {
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
                     p.showTitle(Title.title(
-                        Component.text("You died!", NamedTextColor.RED, TextDecoration.BOLD),
-                        Component.text("You will respawn in 1 seconds", NamedTextColor.WHITE)
-                    ));
+                            Component.text("You died!", NamedTextColor.RED, TextDecoration.BOLD),
+                            Component.text("You will respawn in 1 seconds", NamedTextColor.WHITE)));
                 }
             }.runTaskLater(plugin, 60L);
 
@@ -535,9 +542,8 @@ public class BedFight implements Listener {
 
                     p.playSound(spawnLocation, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                     p.showTitle(Title.title(
-                        Component.text("Respawned!", NamedTextColor.GREEN, TextDecoration.BOLD),
-                        Component.empty()
-                    ));
+                            Component.text("Respawned!", NamedTextColor.GREEN, TextDecoration.BOLD),
+                            Component.empty()));
 
                     p.teleport(spawnLocation);
 

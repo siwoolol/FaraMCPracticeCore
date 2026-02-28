@@ -227,16 +227,34 @@ public class ArenaManager {
                     Operations.complete(new ClipboardHolder(cb).createPaste(session)
                             .to(pastePos)
                             .ignoreAirBlocks(false).build());
+
+                    // Flush FAWE queue to ensure all blocks are written
+                    session.flushQueue();
                 }
 
                 plugin.getLogger().info("Pasted arena '" + config.getName() + "' at "
                         + center.getWorld().getName() + " " + center.getBlockX() + "," + center.getBlockY() + ","
                         + center.getBlockZ());
-                future.complete(null);
+
+                // Complete the future on the MAIN THREAD so downstream code is thread-safe
+                // and blocks have had time to sync to the world
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    // Force-load the chunks around the arena center
+                    World world = center.getWorld();
+                    int cx = center.getBlockX() >> 4;
+                    int cz = center.getBlockZ() >> 4;
+                    for (int dx = -2; dx <= 2; dx++) {
+                        for (int dz = -2; dz <= 2; dz++) {
+                            world.getChunkAt(cx + dx, cz + dz).load(true);
+                            world.addPluginChunkTicket(cx + dx, cz + dz, plugin);
+                        }
+                    }
+                    future.complete(null);
+                }, 10L); // 10 tick delay to let FAWE sync blocks to the world
             } catch (Exception e) {
                 plugin.getLogger().severe("Failed to paste arena: " + e.getMessage());
                 e.printStackTrace();
-                future.complete(null);
+                Bukkit.getScheduler().runTask(plugin, () -> future.complete(null));
             }
         });
         return future;
@@ -250,14 +268,18 @@ public class ArenaManager {
                     + s.getCenter().getWorld().getName() + " " + s.getCenter().getBlockX() + ","
                     + s.getCenter().getBlockY() + "," + s.getCenter().getBlockZ());
 
-            // Clear blocks FIRST, then release chunk ticket after completion
+            // Clear blocks FIRST, then release chunk tickets after completion
             clearArenaAsync(s.getConfig(), s.getCenter()).thenRun(() -> {
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    s.getCenter().getWorld().removePluginChunkTicket(
-                            s.getCenter().getBlockX() >> 4,
-                            s.getCenter().getBlockZ() >> 4,
-                            plugin);
-                    plugin.getLogger().info("Released chunk ticket after arena clear.");
+                    World world = s.getCenter().getWorld();
+                    int cx = s.getCenter().getBlockX() >> 4;
+                    int cz = s.getCenter().getBlockZ() >> 4;
+                    for (int dx = -2; dx <= 2; dx++) {
+                        for (int dz = -2; dz <= 2; dz++) {
+                            world.removePluginChunkTicket(cx + dx, cz + dz, plugin);
+                        }
+                    }
+                    plugin.getLogger().info("Released chunk tickets after arena clear.");
                 });
             });
         } else {
