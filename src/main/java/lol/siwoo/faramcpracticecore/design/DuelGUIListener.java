@@ -88,6 +88,21 @@ public class DuelGUIListener implements Listener {
             return;
         }
 
+        // Guard: check if either player is busy now
+        if (api.isInFight(player) || api.isInQueue(player)) {
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+            player.sendMessage(MessageStyle.error("You're already in a fight or queue."));
+            player.closeInventory();
+            return;
+        }
+
+        if (api.isInFight(target)) {
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+            player.sendMessage(MessageStyle.errorWithName(target.getName(), "is now in a fight."));
+            player.closeInventory();
+            return;
+        }
+
         try {
             player.closeInventory();
             player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);

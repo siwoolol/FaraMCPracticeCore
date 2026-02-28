@@ -14,7 +14,10 @@ public class ForceWin implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        Player p = (Player) sender;
+        if (!(sender instanceof Player p)) {
+            sender.sendMessage(MessageStyle.error("This command can only be used by a player."));
+            return true;
+        }
 
         if (p.hasPermission("faramcpracticecore.admin")) {
             if (args.length == 0) {
@@ -23,6 +26,10 @@ public class ForceWin implements CommandExecutor {
             } else if (args.length == 1) {
                 // detect args type
                 if (args[0].equalsIgnoreCase("fight")) {
+                    if (api.getFight(p) == null) {
+                        p.sendMessage(MessageStyle.error("You're not in a fight."));
+                        return true;
+                    }
                     api.getFight(p).getPlayersInFight().forEach(player -> {
                         player.teleport(api.getSpawnLocation());
                     });

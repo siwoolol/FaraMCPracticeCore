@@ -23,6 +23,10 @@ public class Sudo implements CommandExecutor {
         }
 
         Player target = Bukkit.getPlayer(args[0]);
+        if (target == null || !target.isOnline()) {
+            sender.sendMessage(MessageStyle.errorWithName(args[0], "is not online."));
+            return true;
+        }
         StringBuilder command = new StringBuilder();
 
         if (args.length != 2) {

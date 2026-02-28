@@ -58,6 +58,8 @@ public class FightEnd implements Listener {
     public void onFightEnd(DuelEndEvent event) {
         Player w = event.getWinner();
         Player l = event.getLoser();
+        if (w == null || l == null)
+            return;
 
         // Shuffle Random Messages
         List<String> shuffled = new ArrayList<>(defeatMessages);

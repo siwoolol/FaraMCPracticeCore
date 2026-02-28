@@ -1,5 +1,7 @@
 package lol.siwoo.faramcpracticecore.design;
 
+import ga.strikepractice.StrikePractice;
+import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.fights.duel.Duel;
 import ga.strikepractice.fights.requests.DuelRequest;
 import ga.strikepractice.fights.requests.FightRequest;
@@ -136,6 +138,13 @@ public class DuelRequestMessage implements Listener, CommandExecutor {
 
     private void handleAccept(Player target, String senderName) {
         Collection<DuelRequest> requests = FightRequest.getDuelRequestsForPlayer(target);
+        if (requests == null || requests.isEmpty()) {
+            target.sendMessage(Component.text("  ✗ No pending duel request from that player.", NamedTextColor.RED));
+            target.playSound(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+            return;
+        }
+
+        StrikePracticeAPI api = StrikePractice.getAPI();
 
         for (DuelRequest req : requests) {
             if (req.getDueler().equalsIgnoreCase(senderName)) {
@@ -145,9 +154,22 @@ public class DuelRequestMessage implements Listener, CommandExecutor {
                     return;
                 }
 
+                // Guard: check if target is busy
+                if (api.isInFight(target) || api.isInQueue(target)) {
+                    target.sendMessage(Component.text("  ✗ You're already in a fight or queue.", NamedTextColor.RED));
+                    target.playSound(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+                    return;
+                }
+
                 // Start the duel
-                Duel duel = (Duel) req.getFight();
-                duel.start();
+                try {
+                    Duel duel = (Duel) req.getFight();
+                    duel.start();
+                } catch (Exception e) {
+                    target.sendMessage(Component.text("  ✗ Failed to start duel.", NamedTextColor.RED));
+                    target.playSound(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+                    return;
+                }
 
                 target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.2f);
                 Player sender = Bukkit.getPlayer(senderName);
@@ -168,6 +190,11 @@ public class DuelRequestMessage implements Listener, CommandExecutor {
 
     private void handleDecline(Player target, String senderName) {
         Collection<DuelRequest> requests = FightRequest.getDuelRequestsForPlayer(target);
+        if (requests == null || requests.isEmpty()) {
+            target.sendMessage(Component.text("  ✗ No pending duel request from that player.", NamedTextColor.RED));
+            target.playSound(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+            return;
+        }
 
         for (DuelRequest req : requests) {
             if (req.getDueler().equalsIgnoreCase(senderName)) {

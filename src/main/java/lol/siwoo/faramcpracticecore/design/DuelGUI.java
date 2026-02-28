@@ -1,5 +1,7 @@
 package lol.siwoo.faramcpracticecore.design;
 
+import ga.strikepractice.StrikePractice;
+import ga.strikepractice.api.StrikePracticeAPI;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
@@ -28,6 +30,7 @@ import java.util.UUID;
 public class DuelGUI implements CommandExecutor, Listener {
 
         private static FaraMCPracticeCore plugin;
+        private static final StrikePracticeAPI api = StrikePractice.getAPI();
         public static final String TITLE_PREFIX = ChatColor.DARK_PURPLE.toString() + ChatColor.BOLD + "Duel ";
 
         // Store who is being dueled by whom
@@ -59,6 +62,16 @@ public class DuelGUI implements CommandExecutor, Listener {
 
                 if (target.equals(player)) {
                         player.sendMessage(MessageStyle.error("You can't duel yourself."));
+                        return true;
+                }
+
+                if (api.isInFight(player) || api.isInQueue(player)) {
+                        player.sendMessage(MessageStyle.error("You're already in a fight or queue."));
+                        return true;
+                }
+
+                if (api.isInFight(target)) {
+                        player.sendMessage(MessageStyle.errorWithName(target.getName(), "is currently in a fight."));
                         return true;
                 }
 

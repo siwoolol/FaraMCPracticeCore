@@ -1,7 +1,6 @@
 package lol.siwoo.faramcpracticecore.design;
 
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -10,6 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.inventory.Inventory;
@@ -24,7 +24,7 @@ import java.util.Arrays;
 public class PvpBotQueue implements CommandExecutor, Listener {
 
         private static FaraMCPracticeCore plugin;
-        public static final String TITLE = ChatColor.GOLD.toString() + ChatColor.BOLD + "Bot Queue";
+        public static final String TITLE = ChatColor.DARK_PURPLE.toString() + ChatColor.BOLD + "Bot Duel";
 
         public PvpBotQueue(FaraMCPracticeCore plugin) {
                 PvpBotQueue.plugin = plugin;
@@ -42,13 +42,13 @@ public class PvpBotQueue implements CommandExecutor, Listener {
                 return true;
         }
 
-        @org.bukkit.event.EventHandler(priority = org.bukkit.event.EventPriority.LOWEST)
-        public void onBotDuelCommand(org.bukkit.event.player.PlayerCommandPreprocessEvent e) {
+        @EventHandler(priority = EventPriority.LOWEST)
+        public void onBotDuelCommand(PlayerCommandPreprocessEvent e) {
                 String msg = e.getMessage();
-                if (msg.split(" ")[0].equalsIgnoreCase("/botduel")
-                                || msg.toLowerCase().startsWith("/strikepractice:botduel")) {
+                String cmd = msg.split(" ")[0].toLowerCase();
+                if (cmd.equals("/botduel") || cmd.equals("/strikepractice:botduel")) {
                         e.setCancelled(true);
-                        org.bukkit.entity.Player p = e.getPlayer();
+                        Player p = e.getPlayer();
                         p.openInventory(createBotQueueGUI(p));
                 }
         }
@@ -59,90 +59,41 @@ public class PvpBotQueue implements CommandExecutor, Listener {
                 fillBackground(gui);
 
                 addQueueItem(gui, 10, Material.SOUL_SAND, "WindFight",
-                                ChatColor.AQUA.toString() + ChatColor.BOLD + "WindFight",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_windfight%",
-                                p);
+                                ChatColor.AQUA.toString() + ChatColor.BOLD + "WindFight");
                 addQueueItem(gui, 11, Material.DIAMOND_SWORD, "Sword",
-                                ChatColor.AQUA + "Sword",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sword%",
-                                p);
+                                ChatColor.AQUA + "Sword");
                 addQueueItem(gui, 12, Material.DIAMOND_AXE, "Axe",
-                                ChatColor.AQUA + "Axe",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_axepvp%",
-                                p);
+                                ChatColor.AQUA + "Axe");
                 addQueueItem(gui, 13, Material.DIAMOND_CHESTPLATE, "Boxing",
-                                ChatColor.AQUA + "Boxing",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_boxing%",
-                                p);
+                                ChatColor.AQUA + "Boxing");
                 addQueueItem(gui, 14, createNodebuffPotion(), "Nodebuff",
-                                ChatColor.LIGHT_PURPLE + "Nodebuff",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_nodebuff%",
-                                p);
+                                ChatColor.LIGHT_PURPLE + "Nodebuff");
                 addQueueItem(gui, 15, Material.LAVA_BUCKET, "BuildUHC",
-                                ChatColor.YELLOW + "BuildUHC",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_builduhc%",
-                                p);
+                                ChatColor.YELLOW + "BuildUHC");
                 addQueueItem(gui, 16, Material.LEAD, "Sumo",
-                                ChatColor.GOLD + "Sumo",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sumo%",
-                                p);
+                                ChatColor.GOLD + "Sumo");
                 addQueueItem(gui, 19, Material.PUFFERFISH, "Combo",
-                                ChatColor.RED + "Combo",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_combo%",
-                                p);
+                                ChatColor.RED + "Combo");
                 addQueueItem(gui, 20, Material.GOLDEN_APPLE, "Gapple",
-                                ChatColor.GOLD + "Gapple",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_gapple%",
-                                p);
+                                ChatColor.GOLD + "Gapple");
                 addQueueItem(gui, 21, Material.RED_BED, "BedFight",
-                                ChatColor.RED + "BedFight",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_bedfight%",
-                                p);
+                                ChatColor.RED + "BedFight");
                 addQueueItem(gui, 22, Material.FIRE_CHARGE, "Fireball Fight",
-                                ChatColor.RED + "Fireball Fight",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_fireballfight%",
-                                p);
+                                ChatColor.RED + "Fireball Fight");
                 addQueueItem(gui, 23, Material.ENDER_EYE, "SkyWars",
-                                ChatColor.AQUA + "SkyWars",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_skywars%",
-                                p);
+                                ChatColor.AQUA + "SkyWars");
                 addQueueItem(gui, 24, Material.BOW, "Archer",
-                                ChatColor.YELLOW + "Archer",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_archer%",
-                                p);
+                                ChatColor.YELLOW + "Archer");
                 addQueueItem(gui, 25, Material.IRON_SWORD, "No Enchant",
-                                ChatColor.YELLOW + "No Enchant",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_noenchant%",
-                                p);
+                                ChatColor.YELLOW + "No Enchant");
                 addQueueItem(gui, 28, Material.IRON_SHOVEL, "Spleef",
-                                ChatColor.YELLOW + "Spleef",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_spleef%",
-                                p);
+                                ChatColor.YELLOW + "Spleef");
                 addQueueItem(gui, 29, Material.WOODEN_SWORD, "SG",
-                                ChatColor.RED + "SG",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_sg%",
-                                p);
+                                ChatColor.RED + "SG");
                 addQueueItem(gui, 30, Material.MUSHROOM_STEW, "Soup",
-                                ChatColor.YELLOW + "Soup",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_soup%",
-                                p);
+                                ChatColor.YELLOW + "Soup");
                 addQueueItem(gui, 31, Material.NAME_TAG, "Combo Tag",
-                                ChatColor.YELLOW + "Combo Tag",
-                                ChatColor.GRAY + "Playing: " + ChatColor.AQUA
-                                                + "%strikepractice_in_fight_count_combotag%",
-                                p);
+                                ChatColor.YELLOW + "Combo Tag");
 
                 return gui;
         }
@@ -170,27 +121,24 @@ public class PvpBotQueue implements CommandExecutor, Listener {
         }
 
         private static void addQueueItem(Inventory gui, int slot, Material material, String gameMode,
-                        String displayName, String playing, Player p) {
-                addQueueItem(gui, slot, new ItemStack(material), gameMode, displayName, playing, p);
+                        String displayName) {
+                addQueueItem(gui, slot, new ItemStack(material), gameMode, displayName);
         }
 
         private static void addQueueItem(Inventory gui, int slot, ItemStack item, String gameMode,
-                        String displayName, String playing, Player p) {
+                        String displayName) {
                 ItemMeta meta = item.getItemMeta();
                 meta.setDisplayName(displayName);
-                playing = PlaceholderAPI.setPlaceholders(p, playing);
 
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_ENCHANTS,
                                 ItemFlag.HIDE_PLACED_ON, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ARMOR_TRIM,
                                 ItemFlag.HIDE_DYE, ItemFlag.HIDE_STORED_ENCHANTS);
 
                 meta.setLore(Arrays.asList(
-                                playing,
                                 "",
                                 ChatColor.GREEN + "Click to fight a bot!"));
 
                 item.setItemMeta(meta);
                 gui.setItem(slot, item);
         }
-
 }

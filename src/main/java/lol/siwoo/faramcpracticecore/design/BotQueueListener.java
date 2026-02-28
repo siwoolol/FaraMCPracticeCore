@@ -78,6 +78,9 @@ public class BotQueueListener implements Listener {
                 ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId);
                 // Dispatch bot fight after a short delay so map selection registers
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    // Re-check: player may have left or entered a fight during the delay
+                    if (!player.isOnline() || StrikePractice.getAPI().isInFight(player))
+                        return;
                     Arena arena = plugin.getArenaManager().getOrAllocateDynamicArena(kit.isBuild());
                     String cmd = "strikepractice:botduel " + kitId + (arena != null ? " " + arena.getName() : "");
                     Bukkit.dispatchCommand(player, cmd);

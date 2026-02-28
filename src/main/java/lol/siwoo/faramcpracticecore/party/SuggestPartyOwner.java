@@ -23,7 +23,15 @@ public class SuggestPartyOwner implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        Player p = (Player) sender;
+        if (!(sender instanceof Player p)) {
+            sender.sendMessage(MessageStyle.error("This command can only be used by a player."));
+            return true;
+        }
+
+        if (api.getParty(p) == null) {
+            p.sendMessage(MessageStyle.error("You're not in a party."));
+            return true;
+        }
 
         if (api.getParty(p).getOwner().equals(p)) {
             p.sendMessage(MessageStyle.error("You're the party owner. Start an event yourself."));

@@ -16,7 +16,10 @@ public class HurryUpPartyOwner implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        Player p = (Player) sender;
+        if (!(sender instanceof Player p)) {
+            sender.sendMessage(MessageStyle.error("This command can only be used by a player."));
+            return true;
+        }
 
         if (api.getParty(p) == null) {
             p.sendMessage(MessageStyle.error("You're not in a party."));
@@ -26,7 +29,12 @@ public class HurryUpPartyOwner implements CommandExecutor {
         String ownerString = api.getParty(p).getOwner();
         Player owner = getPlayer(ownerString);
 
-        if (owner == p) {
+        if (owner == null || !owner.isOnline()) {
+            p.sendMessage(MessageStyle.error("Party owner is offline."));
+            return true;
+        }
+
+        if (owner.equals(p)) {
             p.sendMessage(MessageStyle.error("You're the party owner."));
             return true;
         }

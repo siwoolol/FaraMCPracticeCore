@@ -18,7 +18,10 @@ public class Flight implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        Player p = (Player) sender;
+        if (!(sender instanceof Player p)) {
+            sender.sendMessage(MessageStyle.error("This command can only be used by a player."));
+            return true;
+        }
         if (!p.hasPermission("faramcpracticecore.fly")) {
             p.sendMessage(Component.empty()
                     .append(MessageStyle.error("Rank required. "))
