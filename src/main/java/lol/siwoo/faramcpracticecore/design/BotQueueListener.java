@@ -8,7 +8,6 @@ import lol.siwoo.faramcpracticecore.arena.ArenaSelectorGUI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -68,32 +67,33 @@ public class BotQueueListener implements Listener {
             return;
         }
 
-        try {
-            player.closeInventory();
-            player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
-            player.sendActionBar(Component.text("Starting bot fight: " + kitId + "!").color(NamedTextColor.GREEN));
+        // The action to start the bot fight (runs after map selection or immediately)
+        Runnable startBotFight = () -> {
+            try {
+                // Re-check state: player may have left or entered a fight during map selection
+                if (!player.isOnline() || StrikePractice.getAPI().isInFight(player))
+                    return;
 
-            // Open map selector for permissioned players before starting
-            if (player.hasPermission("faramcpracticecore.selectarena")) {
-                ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId);
-                // Dispatch bot fight after a short delay so map selection registers
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    // Re-check: player may have left or entered a fight during the delay
-                    if (!player.isOnline() || StrikePractice.getAPI().isInFight(player))
-                        return;
-                    Arena arena = plugin.getArenaManager().getOrAllocateDynamicArena(kit.isBuild());
-                    String cmd = "strikepractice:botduel " + kitId + (arena != null ? " " + arena.getName() : "");
-                    Bukkit.dispatchCommand(player, cmd);
-                }, 40L); // 2 second delay to allow map selection
-            } else {
                 Arena arena = plugin.getArenaManager().getOrAllocateDynamicArena(kit.isBuild());
                 String cmd = "strikepractice:botduel " + kitId + (arena != null ? " " + arena.getName() : "");
                 Bukkit.dispatchCommand(player, cmd);
+
+                player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
+                player.sendActionBar(Component.text("Starting bot fight: " + kitId + "!").color(NamedTextColor.GREEN));
+            } catch (Exception e) {
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+                player.sendActionBar(Component.text("Failed to start bot fight.").color(NamedTextColor.RED));
+                plugin.getLogger().warning("Failed to start bot fight for " + player.getName() + ": " + e.getMessage());
             }
-        } catch (Exception e) {
-            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
-            player.sendActionBar(Component.text("Failed to start bot fight.").color(NamedTextColor.RED));
-            plugin.getLogger().warning("Failed to start bot fight for " + player.getName() + ": " + e.getMessage());
+        };
+
+        player.closeInventory();
+
+        // If permissioned: open map selector first, bot fight fires on callback
+        if (player.hasPermission("faramcpracticecore.selectarena")) {
+            ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId, startBotFight);
+        } else {
+            startBotFight.run();
         }
     }
 

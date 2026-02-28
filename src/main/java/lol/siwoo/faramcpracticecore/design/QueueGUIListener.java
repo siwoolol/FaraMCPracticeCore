@@ -36,17 +36,20 @@ public class QueueGUIListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!(event.getWhoClicked() instanceof Player))
+            return;
 
         Player player = (Player) event.getWhoClicked();
         String title = event.getView().getTitle();
 
-        if (!title.equals(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Unranked Queue")) return;
+        if (!title.equals(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Unranked Queue"))
+            return;
 
         event.setCancelled(true);
 
         ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem == null || !clickedItem.hasItemMeta()) return;
+        if (clickedItem == null || !clickedItem.hasItemMeta())
+            return;
 
         String itemName = clickedItem.getItemMeta().getDisplayName();
 
@@ -82,14 +85,16 @@ public class QueueGUIListener implements Listener {
             BattleKit kit = BattleKit.getKit(kitId);
             if (kit == null) {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
-                player.sendActionBar(Component.text("This kit is not available right now. Try again Later.").color(NamedTextColor.RED));
+                player.sendActionBar(Component.text("This kit is not available right now. Try again Later.")
+                        .color(NamedTextColor.RED));
                 return;
             }
 
             // FIXED: Proper null check for ArenaManager and kit selection
             if (plugin.getArenaManager().getRandomArenaForKit(kitId) == null) {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
-                player.sendActionBar(Component.text("No arenas available for this gamemode right now.").color(NamedTextColor.RED));
+                player.sendActionBar(
+                        Component.text("No arenas available for this gamemode right now.").color(NamedTextColor.RED));
                 return;
             }
 
@@ -101,17 +106,21 @@ public class QueueGUIListener implements Listener {
                 // SYSTEM INTEGRATION: Open Map Selector for admins immediately after queuing
                 if (player.hasPermission("faramcpracticecore.selectarena")) {
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId);
+                        ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId, () -> {
+                        });
                     }, 1L);
                 }
             } catch (Exception e) {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
-                player.sendActionBar(Component.text("Failed to join queue. Try again later.").color(NamedTextColor.RED));
-                plugin.getLogger().warning("Failed to add player " + player.getName() + " to queue for kit " + kitId + ": " + e.getMessage());
+                player.sendActionBar(
+                        Component.text("Failed to join queue. Try again later.").color(NamedTextColor.RED));
+                plugin.getLogger().warning("Failed to add player " + player.getName() + " to queue for kit " + kitId
+                        + ": " + e.getMessage());
             }
         } else {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
-            player.sendActionBar(Component.text("This kit is not available right now. Try again Later.").color(NamedTextColor.RED));
+            player.sendActionBar(
+                    Component.text("This kit is not available right now. Try again Later.").color(NamedTextColor.RED));
         }
     }
 
@@ -120,7 +129,8 @@ public class QueueGUIListener implements Listener {
         p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
 
         ItemStack clickedItem = e.getCurrentItem();
-        if (clickedItem == null) return;
+        if (clickedItem == null)
+            return;
 
         ItemStack leaveItem = new ItemStack(Material.REDSTONE_BLOCK);
         ItemMeta leaveMeta = leaveItem.getItemMeta();
@@ -130,28 +140,30 @@ public class QueueGUIListener implements Listener {
         leaveMeta.setLore(Arrays.asList(
                 ChatColor.GRAY + "You are currently Queued for the " + originalName + " Queue",
                 "",
-                ChatColor.RED + "Click Again to Leave the Queue!"
-        ));
+                ChatColor.RED + "Click Again to Leave the Queue!"));
         leaveItem.setItemMeta(leaveMeta);
         e.getInventory().setItem(e.getSlot(), leaveItem);
     }
 
     public static void updateInventory(Player p, Inventory i) {
-        String[] kits = {"windfight", "sword", "axepvp", "boxing", "nodebuff", "builduhc", "sumo", "combo", "gapple", "bedfight", "fireballfight", "skywars", "archer", "noenchant", "spleef", "sg", "soup", "combotag"};
-        int[] slots = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31};
+        String[] kits = { "windfight", "sword", "axepvp", "boxing", "nodebuff", "builduhc", "sumo", "combo", "gapple",
+                "bedfight", "fireballfight", "skywars", "archer", "noenchant", "spleef", "sg", "soup", "combotag" };
+        int[] slots = { 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31 };
 
         for (int k = 0; k < kits.length; k++) {
             updateQueueItem(p, i, slots[k],
-                    ChatColor.GRAY + "Queued: "  + ChatColor.AQUA + "%strikepractice_in_queue_count_" + kits[k] + "%",
+                    ChatColor.GRAY + "Queued: " + ChatColor.AQUA + "%strikepractice_in_queue_count_" + kits[k] + "%",
                     ChatColor.GRAY + "Playing: " + ChatColor.AQUA + "%strikepractice_in_fight_count_" + kits[k] + "%");
         }
     }
 
     public static void updateQueueItem(Player p, Inventory gui, int slot, String queued, String playing) {
         ItemStack item = gui.getItem(slot);
-        if (item == null) return;
+        if (item == null)
+            return;
         ItemMeta meta = item.getItemMeta();
-        if (meta == null) return;
+        if (meta == null)
+            return;
 
         if (item.getType() == Material.REDSTONE_BLOCK) {
             String displayName = meta.getDisplayName();
@@ -164,19 +176,19 @@ public class QueueGUIListener implements Listener {
                         PlaceholderAPI.setPlaceholders(p, queued),
                         PlaceholderAPI.setPlaceholders(p, playing),
                         "",
-                        ChatColor.RED + "Click Again to Leave the Queue!"
-                ));
+                        ChatColor.RED + "Click Again to Leave the Queue!"));
             }
         } else {
             meta.setLore(Arrays.asList(
                     PlaceholderAPI.setPlaceholders(p, queued),
                     PlaceholderAPI.setPlaceholders(p, playing),
                     "",
-                    ChatColor.GREEN + "Click to join!"
-            ));
+                    ChatColor.GREEN + "Click to join!"));
         }
 
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_PLACED_ON, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ARMOR_TRIM, ItemFlag.HIDE_DYE, ItemFlag.HIDE_STORED_ENCHANTS);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_ENCHANTS,
+                ItemFlag.HIDE_PLACED_ON, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ARMOR_TRIM, ItemFlag.HIDE_DYE,
+                ItemFlag.HIDE_STORED_ENCHANTS);
         item.setItemMeta(meta);
     }
 

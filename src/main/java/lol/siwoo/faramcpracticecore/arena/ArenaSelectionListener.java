@@ -37,7 +37,8 @@ public class ArenaSelectionListener implements Listener {
     public void onKitSelect(KitSelectEvent event) {
         Player player = event.getPlayer();
         if (player.hasPermission("faramcpracticecore.selectarena") && StrikePractice.getAPI().isInQueue(player)) {
-            ArenaSelectorGUI.open(player, manager, event.getKit().getName());
+            ArenaSelectorGUI.open(player, manager, event.getKit().getName(), () -> {
+            });
         }
     }
 

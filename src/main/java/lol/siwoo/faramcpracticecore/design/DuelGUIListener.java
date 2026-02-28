@@ -103,29 +103,46 @@ public class DuelGUIListener implements Listener {
             return;
         }
 
-        try {
-            player.closeInventory();
-            player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
+        // Capture data before closing inventory
+        String kitDisplayName = ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName());
 
-            // Open map selector for permissioned players
-            if (player.hasPermission("faramcpracticecore.selectarena")) {
-                ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId);
+        // The action to send the duel request (runs after map selection or immediately)
+        Runnable sendDuel = () -> {
+            try {
+                // Re-check state: players may have changed during map selection
+                if (!player.isOnline() || !target.isOnline())
+                    return;
+                if (api.isInFight(player) || api.isInQueue(player)) {
+                    player.sendMessage(MessageStyle.error("You're already in a fight or queue."));
+                    return;
+                }
+                if (api.isInFight(target)) {
+                    player.sendMessage(MessageStyle.errorWithName(target.getName(), "is now in a fight."));
+                    return;
+                }
+
+                Arena finalArena = dynamicArena;
+                api.sendDuelRequest(player, target, kit, finalArena, true);
+                DuelRequestMessage.sendDuelRequestMessage(player, target, kitDisplayName);
+
+                player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
+                player.sendActionBar(
+                        Component.text("Duel request sent to " + target.getName() + "!").color(NamedTextColor.GREEN));
+            } catch (Exception e) {
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
+                player.sendMessage(MessageStyle.error("Failed to send duel request."));
+                plugin.getLogger().warning("Failed to send duel request from " + player.getName() + " to "
+                        + target.getName() + ": " + e.getMessage());
             }
+        };
 
-            // Send duel request via SP API (silent = true, we send our own message)
-            api.sendDuelRequest(player, target, kit, dynamicArena, true);
+        player.closeInventory();
 
-            // Send our custom styled messages to both players
-            String kitDisplayName = ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName());
-            DuelRequestMessage.sendDuelRequestMessage(player, target, kitDisplayName);
-
-            player.sendActionBar(
-                    Component.text("Duel request sent to " + target.getName() + "!").color(NamedTextColor.GREEN));
-        } catch (Exception e) {
-            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
-            player.sendMessage(MessageStyle.error("Failed to send duel request."));
-            plugin.getLogger().warning("Failed to send duel request from " + player.getName() + " to "
-                    + target.getName() + ": " + e.getMessage());
+        // If permissioned: open map selector first, duel fires on callback
+        if (player.hasPermission("faramcpracticecore.selectarena")) {
+            ArenaSelectorGUI.open(player, plugin.getArenaManager(), kitId, sendDuel);
+        } else {
+            sendDuel.run();
         }
     }
 }

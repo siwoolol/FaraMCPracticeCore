@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -19,6 +20,7 @@ import java.util.*;
 public class ArenaSelectorGUI implements Listener {
     private final ArenaManager manager;
     public static final Map<UUID, ArenaConfig> queuedSelections = new HashMap<>();
+    private static final Map<UUID, Runnable> pendingCallbacks = new HashMap<>();
     private static final String TITLE_PREFIX = ChatColor.DARK_PURPLE.toString() + ChatColor.BOLD + "Map Select"
             + ChatColor.DARK_GRAY + " ● ";
 
@@ -26,7 +28,15 @@ public class ArenaSelectorGUI implements Listener {
         this.manager = manager;
     }
 
-    public static void open(Player p, ArenaManager m, String kit) {
+    /**
+     * Opens the map selector GUI. When the player selects a map, the onSelect
+     * callback fires. If the player closes the GUI without selecting, the
+     * callback fires anyway (using default arena allocation).
+     */
+    public static void open(Player p, ArenaManager m, String kit, Runnable onSelect) {
+        // Store callback
+        pendingCallbacks.put(p.getUniqueId(), onSelect);
+
         // Collect matching arenas
         List<ArenaConfig> arenas = new ArrayList<>();
         m.getArenas().values().stream()
@@ -44,10 +54,8 @@ public class ArenaSelectorGUI implements Listener {
         // Place arena items in the center row(s)
         int[] slots;
         if (size == 27) {
-            // Single row: slots 10-16 (middle row of 27)
             slots = new int[] { 10, 11, 12, 13, 14, 15, 16 };
         } else {
-            // Two rows: slots 10-16, 19-25 (middle rows of 45)
             slots = new int[] { 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25 };
         }
 
@@ -80,6 +88,21 @@ public class ArenaSelectorGUI implements Listener {
             p.sendMessage(MessageStyle.successWithHighlight("Selected map", name, ""));
             p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1, 1);
             p.closeInventory();
+            // closeInventory triggers InventoryCloseEvent which fires the callback
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent e) {
+        String viewTitle = e.getView().getTitle();
+        if (!viewTitle.contains("Map Select"))
+            return;
+
+        Player p = (Player) e.getPlayer();
+        Runnable callback = pendingCallbacks.remove(p.getUniqueId());
+        if (callback != null) {
+            // Run callback on next tick to avoid issues with inventory close
+            Bukkit.getScheduler().runTask(Bukkit.getPluginManager().getPlugin("FaraMCPracticeCore"), callback);
         }
     }
 
