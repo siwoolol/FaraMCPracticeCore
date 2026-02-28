@@ -44,6 +44,10 @@ public class ArenaSelectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
+        // Only block teleports NOT caused by our plugin (i.e., SP or other plugins)
+        if (event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN) {
+            return; // Never block our own teleports
+        }
         UUID uuid = event.getPlayer().getUniqueId();
         if (pendingPaste.contains(uuid) || delayedPlayers.contains(uuid)) {
             event.setCancelled(true);
@@ -88,6 +92,14 @@ public class ArenaSelectionListener implements Listener {
 
         plugin.getLogger().info("[Arena] Processing fight on '" + arenaName + "' | type="
                 + fight.getClass().getSimpleName() + " | players=" + players.size());
+
+        // Clear delayedPlayers for anyone starting a new fight —
+        // prevents previous fight's end-timer from interfering
+        for (Player p : players) {
+            if (p != null) {
+                delayedPlayers.remove(p.getUniqueId());
+            }
+        }
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> spArena.setUsing(false), 2L);
 
@@ -146,33 +158,24 @@ public class ArenaSelectionListener implements Listener {
                 plugin.getLogger().warning("[Arena] Bot " + bot.getName() + " is not spawned!");
             }
 
-            // Teleport players WHILE still in pendingPaste (so SP can't interfere)
-            // We temporarily remove, teleport, then re-add
+            // Unblock and teleport players
+            for (Player p : players) {
+                if (p != null) {
+                    pendingPaste.remove(p.getUniqueId());
+                }
+            }
+
             if (players.size() >= 1) {
-                Player p1 = players.get(0);
-                pendingPaste.remove(p1.getUniqueId());
-                boolean success = p1.teleport(s1);
-                pendingPaste.add(p1.getUniqueId()); // re-block until stable
-                plugin.getLogger().info("[Arena] Teleported " + p1.getName() + " to "
+                boolean success = players.get(0).teleport(s1);
+                plugin.getLogger().info("[Arena] Teleported " + players.get(0).getName() + " to "
                         + s1.toVector() + " | Success: " + success);
             }
             if (players.size() >= 2) {
-                Player p2 = players.get(1);
-                pendingPaste.remove(p2.getUniqueId());
-                p2.teleport(s2);
-                pendingPaste.add(p2.getUniqueId()); // re-block until stable
+                players.get(1).teleport(s2);
             }
 
             plugin.getLogger().info("[Arena] Teleported " + players.size() + " player(s) to '"
                     + config.getName() + "' in " + s1.getWorld().getName());
-
-            // Unblock teleports after a short grace period so SP doesn't re-teleport
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                for (Player p : players) {
-                    if (p != null)
-                        pendingPaste.remove(p.getUniqueId());
-                }
-            }, 10L);
         });
     }
 
@@ -227,7 +230,10 @@ public class ArenaSelectionListener implements Listener {
             for (Player p : players) {
                 if (p != null && p.isOnline()) {
                     delayedPlayers.remove(p.getUniqueId());
-                    p.teleport(spawn);
+                    // Only teleport to spawn if player is NOT in a new fight
+                    if (StrikePractice.getAPI().getFight(p) == null) {
+                        p.teleport(spawn);
+                    }
                 }
             }
 
