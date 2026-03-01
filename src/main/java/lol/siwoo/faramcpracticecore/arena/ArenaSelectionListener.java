@@ -27,6 +27,8 @@ public class ArenaSelectionListener implements Listener {
     private final Set<Fight> handledStarts = new HashSet<>();
     private final Set<Fight> handledEnds = new HashSet<>();
     private final Map<Fight, NPC> pendingBots = new WeakHashMap<>();
+    // Track the correct paste world for each player while paste is in progress
+    private final Map<UUID, String> playerCorrectWorld = new HashMap<>();
 
     public ArenaSelectionListener(FaraMCPracticeCore plugin, ArenaManager manager) {
         this.plugin = plugin;
@@ -44,12 +46,27 @@ public class ArenaSelectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-        // Only block teleports NOT caused by our plugin (i.e., SP or other plugins)
-        if (event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN) {
-            return; // Never block our own teleports
-        }
         UUID uuid = event.getPlayer().getUniqueId();
-        if (pendingPaste.contains(uuid) || delayedPlayers.contains(uuid)) {
+
+        // For players waiting on paste: block teleports going to wrong world
+        if (pendingPaste.contains(uuid)) {
+            String correctWorld = playerCorrectWorld.get(uuid);
+            if (correctWorld == null) {
+                // Paste still in progress, world not known yet — block ALL teleports
+                event.setCancelled(true);
+                return;
+            }
+            if (event.getTo() != null
+                    && !event.getTo().getWorld().getName().equals(correctWorld)) {
+                // SP is trying to teleport to the original arena world — block it
+                event.setCancelled(true);
+                return;
+            }
+            // Teleport is within the correct paste world — allow it (StickToSpawn, etc.)
+        }
+
+        // For delayed players (fight end): block all teleports
+        if (delayedPlayers.contains(uuid)) {
             event.setCancelled(true);
         }
     }
@@ -130,9 +147,16 @@ public class ArenaSelectionListener implements Listener {
         }
 
         manager.createSession(fight, config).thenAccept(session -> {
-            // This now runs on the MAIN THREAD with chunks already loaded
-            if (session == null)
+            if (session == null) {
+                // Paste failed — clean up blocking state so players aren't stuck
+                for (Player p : players) {
+                    if (p != null) {
+                        pendingPaste.remove(p.getUniqueId());
+                        playerCorrectWorld.remove(p.getUniqueId());
+                    }
+                }
                 return;
+            }
             session.setSpArena(spArena);
 
             Location origin = session.getCenter().clone().add(config.getCenter());
@@ -144,6 +168,14 @@ public class ArenaSelectionListener implements Listener {
             s1.setDirection(dir1);
             Vector dir2 = s1.toVector().subtract(s2.toVector()).setY(0);
             s2.setDirection(dir2);
+
+            // Store the correct paste world for each player (for teleport blocking)
+            String pasteWorldName = s1.getWorld().getName();
+            for (Player p : players) {
+                if (p != null) {
+                    playerCorrectWorld.put(p.getUniqueId(), pasteWorldName);
+                }
+            }
 
             // Update SP arena locations
             fight.getArena().setLoc1(s1);
@@ -162,6 +194,7 @@ public class ArenaSelectionListener implements Listener {
             for (Player p : players) {
                 if (p != null) {
                     pendingPaste.remove(p.getUniqueId());
+                    playerCorrectWorld.remove(p.getUniqueId());
                 }
             }
 
