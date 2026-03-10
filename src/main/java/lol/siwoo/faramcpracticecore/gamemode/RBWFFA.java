@@ -32,6 +32,10 @@ public class RBWFFA implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
         Player p = e.getPlayer();
+        if (api.getFight(p) == null) {
+            return;
+        }
+
         if (api.isInFight(p) && api.getFight(p).getArena().getName().equals("rbwffa")) {
             if (p.getLocation().getY() < api.getFight(p).getArena().getLoc1().getY() - 60) {
                 p.damage(69420.0);
@@ -48,6 +52,10 @@ public class RBWFFA implements Listener {
         Player p = (Player) e.getEntity();
         Player v = (Player) e.getDamager();
 
+        if (api.getFight(p) == null) {
+            return;
+        }
+
         if (api.isInFight(p) && api.getFight(p).getArena().getName().equals("rbwffa")) {
             if (p.getY() > api.getFight(p).getArena().getCenter().getY() - 10) {
                 e.setCancelled(true);
@@ -62,6 +70,10 @@ public class RBWFFA implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
+        if (api.getFight(p) == null) {
+            return;
+        }
+
         ItemStack block = p.getInventory().getItemInMainHand();
         if (e.getHand() == EquipmentSlot.OFF_HAND) {
             block = p.getInventory().getItemInOffHand();
@@ -84,6 +96,10 @@ public class RBWFFA implements Listener {
     public void onBlockDestroy(BlockBreakEvent e) {
         Player p = e.getPlayer();
         Block placedBlock = e.getBlock();
+
+        if (api.getFight(p) == null) {
+            return;
+        }
 
         if (api.getFight(p).getArena().getName().equals("rbwffa") && placedBlock.equals(Material.WHITE_WOOL)) {
             e.setCancelled(true);

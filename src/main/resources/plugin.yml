@@ -9,7 +9,7 @@ website: siwoo.lol
 api-version: 1.8.8
 
 depend: [ StrikePractice, PlaceholderAPI, ProtocolLib ]
-softdepend: [ Luckperms, Multiverse-Core, PlaceholderAPI, ProtocolLib ]
+softdepend: [ Luckperms, Multiverse-Core, PlaceholderAPI, ProtocolLib, FastAsyncWorldEdit ]
 
 libraries:
   - org.openjdk.nashorn:nashorn-core:15.4
@@ -20,10 +20,16 @@ permissions:
     default: op
     children:
       faramcpracticecore.fly: true
+  faramcpracticecore.selectarena:
+    description: "Allows You To Select Arena"
   faramcpracticecore.fly:
     description: "Allows You To Fly in the Lobby"
 
 commands:
+  faraarena:
+    usage: "/faraarena <pos1|pos2|corner1|corner2|center> <mapName>"
+    description: "Configurator for dynamic arenas (Admin Only)"
+    permission: faramcpracticecore.admin
   unrankedgui:
     usage: "/unrankedgui"
     description: "Open the Unranked Queue GUI"
@@ -34,6 +40,15 @@ commands:
   botduel:
     usage: "/botduel"
     description: "Open the PvP Bot GUI"
+  duel:
+    usage: "/duel <player>"
+    description: "Send a duel request to another player"
+  duelaccept:
+    usage: "/duelaccept <player>"
+    description: "Accept a duel request"
+  dueldecline:
+    usage: "/dueldecline <player>"
+    description: "Decline a duel request"
   fly:
     usage: "/fly"
     description: "Allows You To Fly"

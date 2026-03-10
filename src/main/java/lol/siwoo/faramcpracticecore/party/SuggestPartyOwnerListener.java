@@ -2,6 +2,7 @@ package lol.siwoo.faramcpracticecore.party;
 
 import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
+import lol.siwoo.faramcpracticecore.design.MessageStyle;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -53,13 +54,13 @@ public class SuggestPartyOwnerListener implements Listener {
         }
 
         if (suggestedKitName == null) {
-            p.sendMessage(ChatColor.RED + "Error determining which kit you selected.");
+            p.sendMessage(MessageStyle.error("Could not determine selected kit."));
             p.closeInventory();
             return;
         }
 
         if (api.getParty(p) == null) {
-            p.sendMessage(ChatColor.RED + "You not in a party!");
+            p.sendMessage(MessageStyle.error("You're not in a party."));
             p.closeInventory();
             return;
         }
@@ -68,13 +69,13 @@ public class SuggestPartyOwnerListener implements Listener {
         Player owner = Bukkit.getPlayerExact(ownerName);
 
         if (owner == null || !owner.isOnline()) {
-            p.sendMessage(ChatColor.RED + "The party owner (" + ChatColor.YELLOW + ownerName + ChatColor.RED + ") is currently offline.");
+            p.sendMessage(MessageStyle.errorWithHighlight("Party owner", ownerName, "is offline."));
             p.closeInventory();
             return;
         }
 
-        p.sendMessage(ChatColor.GREEN + "You suggested the kit '" + ChatColor.WHITE + suggestedKitName + ChatColor.GREEN + "' to the party owner!");
-        owner.sendMessage(ChatColor.AQUA + p.getName() + ChatColor.GRAY + " suggested playing the kit: " + ChatColor.WHITE + suggestedKitName);
+        p.sendMessage(MessageStyle.successWithHighlight("Suggested", suggestedKitName, "to the party owner."));
+        owner.sendMessage(MessageStyle.infoFromPlayer(p.getName(), "suggested " + suggestedKitName));
 
         p.closeInventory();
     }

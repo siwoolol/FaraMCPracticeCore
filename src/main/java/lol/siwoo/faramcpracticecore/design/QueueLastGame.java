@@ -32,13 +32,13 @@ public class QueueLastGame implements CommandExecutor, Listener {
         UUID u = p.getUniqueId();
 
         if (!lastKitData.containsKey(u)) {
-            Bukkit.dispatchCommand(sender, "unranked");
+            Bukkit.dispatchCommand(sender, "unrankedgui");
             return true;
         } else {
             String kitId = lastKitData.get(u);
             BattleKit kit = (kitId == null) ? null : BattleKit.getKit(kitId);
             if (kit == null) {
-                Bukkit.dispatchCommand(sender, "unranked");
+                Bukkit.dispatchCommand(sender, "unrankedgui");
                 return true;
             }
 
@@ -54,6 +54,11 @@ public class QueueLastGame implements CommandExecutor, Listener {
         UUID u = p.getUniqueId();
 
         String kitName = e.getKit().getName();
+
+        if (kitName.toLowerCase().contains("ffa")) {
+            return;
+        }
+
         String kitId = kitName == null ? null : kitName.toLowerCase(java.util.Locale.ROOT);
         lastKitData.put(u, kitId);
     }
