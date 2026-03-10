@@ -4,8 +4,8 @@ import ga.strikepractice.StrikePractice;
 import ga.strikepractice.api.StrikePracticeAPI;
 import ga.strikepractice.events.DuelStartEvent;
 import lol.siwoo.faramcpracticecore.FaraMCPracticeCore;
+import lol.siwoo.faramcpracticecore.design.MessageStyle;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,19 +26,19 @@ public class KitEditor implements Listener {
 
         if (api.isEditingKit(p)) {
             if (e.getMessage().toLowerCase().startsWith("/kiteditor")) {
-                p.sendMessage(ChatColor.GRAY + "You have left the Kit Editor");
+                p.sendMessage(MessageStyle.info("Left Kit Editor."));
                 return;
             }
 
             if (e.getMessage().toLowerCase().startsWith("/leave") || e.getMessage().toLowerCase().startsWith("/l")) {
                 Bukkit.dispatchCommand(p, "kiteditor leave");
 
-                p.sendMessage(ChatColor.GRAY + "You have left the Kit Editor");
+                p.sendMessage(MessageStyle.info("Left Kit Editor."));
                 return;
             }
 
             e.setCancelled(true);
-            e.getPlayer().sendMessage(ChatColor.GRAY + "You need to leave the Kit Editor first! " + ChatColor.RED + "(/leave)");
+            e.getPlayer().sendMessage(MessageStyle.errorWithHighlight("Leave Kit Editor first.", "/leave", ""));
         }
     }
 
@@ -49,12 +49,12 @@ public class KitEditor implements Listener {
 
         if (api.isEditingKit(p1)) {
             Bukkit.dispatchCommand(p1, "kiteditor leave");
-            p1.sendMessage(ChatColor.GRAY + "You have been removed from the Kit Editor since you joined a duel.");
+            p1.sendMessage(MessageStyle.info("Removed from Kit Editor."));
         }
 
         if (api.isEditingKit(p2)) {
             Bukkit.dispatchCommand(p2, "kiteditor leave");
-            p2.sendMessage(ChatColor.GRAY + "You have been removed from the Kit Editor since you joined a duel.");
+            p2.sendMessage(MessageStyle.info("Removed from Kit Editor."));
         }
 
     }
