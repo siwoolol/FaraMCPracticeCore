@@ -9,6 +9,9 @@ This project was originally a private project for the server "FaraMC". We've pus
 ### To run this project, you need:
 - Java 21+ (jvm 22 recommended)
 - Paper Jar (1.21.11)
+- Strikepractice (plugin, paid but very crucial)
+- ProtocolLib (plugin)
+- PlaceholderAPI (plugin)
     
 By modifying/utilizing this repository, you agree to the terms and license: [Apache License 2.0](https://github.com/siwoolol/FaraMCPracticeCore/blob/master/LICENSE)
   
